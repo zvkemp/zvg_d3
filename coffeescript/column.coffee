@@ -3,7 +3,7 @@ class HelloWorld
     alert('test')
 
 
-Dashboard.gradient = (svg) ->
+ZVG.gradient = (svg) ->
   _gradient = svg.append('defs')
     .append('linearGradient')
     .attr('x1', '0%').attr('y1', '0%')
@@ -19,8 +19,8 @@ Dashboard.gradient = (svg) ->
     .attr('stop-color', '#777')
     .attr('stop-opacity', 1)
 
-Dashboard.applyBackground = (svg, width, height) ->
-  Dashboard.gradient(svg)
+ZVG.applyBackground = (svg, width, height) ->
+  ZVG.gradient(svg)
   _backgroundGroup = svg.append('g')
   _backgroundGroup.append('rect')
     .style('fill', 'url(#standardBackgroundGradient)')
@@ -30,7 +30,7 @@ Dashboard.applyBackground = (svg, width, height) ->
     .attr('ry', 5)
 
     
-Dashboard.column = ->
+ZVG.column = ->
 
   _chart        = { chart_type: 'column' }
   _width        = 1200
@@ -97,7 +97,7 @@ Dashboard.column = ->
 
 
   setSeries1Spacing()
-  Dashboard.applyBackground(_svg, _chartWidth, _chartHeight)
+  ZVG.applyBackground(_svg, _chartWidth, _chartHeight)
 
   series1padding = -> 0.1 * series1Totalwidth()
 
@@ -225,7 +225,7 @@ Dashboard.column = ->
 
 
 
-column = Dashboard.column()
+column = ZVG.column()
 raw_data = [
   {
     series_1: "Survey A"

@@ -13,21 +13,21 @@
 
   })();
 
-  Dashboard.gradient = function(svg) {
+  ZVG.gradient = function(svg) {
     var _gradient;
     _gradient = svg.append('defs').append('linearGradient').attr('x1', '0%').attr('y1', '0%').attr('x2', '80%').attr('y2', '50%').attr('spreadMethod', 'pad').attr('id', 'standardBackgroundGradient');
     _gradient.append('stop').attr('offset', '10%').attr('stop-color', '#aaa').attr('stop-opacity', 1);
     return _gradient.append('stop').attr('offset', '110%').attr('stop-color', '#777').attr('stop-opacity', 1);
   };
 
-  Dashboard.applyBackground = function(svg, width, height) {
+  ZVG.applyBackground = function(svg, width, height) {
     var _backgroundGroup;
-    Dashboard.gradient(svg);
+    ZVG.gradient(svg);
     _backgroundGroup = svg.append('g');
     return _backgroundGroup.append('rect').style('fill', 'url(#standardBackgroundGradient)').attr('height', height).attr('width', width).attr('rx', 5).attr('ry', 5);
   };
 
-  Dashboard.column = function() {
+  ZVG.column = function() {
     var appendSeries1Labels, appendSeries2Borders, appendSeries2Shadows, color, columnBand, columnPadding, columnSpacing, initializeLabels, initializeSeries1, initializeSeries2, initializeY, labels, percent, renderData, series1Totalwidth, series1padding, series1width, series1x, seriesPadding, series_1, series_2, setSeries1Spacing, y, _chart, _chartHeight, _chartWidth, _data, _height, _raw_data, _svg, _width;
     _chart = {
       chart_type: 'column'
@@ -103,7 +103,7 @@
       }).apply(this)).rangeRoundBands([0, columnSpacing * maxCount], 0.1);
     };
     setSeries1Spacing();
-    Dashboard.applyBackground(_svg, _chartWidth, _chartHeight);
+    ZVG.applyBackground(_svg, _chartWidth, _chartHeight);
     series1padding = function() {
       return 0.1 * series1Totalwidth();
     };
@@ -192,7 +192,7 @@
     return _chart;
   };
 
-  column = Dashboard.column();
+  column = ZVG.column();
 
   raw_data = [
     {
