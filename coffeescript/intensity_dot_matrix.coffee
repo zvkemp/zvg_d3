@@ -1,7 +1,13 @@
 class Dashboard.IntensityMatrix
+  constructor: ->
+    d3.select('body').append('button')
+      .text('randomize')
+      .on('click', => @randomizeData())
   data: (d) ->
-    @raw_data or= d
-    @_data or= @setData(d) 
+    if d
+      @raw_data = d
+      @_data = @setData(d) 
+    @_data
     
   setData: (d) ->
     d3.nest()
@@ -35,42 +41,60 @@ class Dashboard.IntensityMatrix
     else
       @range_band = @x.rangeBand()
       @y.rangeRoundBands([0, @series_2_domain().length * @range_band])
+    @radius = d3.scale.linear()
+      .domain([0,100]).range([0, @range_band * 0.45])
     @appendSeries1()
     @appendSeries2()
 
   appendSeries1: ->
     console.log 'appendSeries1'
-    @series_1_groups or= @svg.selectAll('g.series_1')
+    @series_1_groups = @svg.selectAll('g.series_1')
       .data(@data())
-      .enter()
+    @series_1_groups.enter()
       .append('g')
       .attr('class', 'series_1')
-      .attr('title', (d) -> d.key)
+    @series_1_groups.attr('title', (d) -> d.key)
       .attr('transform', (d) => "translate(#{@x(d.key)}, 0)")
+    @series_1_groups.exit().remove()
 
   appendSeries2: (chart) ->
     console.log 'appendSeries2'
-    @series_2_groups = @series_1_groups.selectAll('rect.series_2')
+    @series_2_groups = @series_1_groups.selectAll('circle.series_2')
       .data((d) -> d.values)
     @series_2_groups.enter()
-      .append('rect')
+      .append('circle')
       .attr('class', 'series_2')
-    @series_2_groups.attr('y', (d) => @y(d.key))
-      .attr('x', 0)
+      .attr('r', 0)
+
+    @series_2_groups.attr('cy', (d) => @y(d.key) + @range_band / 2)
+      .attr('cx', @range_band / 2)
+      .transition().duration(1000).ease('linear')
+      .attr('r', (d) => @radius(d.values[0].value))
       .attr('title', (d) -> d.key)
       .attr('width', => @range_band)
       .attr('height', => @range_band)
-      .style('fill', (d) => console.log(d.values[0].value); @colors()(d.values[0].value))
+      .style('fill', (d) => @colors()(d.values[0].value))
+
+    @series_2_groups.exit().remove()
 
   colors: ->
     @_colors or= d3.scale.linear()
       .domain([0,100])
-      .range(['white', '#a8cb17'])
+      .range(['blue', '#a8cb17'])
+
+  randomizeData: ->
+    @_data.forEach((s1) ->
+      s1.values.forEach((s2) ->
+        s2.values.forEach((s3) ->
+          s3.value = Math.random() * 100
+        )
+      )
+    )
+    @render()
       # .domain([0, d3.max(@raw_data.map (d) -> d.value)])
 
 
 
-rawData = []
 s1domain = [
   'Survey A'
   'Survey B'
@@ -90,20 +114,23 @@ s2domain = [
   '55 to 65'
   '65 and over'
 ]
-
+id = 0
 randomData = -> Math.random() * 100
+window.randomDataset = ->
+  raw = []
+  for s1 in s1domain
+    do (s1) ->
+      for s2 in s2domain
+        do (s2) ->
+          raw.push({ id: id++, series_1: s1, series_2: s2, value: randomData()})
+  raw
 
-for s1 in s1domain
-  do (s1) ->
-    for s2 in s2domain
-      do (s2) ->
-        rawData.push({ series_1: s1, series_2: s2, value: randomData()})
 
-
-window.rawData = rawData
+window.rawData = randomDataset()
 window.chart = new Dashboard.IntensityMatrix()
 
-chart.data(rawData)
+chart.data(randomDataset())
 chart.series_1_domain(s1domain)
 chart.series_2_domain(s2domain)
 chart.render()
+
