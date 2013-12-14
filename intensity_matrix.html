@@ -4,18 +4,32 @@
   <meta charset="UTF-8">
   <title></title>
   <script type="text/javascript" src="vendor/d3.v3.min.js"></script>
-  <script type="text/javascript" src="js/dashboard.js"></script>
+  <script type="text/javascript" src="js/zvg.js"></script>
 
   <style type="text/css">
     .column-label {
-      font-family: arial, sans-serif
+      font-family: arial, sans-serif;
       font-weight: bold;
       fill: white;
       text-anchor: middle;
       font-size: 10pt;
       alignment-baseline: central;
     }
-  
+
+    .label {
+      font-family: arial, sans-serif;
+      font-weight: bold;
+      fill: #444;
+      alignment-baseline: central;
+      font-size: 10pt;
+    }
+
+    .line {
+      stroke: white;
+      stroke-width: 0.5pt;
+      stroke-dasharray: 1 4;
+    }
+
   </style>
 </head>
 <body>

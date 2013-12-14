@@ -2,13 +2,14 @@
 (function() {
   var id, randomData, s1domain, s2domain;
 
-  Dashboard.IntensityMatrix = (function() {
+  ZVG.IntensityMatrix = (function() {
     function IntensityMatrix() {
       var _this = this;
       d3.select('body').append('button').text('randomize').on('click', function() {
         return _this.randomizeData();
       });
       d3.select('body').append('br');
+      this.initializeSvg();
     }
 
     IntensityMatrix.prototype.data = function(d) {
@@ -39,19 +40,24 @@
       return this._series_2_domain || (this._series_2_domain = d);
     };
 
+    IntensityMatrix.prototype.initializeSvg = function() {
+      this.svg = d3.select('body').append('svg').attr('height', this.height + 200).attr('width', this.width + 200);
+      return this.background = ZVG.Background(this.svg, this.height, this.width);
+    };
+
     IntensityMatrix.prototype.render = function() {
-      this.svg || (this.svg = d3.select('body').append('svg').attr('height', this.height).attr('width', this.width));
       this.y || (this.y = d3.scale.ordinal().domain(this.series_2_domain()).rangeRoundBands([0, this.height]));
       this.x || (this.x = d3.scale.ordinal().domain(this.series_1_domain()).rangeRoundBands([0, this.width]));
       this.range_band = this.y.rangeBand() < this.x.rangeBand() ? this.y.rangeBand() : this.x.rangeBand();
       this.radius = d3.scale.linear().domain([0, 100]).range([0, this.range_band * 0.45]);
+      this.appendSeries2Labels();
+      this.appendSeries1Labels();
       this.appendSeries1();
       return this.appendSeries2();
     };
 
     IntensityMatrix.prototype.appendSeries1 = function() {
       var _this = this;
-      console.log('appendSeries1');
       this.series_1_groups = this.svg.selectAll('g.series_1').data(this.data());
       this.series_1_groups.enter().append('g').attr('class', 'series_1');
       this.series_1_groups.attr('title', function(d) {
@@ -64,11 +70,10 @@
 
     IntensityMatrix.prototype.appendSeries2 = function(chart) {
       var _this = this;
-      console.log('appendSeries2');
       this.series_2_groups = this.series_1_groups.selectAll('circle.series_2').data(function(d) {
         return d.values;
       });
-      this.series_2_groups.enter().append('circle').attr('class', 'series_2').attr('r', 0);
+      this.series_2_groups.enter().append('circle').attr('class', 'series_2').attr('stroke', 'white').attr('stroke-width', '1.5pt').attr('r', 0);
       this.series_2_groups.attr('cy', function(d) {
         return _this.y(d.key) + _this.range_band / 2;
       }).attr('cx', this.range_band / 2).transition().duration(1000).attr('r', function(d) {
@@ -85,8 +90,45 @@
       return this.series_2_groups.exit().remove();
     };
 
+    IntensityMatrix.prototype.appendSeries2Labels = function() {
+      var series_2_labels, series_2_lines,
+        _this = this;
+      series_2_labels = this.svg.selectAll('.label.series_2').data(this.series_2_domain());
+      series_2_labels.enter().append('text').attr('class', 'label series_2').attr('x', this.width + 15).attr('y', function(d) {
+        return _this.y(d) + _this.range_band / 2;
+      }).text(function(d) {
+        return d;
+      });
+      series_2_labels.exit().remove();
+      series_2_lines = this.svg.selectAll('.line.series_2').data(this.series_2_domain());
+      return series_2_lines.enter().append('line').attr('class', 'line series_2').attr('x2', 0).attr('x1', this.width).attr('y2', function(d) {
+        return _this.y(d) + _this.range_band / 2;
+      }).attr('y1', function(d) {
+        return _this.y(d) + _this.range_band / 2;
+      });
+    };
+
+    IntensityMatrix.prototype.appendSeries1Labels = function() {
+      var series_1_labels, series_1_lines,
+        _this = this;
+      series_1_labels = this.svg.selectAll('.label.series_1').data(this.series_1_domain());
+      series_1_labels.enter().append('text').attr('class', 'label series_1').attr('x', function(d) {
+        return _this.x(d) + _this.range_band / 2;
+      }).attr('y', this.height + 15).text(function(d) {
+        return d;
+      }).attr('text-anchor', 'end').attr('transform', function(d) {
+        return "rotate(-90, " + (_this.x(d) + _this.range_band / 2) + ", " + (_this.height + 15) + ")";
+      });
+      series_1_lines = this.svg.selectAll('.line.series_1').data(this.series_1_domain());
+      return series_1_lines.enter().append('line').attr('class', 'line series_1').attr('y1', 0).attr('y2', this.height).attr('x1', function(d) {
+        return _this.x(d) + _this.range_band / 2;
+      }).attr('x2', function(d) {
+        return _this.x(d) + _this.range_band / 2;
+      });
+    };
+
     IntensityMatrix.prototype.colors = function() {
-      return this._colors || (this._colors = d3.scale.linear().domain([0, 100]).range(['blue', '#a8cb17']));
+      return this._colors || (this._colors = d3.scale.linear().domain([0, 80, 100]).range(['blue', '#a8cb17', '#fdcb1f']));
     };
 
     IntensityMatrix.prototype.randomizeData = function() {
@@ -142,7 +184,7 @@
 
   window.rawData = randomDataset();
 
-  window.chart = new Dashboard.IntensityMatrix();
+  window.chart = new ZVG.IntensityMatrix();
 
   chart.data(randomDataset());
 
