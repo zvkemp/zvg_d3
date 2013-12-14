@@ -8,6 +8,7 @@
       d3.select('body').append('button').text('randomize').on('click', function() {
         return _this.randomizeData();
       });
+      d3.select('body').append('br');
     }
 
     IntensityMatrix.prototype.data = function(d) {
@@ -42,13 +43,7 @@
       this.svg || (this.svg = d3.select('body').append('svg').attr('height', this.height).attr('width', this.width));
       this.y || (this.y = d3.scale.ordinal().domain(this.series_2_domain()).rangeRoundBands([0, this.height]));
       this.x || (this.x = d3.scale.ordinal().domain(this.series_1_domain()).rangeRoundBands([0, this.width]));
-      if (this.y.rangeBand() < this.x.rangeBand()) {
-        this.range_band = this.y.rangeBand();
-        this.x.rangeRoundBands([0, this.series_1_domain().length * this.range_band]);
-      } else {
-        this.range_band = this.x.rangeBand();
-        this.y.rangeRoundBands([0, this.series_2_domain().length * this.range_band]);
-      }
+      this.range_band = this.y.rangeBand() < this.x.rangeBand() ? this.y.rangeBand() : this.x.rangeBand();
       this.radius = d3.scale.linear().domain([0, 100]).range([0, this.range_band * 0.45]);
       this.appendSeries1();
       return this.appendSeries2();
@@ -76,7 +71,7 @@
       this.series_2_groups.enter().append('circle').attr('class', 'series_2').attr('r', 0);
       this.series_2_groups.attr('cy', function(d) {
         return _this.y(d.key) + _this.range_band / 2;
-      }).attr('cx', this.range_band / 2).transition().duration(1000).ease('linear').attr('r', function(d) {
+      }).attr('cx', this.range_band / 2).transition().duration(1000).attr('r', function(d) {
         return _this.radius(d.values[0].value);
       }).attr('title', function(d) {
         return d.key;

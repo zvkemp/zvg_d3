@@ -3,6 +3,7 @@ class Dashboard.IntensityMatrix
     d3.select('body').append('button')
       .text('randomize')
       .on('click', => @randomizeData())
+    d3.select('body').append('br')
   data: (d) ->
     if d
       @raw_data = d
@@ -33,14 +34,8 @@ class Dashboard.IntensityMatrix
     @x or= d3.scale.ordinal()
       .domain(@series_1_domain())
       .rangeRoundBands([0, @width])
-
     # find smallest side:
-    if @y.rangeBand() < @x.rangeBand()
-      @range_band = @y.rangeBand()
-      @x.rangeRoundBands([0, @series_1_domain().length * @range_band])
-    else
-      @range_band = @x.rangeBand()
-      @y.rangeRoundBands([0, @series_2_domain().length * @range_band])
+    @range_band = if (@y.rangeBand() < @x.rangeBand()) then @y.rangeBand() else @x.rangeBand()
     @radius = d3.scale.linear()
       .domain([0,100]).range([0, @range_band * 0.45])
     @appendSeries1()
@@ -68,7 +63,7 @@ class Dashboard.IntensityMatrix
 
     @series_2_groups.attr('cy', (d) => @y(d.key) + @range_band / 2)
       .attr('cx', @range_band / 2)
-      .transition().duration(1000).ease('linear')
+      .transition().duration(1000)
       .attr('r', (d) => @radius(d.values[0].value))
       .attr('title', (d) -> d.key)
       .attr('width', => @range_band)
