@@ -30,7 +30,7 @@ class ZVG.IntensityMatrix
   initializeSvg: ->
     @svg = d3.select('body').append('svg')
       .attr('height', @height + 200).attr('width', @width + 200)
-    @background = ZVG.Background(@svg, @height, @width)
+    @background = ZVG.Background(@svg, @height, @width, 0)
 
   render: ->
 
@@ -67,7 +67,7 @@ class ZVG.IntensityMatrix
       .append('circle')
       .attr('class', 'series_2')
       .attr('stroke', 'white')
-      .attr('stroke-width', '1.5pt')
+      .attr('stroke-width', '1pt')
       .attr('r', 0)
     @series_2_groups.attr('cy', (d) => @y(d.key) + @range_band / 2)
       .attr('cx', @range_band / 2)
@@ -95,8 +95,9 @@ class ZVG.IntensityMatrix
       .data(@series_2_domain())
     series_2_lines.enter()
       .append('line')
+      .style('stroke', ZVG.flatUIColors['CONCRETE'])
       .attr('class', 'line series_2')
-      .attr('x2', 0).attr('x1', @width)
+      .attr('x1', 0).attr('x2', @width + 15)
       .attr('y2', (d) => @y(d) + @range_band/2)
       .attr('y1', (d) => @y(d) + @range_band/2)
 
@@ -116,8 +117,9 @@ class ZVG.IntensityMatrix
     series_1_lines.enter()
       .append('line')
       .attr('class', 'line series_1')
+      .style('stroke', ZVG.flatUIColors['CONCRETE'])
       .attr('y1', 0)
-      .attr('y2', @height)
+      .attr('y2', @height + 15)
       .attr('x1', (d) => @x(d) + @range_band/2)
       .attr('x2', (d) => @x(d) + @range_band/2)
 
@@ -125,7 +127,11 @@ class ZVG.IntensityMatrix
   colors: ->
     @_colors or= d3.scale.linear()
       .domain([0,80,100])
-      .range(['blue', '#a8cb17', '#fdcb1f'])
+      .range([
+        ZVG.flatUIColors['PETER RIVER']
+        '#a8cb17'
+        ZVG.flatUIColors['SUN FLOWER']
+      ])
 
   randomizeData: ->
     @_data.forEach((s1) ->
@@ -152,7 +158,6 @@ s1domain = [
 ]
 
 s2domain = [
-  'Under 25'
   '25 to 35'
   '35 to 45'
   '45 to 55'

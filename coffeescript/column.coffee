@@ -1,40 +1,8 @@
-class HelloWorld
-  methodName: ->
-    alert('test')
-
-
-ZVG.gradient = (svg) ->
-  _gradient = svg.append('defs')
-    .append('linearGradient')
-    .attr('x1', '0%').attr('y1', '0%')
-    .attr('x2', '80%').attr('y2', '50%')
-    .attr('spreadMethod', 'pad')
-    .attr('id', 'standardBackgroundGradient')
-  _gradient.append('stop')
-    .attr('offset', '10%')
-    .attr('stop-color', '#aaa')
-    .attr('stop-opacity', 1)
-  _gradient.append('stop')
-    .attr('offset', '110%')
-    .attr('stop-color', '#777')
-    .attr('stop-opacity', 1)
-
-ZVG.applyBackground = (svg, width, height) ->
-  ZVG.gradient(svg)
-  _backgroundGroup = svg.append('g')
-  _backgroundGroup.append('rect')
-    .style('fill', 'url(#standardBackgroundGradient)')
-    .attr('height', height)
-    .attr('width', width)
-    .attr('rx', 5)
-    .attr('ry', 5)
-
-    
 ZVG.column = ->
 
   _chart        = { chart_type: 'column' }
   _width        = 1200
-  _chartWidth   = 900
+  _chartWidth   = 300
   _height       = 650
   _chartHeight  = 500
   _data         = []
@@ -97,7 +65,8 @@ ZVG.column = ->
 
 
   setSeries1Spacing()
-  ZVG.applyBackground(_svg, _chartWidth, _chartHeight)
+  # ZVG.applyBackground(_svg, _chartWidth, _chartHeight)
+  ZVG.Background(_svg, _chartHeight, _chartWidth, 0) 
 
   series1padding = -> 0.1 * series1Totalwidth()
 
@@ -148,7 +117,7 @@ ZVG.column = ->
     series_2.append('rect')
       .style('stroke', 'white')
       .style('fill', 'none')
-      .style('stroke-width', '2pt')
+      .style('stroke-width', '1.5pt')
       .attr('x', 0)
       .attr('y', _chartHeight)
       .attr('height', 0)
@@ -157,7 +126,7 @@ ZVG.column = ->
       .transition().delay(300).duration(700)
       .attr('y', 0)
       .attr('height', _chartHeight)
-      .attr('opacity', 1)
+      .attr('opacity', 0.5)
 
   initializeY = ->
     # no domain declared; for 100% columns, should be set
@@ -174,8 +143,8 @@ ZVG.column = ->
     initializeSeries1()
     appendSeries1Labels()
     initializeSeries2()
-    appendSeries2Shadows()
-    appendSeries2Borders()
+    # appendSeries2Shadows()
+    # appendSeries2Borders()
     initializeY()
     initializeLabels()
 

@@ -42,7 +42,7 @@
 
     IntensityMatrix.prototype.initializeSvg = function() {
       this.svg = d3.select('body').append('svg').attr('height', this.height + 200).attr('width', this.width + 200);
-      return this.background = ZVG.Background(this.svg, this.height, this.width);
+      return this.background = ZVG.Background(this.svg, this.height, this.width, 0);
     };
 
     IntensityMatrix.prototype.render = function() {
@@ -73,7 +73,7 @@
       this.series_2_groups = this.series_1_groups.selectAll('circle.series_2').data(function(d) {
         return d.values;
       });
-      this.series_2_groups.enter().append('circle').attr('class', 'series_2').attr('stroke', 'white').attr('stroke-width', '1.5pt').attr('r', 0);
+      this.series_2_groups.enter().append('circle').attr('class', 'series_2').attr('stroke', 'white').attr('stroke-width', '1pt').attr('r', 0);
       this.series_2_groups.attr('cy', function(d) {
         return _this.y(d.key) + _this.range_band / 2;
       }).attr('cx', this.range_band / 2).transition().duration(1000).attr('r', function(d) {
@@ -101,7 +101,7 @@
       });
       series_2_labels.exit().remove();
       series_2_lines = this.svg.selectAll('.line.series_2').data(this.series_2_domain());
-      return series_2_lines.enter().append('line').attr('class', 'line series_2').attr('x2', 0).attr('x1', this.width).attr('y2', function(d) {
+      return series_2_lines.enter().append('line').style('stroke', ZVG.flatUIColors['CONCRETE']).attr('class', 'line series_2').attr('x1', 0).attr('x2', this.width + 15).attr('y2', function(d) {
         return _this.y(d) + _this.range_band / 2;
       }).attr('y1', function(d) {
         return _this.y(d) + _this.range_band / 2;
@@ -120,7 +120,7 @@
         return "rotate(-90, " + (_this.x(d) + _this.range_band / 2) + ", " + (_this.height + 15) + ")";
       });
       series_1_lines = this.svg.selectAll('.line.series_1').data(this.series_1_domain());
-      return series_1_lines.enter().append('line').attr('class', 'line series_1').attr('y1', 0).attr('y2', this.height).attr('x1', function(d) {
+      return series_1_lines.enter().append('line').attr('class', 'line series_1').style('stroke', ZVG.flatUIColors['CONCRETE']).attr('y1', 0).attr('y2', this.height + 15).attr('x1', function(d) {
         return _this.x(d) + _this.range_band / 2;
       }).attr('x2', function(d) {
         return _this.x(d) + _this.range_band / 2;
@@ -128,7 +128,7 @@
     };
 
     IntensityMatrix.prototype.colors = function() {
-      return this._colors || (this._colors = d3.scale.linear().domain([0, 80, 100]).range(['blue', '#a8cb17', '#fdcb1f']));
+      return this._colors || (this._colors = d3.scale.linear().domain([0, 80, 100]).range([ZVG.flatUIColors['PETER RIVER'], '#a8cb17', ZVG.flatUIColors['SUN FLOWER']]));
     };
 
     IntensityMatrix.prototype.randomizeData = function() {
@@ -148,7 +148,7 @@
 
   s1domain = ['Survey A', 'Survey B', 'Survey C', 'Survey D', 'Survey E', 'Survey F', 'Survey G', 'Survey H'];
 
-  s2domain = ['Under 25', '25 to 35', '35 to 45', '45 to 55', '55 to 65', '65 and over'];
+  s2domain = ['25 to 35', '35 to 45', '45 to 55', '55 to 65', '65 and over'];
 
   id = 0;
 

@@ -1,4 +1,28 @@
-window.ZVG = {}
+window.ZVG = {
+  flatUIColors: {
+    # from http://designmodo.github.io/Flat-UI/
+    'TURQUOISE': '#1ABC9C'
+    'GREEN SEA': '#16A085'
+    'EMERALD': '#2ECC71'
+    'NEPHRITIS': '#27AE60'
+    'PETER RIVER': '#3498DB'
+    'BELIZE HOLE': '#2980B9'
+    'AMETHYST': '#9B59B6'
+    'WISTERIA': '#8E44AD'
+    'WET ASPHALT': '#34495E'
+    'MIDNIGHT BLUE': '#2C3E50'
+    'SUN FLOWER': '#F1C40F'
+    'ORANGE': '#F39C12'
+    'CARROT': '#E67E22'
+    'PUMPKIN': '#D35400'
+    'ALIZARIN': '#E74C3C'
+    'POMEGRANATE': '#C0392B'
+    'CLOUDS': '#ECF0F1'
+    'SILVER': '#BDC3C7'
+    'CONCRETE': '#95A5A6'
+    'ASBESTOS': '#7F8C8D'
+  }
+}
 
 class ZVG.BackgroundGradient
   constructor: (svg) ->
@@ -38,12 +62,14 @@ class ZVG.BackgroundGradient
 #      .attr('mode', 'normal')
 #
 class ZVG.Background
-  constructor: (svg, height, width) ->
+  constructor: (svg, height, width, radius = 5) ->
+
     ZVG.BackgroundGradient(svg)
-    backgrounGroup = svg.append('g')
-    backgrounGroup.append('rect')
-      .style('fill', 'url(#standardBackgroundGradient)')
+    backgroundGroup = svg.append('g')
+    backgroundGroup.append('rect')
+      .attr('fill', ZVG.flatUIColors['MIDNIGHT BLUE'])
+      #.style('fill', 'url(#standardBackgroundGradient)')
       .attr('height', height)
       .attr('width', width)
-      .attr('rx', 5)
-      .attr('ry', 5)
+      .attr('rx', radius)
+      .attr('ry', radius)
