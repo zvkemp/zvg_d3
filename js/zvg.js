@@ -44,7 +44,7 @@
       }
       ZVG.BackgroundGradient(svg);
       backgroundGroup = svg.append('g');
-      backgroundGroup.append('rect').attr('fill', ZVG.flatUIColors['CLOUDS']).attr('height', height).attr('width', width).attr('rx', radius).attr('ry', radius);
+      this.background = backgroundGroup.append('rect').attr('fill', ZVG.flatUIColors['CLOUDS']).attr('height', height).attr('width', width).attr('rx', radius).attr('ry', radius);
     }
 
     return Background;
@@ -93,7 +93,7 @@
 
     BasicChart.prototype.initializeSvg = function() {
       this.svg = d3.select('body').append('svg').attr('height', this.height + 200).attr('width', this.width + 200);
-      return this.background = ZVG.Background(this.svg, this.height, this.width, 0);
+      return this.background = (new ZVG.Background(this.svg, this.height, this.width)).background;
     };
 
     return BasicChart;

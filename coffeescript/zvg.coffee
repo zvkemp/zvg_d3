@@ -66,7 +66,7 @@ class ZVG.Background
 
     ZVG.BackgroundGradient(svg)
     backgroundGroup = svg.append('g')
-    backgroundGroup.append('rect')
+    @background = backgroundGroup.append('rect')
       .attr('fill', ZVG.flatUIColors['CLOUDS'])
       #.style('fill', 'url(#standardBackgroundGradient)')
       .attr('height', height)
@@ -107,4 +107,4 @@ class ZVG.BasicChart
   initializeSvg: ->
     @svg = d3.select('body').append('svg')
       .attr('height', @height + 200).attr('width', @width + 200)
-    @background = ZVG.Background(@svg, @height, @width, 0)
+    @background = (new ZVG.Background(@svg, @height, @width)).background

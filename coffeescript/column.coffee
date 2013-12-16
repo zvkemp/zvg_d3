@@ -7,9 +7,9 @@ class ZVG.Column extends ZVG.BasicChart
     @initializeSvg()
 
   randomizeData: (s1count, s2count, s3count) ->
-    s1count or= parseInt(Math.random() * 9 + 1)
-    s2count or= parseInt(Math.random() * 5 + 1)
-    s3count or= parseInt(Math.random() * 7 + 3)
+    s1count or= parseInt(Math.random() * 15 + 1)
+    s2count or= parseInt(Math.random() * 15 + 1)
+    s3count or= parseInt(Math.random() * 17 + 3)
 
     raw = []
     for s in ([1..s1count])
@@ -69,6 +69,13 @@ class ZVG.Column extends ZVG.BasicChart
     @columnBand = d3.scale.ordinal()
       .domain([0...maxCount])
       .rangeRoundBands([0, @columnSpacing * maxCount], 0.1)
+    @widenChart() if @columnBand.rangeBand() < 15
+
+  widenChart: ->
+    @width += 100
+    @svg.attr('width', @width)
+    @background.attr('width', @width)
+    @setSeries1Spacing()
 
   series1TotalWidth: -> @width / @_data.length
 
@@ -137,7 +144,7 @@ class ZVG.Column extends ZVG.BasicChart
       .data((d) -> d.key)
     @borders.enter()
       .append('rect')
-      .attr('class', -> console.log('borders.enter'); 'border')
+      .attr('class', 'border')
     @borders.style('stroke', 'white')
       .style('stroke-width', '2pt')
       .style('fill', 'none')

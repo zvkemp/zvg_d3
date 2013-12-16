@@ -17,9 +17,9 @@
 
     Column.prototype.randomizeData = function(s1count, s2count, s3count) {
       var raw, s, _fn, _i, _j, _len, _ref, _results;
-      s1count || (s1count = parseInt(Math.random() * 9 + 1));
-      s2count || (s2count = parseInt(Math.random() * 5 + 1));
-      s3count || (s3count = parseInt(Math.random() * 7 + 3));
+      s1count || (s1count = parseInt(Math.random() * 15 + 1));
+      s2count || (s2count = parseInt(Math.random() * 15 + 1));
+      s3count || (s3count = parseInt(Math.random() * 17 + 3));
       raw = [];
       _ref = (function() {
         _results = [];
@@ -127,11 +127,21 @@
         d = _ref1[i];
         _fn(d, i);
       }
-      return this.columnBand = d3.scale.ordinal().domain((function() {
+      this.columnBand = d3.scale.ordinal().domain((function() {
         _results = [];
         for (var _k = 0; 0 <= maxCount ? _k < maxCount : _k > maxCount; 0 <= maxCount ? _k++ : _k--){ _results.push(_k); }
         return _results;
       }).apply(this)).rangeRoundBands([0, this.columnSpacing * maxCount], 0.1);
+      if (this.columnBand.rangeBand() < 15) {
+        return this.widenChart();
+      }
+    };
+
+    Column.prototype.widenChart = function() {
+      this.width += 100;
+      this.svg.attr('width', this.width);
+      this.background.attr('width', this.width);
+      return this.setSeries1Spacing();
     };
 
     Column.prototype.series1TotalWidth = function() {
@@ -224,10 +234,7 @@
       this.borders = this.series_2.selectAll('.border').data(function(d) {
         return d.key;
       });
-      this.borders.enter().append('rect').attr('class', function() {
-        console.log('borders.enter');
-        return 'border';
-      });
+      this.borders.enter().append('rect').attr('class', 'border');
       return this.borders.style('stroke', 'white').style('stroke-width', '2pt').style('fill', 'none').attr('x', 0).attr('y', this.height).attr('height', 0).attr('width', this.columnBand.rangeBand()).attr('opacity', 0).transition().delay(300).duration(700).attr('y', 0).attr('height', this.height).attr('opacity', 1);
     };
 
