@@ -67,9 +67,44 @@ class ZVG.Background
     ZVG.BackgroundGradient(svg)
     backgroundGroup = svg.append('g')
     backgroundGroup.append('rect')
-      .attr('fill', ZVG.flatUIColors['MIDNIGHT BLUE'])
+      .attr('fill', ZVG.flatUIColors['CLOUDS'])
       #.style('fill', 'url(#standardBackgroundGradient)')
       .attr('height', height)
       .attr('width', width)
       .attr('rx', radius)
       .attr('ry', radius)
+
+
+class ZVG.BasicChart
+  width: 900
+  height: 500
+
+  data: (d) ->
+    if d
+      @raw_data = d
+      @_data = @nestData(d)
+      return @
+    @_data
+
+  nestData: (d) ->
+    d3.nest()
+      .key((z) -> z.series_1)
+      .key((z) -> z.series_2)
+      .entries(d)
+
+  series_1_domain: (d) ->
+    if d
+      @_series_1_domain = d
+      return @
+    @_series_1_domain
+
+  series_2_domain: (d) ->
+    if d
+      @_series_2_domain = d
+      return @
+    @_series_2_domain
+
+  initializeSvg: ->
+    @svg = d3.select('body').append('svg')
+      .attr('height', @height + 200).attr('width', @width + 200)
+    @background = ZVG.Background(@svg, @height, @width, 0)

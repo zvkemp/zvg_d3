@@ -44,10 +44,59 @@
       }
       ZVG.BackgroundGradient(svg);
       backgroundGroup = svg.append('g');
-      backgroundGroup.append('rect').attr('fill', ZVG.flatUIColors['MIDNIGHT BLUE']).attr('height', height).attr('width', width).attr('rx', radius).attr('ry', radius);
+      backgroundGroup.append('rect').attr('fill', ZVG.flatUIColors['CLOUDS']).attr('height', height).attr('width', width).attr('rx', radius).attr('ry', radius);
     }
 
     return Background;
+
+  })();
+
+  ZVG.BasicChart = (function() {
+    function BasicChart() {}
+
+    BasicChart.prototype.width = 900;
+
+    BasicChart.prototype.height = 500;
+
+    BasicChart.prototype.data = function(d) {
+      if (d) {
+        this.raw_data = d;
+        this._data = this.nestData(d);
+        return this;
+      }
+      return this._data;
+    };
+
+    BasicChart.prototype.nestData = function(d) {
+      return d3.nest().key(function(z) {
+        return z.series_1;
+      }).key(function(z) {
+        return z.series_2;
+      }).entries(d);
+    };
+
+    BasicChart.prototype.series_1_domain = function(d) {
+      if (d) {
+        this._series_1_domain = d;
+        return this;
+      }
+      return this._series_1_domain;
+    };
+
+    BasicChart.prototype.series_2_domain = function(d) {
+      if (d) {
+        this._series_2_domain = d;
+        return this;
+      }
+      return this._series_2_domain;
+    };
+
+    BasicChart.prototype.initializeSvg = function() {
+      this.svg = d3.select('body').append('svg').attr('height', this.height + 200).attr('width', this.width + 200);
+      return this.background = ZVG.Background(this.svg, this.height, this.width, 0);
+    };
+
+    return BasicChart;
 
   })();
 

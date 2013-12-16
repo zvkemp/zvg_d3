@@ -1,43 +1,10 @@
-class ZVG.IntensityMatrix
+class ZVG.IntensityMatrix extends ZVG.BasicChart
   constructor: ->
     d3.select('body').append('button')
       .text('randomize')
       .on('click', => @randomizeData())
     d3.select('body').append('br')
     @initializeSvg()
-
-  data: (d) ->
-    if d
-      @raw_data = d
-      @_data = @setData(d) 
-    @_data
-    
-  setData: (d) ->
-    d3.nest()
-      .key((z) -> z.series_1)
-      .key((z) -> z.series_2)
-      .entries(d)
-
-  width: 900
-  height: 500
-
-  series_1_domain: (d) ->
-    if d
-      @_series_1_domain = d
-      return @
-    @_series_1_domain
-    
-
-  series_2_domain: (d) ->
-    if d
-      @_series_2_domain = d
-      return @
-    @_series_2_domain
-
-  initializeSvg: ->
-    @svg = d3.select('body').append('svg')
-      .attr('height', @height + 200).attr('width', @width + 200)
-    @background = ZVG.Background(@svg, @height, @width, 0)
 
   render: ->
     @y = d3.scale.ordinal()

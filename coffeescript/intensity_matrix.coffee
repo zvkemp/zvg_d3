@@ -1,4 +1,4 @@
-class Dashboard.IntensityMatrix
+class ZVG.IntensityMatrix
   data: (d) ->
     @raw_data or= d
     @_data or= @setData(d) 
@@ -101,7 +101,7 @@ for s1 in s1domain
 
 
 window.rawData = rawData
-window.chart = new Dashboard.IntensityMatrix()
+window.chart = new ZVG.IntensityMatrix()
 
 chart.data(rawData)
 chart.series_1_domain(s1domain)

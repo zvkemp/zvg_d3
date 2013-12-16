@@ -1,262 +1,188 @@
-ZVG.column = ->
+class ZVG.Column extends ZVG.BasicChart
+  constructor: ->
+    d3.select('body').append('button')
+      .text('randomize')
+      .on('click', => @randomizeData())
+    d3.select('body').append('br')
+    @initializeSvg()
 
-  _chart        = { chart_type: 'column' }
-  _width        = 1200
-  _chartWidth   = 300
-  _height       = 650
-  _chartHeight  = 500
-  _data         = []
-  _raw_data     = []
-  color         = d3.scale.category20()
-  columnSpacing = null
-  columnPadding = null
-  seriesPadding = null
-  series1x      = []
-  series1width  = []
-  columnBand    = null
-  series_1      = null
-  series_2      = null
-  y             = null
-  labels        = null
-  percent       = null
+  randomizeData: (s1count, s2count, s3count) ->
+    s1count or= parseInt(Math.random() * 9 + 1)
+    s2count or= parseInt(Math.random() * 5 + 1)
+    s3count or= parseInt(Math.random() * 7 + 3)
 
-  _svg = d3.select('body').append('svg')
-    .attr('width', _width).attr('height', _height)
-
-  _chart.svg = -> _svg
-
-  _chart.data = (data) ->
-    return _data unless arguments.length
-    _raw_data = data
-    _data = d3.nest()
-      .key((d) -> d.series_1)
-      .key((d) -> d.series_2)
-      .entries(data)
-    setSeries1Spacing()
-    renderData()
-    _chart
-
-  _chart.raw_data = -> _raw_data
-
-  _chart.percentage = d3.scale.linear().domain([0,1]).range(['0%', '100%'])
+    raw = []
+    for s in ([1..s1count])
+      do (s) ->
+        s2actual = parseInt(Math.random() * s2count) + 1
+        for f in ([1..s2actual])
+          do (f) ->
+            for d in ([1..s3count])
+              do (d) ->
+                raw.push {
+                  series_1: "Survey #{s}"
+                  series_2: "Filter #{f}"
+                  series_3: d
+                  value: parseInt(Math.random() * 150)
+                }
+    @data(raw)
+    @render()
   
-  setSeries1Spacing = ->
-    scale = d3.scale.ordinal()
-      .domain( _raw_data.map((d) -> d.series_1))
+  nestData: (d) ->
+    d3.nest()
+      .key((z) -> z.series_1)
+      .key((z) -> z.series_2)
+      .key((z) -> z.series_3)
+      .entries(d)
 
-    ranges = {}
-    totalColumnCount = 0
-    _data.forEach((d) -> totalColumnCount += d.values.length)
-    columnSpacing = _chartWidth/(totalColumnCount + _data.length)
-    columnPadding = 0.1 * columnSpacing
-    seriesPadding = columnSpacing / 2
-    currentX = 0
-    maxCount = d3.max(_data, (d) -> d.values.length)
-    _data.forEach((d,i) ->
-      w = columnSpacing * (d.values.length + 1)
-      series1width[i] = w - seriesPadding * 2
-      series1x[i] = currentX + seriesPadding
-      currentX += w
-    )
+  color: d3.scale.category20()
 
-    columnBand = d3.scale.ordinal()
+  render: ->
+    @setSeries1Spacing()
+    @initializeSeries1()
+    @buildSeries2Domains()
+    @initializeSeries2()
+    @appendSeries1Labels()
+    @initializeY()
+    @initializeLabels()
+    @appendSeries2Borders()
+    @initializeSeries3()
+
+  setSeries1Spacing: ->
+    @series1width      = []
+    @series1x          = []
+    scale              = d3.scale.ordinal().domain(@raw_data.map((d) -> d.series_1))
+    ranges             = {}
+    totalColumnCount   = 0
+    totalColumnCount  += d.values.length for d in @_data
+    @columnSpacing     = @width/(totalColumnCount + @_data.length)
+    @columnPadding     = 0.1 * @columnSpacing
+    @seriesPadding     = @columnSpacing / 2
+    current_x          = 0
+    maxCount           = d3.max(@_data, (d) -> d.values.length)
+    for d,i in @_data
+      do (d,i) =>
+        w = @columnSpacing * (d.values.length + 1)
+        @series1width[i] = w - @seriesPadding * 2
+        @series1x[i] = current_x + @seriesPadding
+        current_x += w
+    @columnBand = d3.scale.ordinal()
       .domain([0...maxCount])
-      .rangeRoundBands([0, columnSpacing * maxCount], 0.1)
+      .rangeRoundBands([0, @columnSpacing * maxCount], 0.1)
 
+  series1TotalWidth: -> @width / @_data.length
 
-  setSeries1Spacing()
-  # ZVG.applyBackground(_svg, _chartWidth, _chartHeight)
-  ZVG.Background(_svg, _chartHeight, _chartWidth, 0) 
-
-  series1padding = -> 0.1 * series1Totalwidth()
-
-  series1Totalwidth = ->  _chartWidth / _data.length
-
-
-
-  initializeSeries1 = ->
-    series_1 = _svg.selectAll('.series1')
-      .data(_data)
-      .enter()
+  initializeSeries1: ->
+    @series_1 = @svg.selectAll('.series1')
+      .data(@_data)
+    @series_1.enter()
       .append('g')
       .attr('class', 'series1')
-      .attr('transform', (d,i) -> "translate(#{series1x[i]},0)")
+    @series_1.attr('transform', (d,i) => "translate(#{@series1x[i]}, 0)")
+    @series_1.exit().remove()
 
-  appendSeries1Labels = ->
-    # series label (to remove)
-    series_1.append('text')
-      .text((d) -> d.key)
-      .attr('y', _chartHeight + 20)
-      .attr('x', 20)
-      .style('fill', '#f00')
+  buildSeries2Domains: ->
+    @series2Domains = {}
+    for s1 in @_data
+      do (s1) =>
+        @series2Domains[s1.key] = {}
+        for s2 in s1.values
+          do (s2) =>
+            s3 = s2.values.map((d) => d.values[0].value)
+            @series2Domains[s1.key][s2.key] = d3.scale.linear()
+              .domain([0, d3.sum(s3)])
+              .range([0, @height])
 
-
-  initializeSeries2 = ->
-    # column group
-    series_2 = series_1.selectAll('.series2')
+  
+  initializeSeries2: ->
+    @series_2 = @series_1.selectAll('.series2')
       .data((d) -> d.values)
-      .enter()
+    @series_2.enter()
       .append('g')
       .attr('class', 'column series2')
-      .attr('label', (d) -> d.key)
-      .attr('transform', (d,i) -> "translate(#{columnBand(i)},0)")
+      .attr('transform', "translate(0,0)")
+    @series_2.attr('label', (d) -> d.key).transition().duration(300)
+      .attr('transform', (d,i) => "translate(#{@columnBand(i)}, 0)")
+    @series_2.exit()
+      .attr('transform', "translate(0,0)")
+      .remove()
 
-  appendSeries2Shadows = ->
-    series_2.append('rect')
-      .style('stroke', 'none')
-      .style('fill', '#444')
-      .attr('x', -3)
-      .attr('y',0)
-      .attr('width', columnBand.rangeBand() + 6)
-      .attr('height', _chartHeight)
-      .attr('opacity', 0)
-      .transition().delay(600).duration(1000)
-      .attr('opacity', 0.5)
-
-  appendSeries2Borders = ->
-    series_2.append('rect')
-      .style('stroke', 'white')
-      .style('fill', 'none')
-      .style('stroke-width', '1.5pt')
+  initializeSeries3: ->
+    @series_3 = @series_2.selectAll('rect.vg')
+      .data((d) -> d.values)
+    @series_3.enter()
+      .append("rect")
+      .attr("class", 'vg')
       .attr('x', 0)
-      .attr('y', _chartHeight)
+      .attr('y', @height)
       .attr('height', 0)
-      .attr('width', columnBand.rangeBand())
+    current_y = 0
+    height = (d) =>
+      dp = d.values[0]
+      @series2Domains[dp.series_1][dp.series_2](dp.value)
+    @series_3.style('fill', (d) => @color(d.key))
+      .attr('width', @columnBand.rangeBand())
+      .transition().delay(200).duration(500)
+      .attr('y', (d,i) =>
+        current_y = 0 if i is 0
+        h = height(d)
+        current_y += h
+        current_y - h
+      ).attr('class', (d,i) => "vg vg_#{i}")
+      .attr('height', height)
+    @series_3.exit().remove()
+
+  appendSeries2Borders: ->
+    @borders = @series_2.selectAll('.border')
+      .data((d) -> d.key)
+    @borders.enter()
+      .append('rect')
+      .attr('class', -> console.log('borders.enter'); 'border')
+    @borders.style('stroke', 'white')
+      .style('stroke-width', '2pt')
+      .style('fill', 'none')
+      .attr('x', 0)
+      .attr('y', @height)
+      .attr('height', 0)
+      .attr('width', @columnBand.rangeBand())
       .attr('opacity', 0)
       .transition().delay(300).duration(700)
       .attr('y', 0)
-      .attr('height', _chartHeight)
-      .attr('opacity', 0.5)
-
-  initializeY = ->
-    # no domain declared; for 100% columns, should be set
-    # for each column individually (see below)
-    y = d3.scale.linear()
-      .range([0, _chartHeight])
-
-  initializeLabels = ->
-    labels = d3.scale.linear()
-      .range([0, 1]) # percentage
-    percent = d3.format('.0%')
-
-  renderData = ->
-    initializeSeries1()
-    appendSeries1Labels()
-    initializeSeries2()
-    # appendSeries2Shadows()
-    # appendSeries2Borders()
-    initializeY()
-    initializeLabels()
-
-    current_y = 0
-    series_2.selectAll('rect.vg')
-      .data((d) -> d.values[0].data)
-      .enter()
-      .append('rect').style('fill', (d,i) -> color(i))
-      .attr('x', 0)
-      .attr('y', _chartHeight)
-      .attr('height', 0)
-      .transition().duration(700)
-      .attr('y', (d,i) -> 
-        current_y = 0 if i == 0
-        dp = this.parentNode.__data__.values[0].data
-        h = y.domain([0, d3.sum dp])(d)
-        current_y += h
-        current_y - h
-      ).attr('class', (d,i) -> "vg vg_#{i}")
-      .attr('width', columnBand.rangeBand())
-      .attr('height', (d) ->
-        dp = this.parentNode.__data__.values[0].data
-        y.domain([0, d3.sum dp])(d)
-      )
-
-    # column labels
-    series_2.selectAll('text.column')
-      .data((d) -> d.values[0].data)
-      .enter()
-      .append('text')
-      .text((d) -> 
-        dp = this.parentNode.__data__.values[0].data
-        percent labels.domain([0, d3.sum dp])(d)
-      ).attr('x', columnBand.rangeBand()/2)
-      .attr('y', (d, i) -> 
-        current_y = 0 if i == 0
-        dp = this.parentNode.__data__.values[0].data
-        h = y.domain([0, d3.sum dp])(d)
-        current_y += h
-        current_y - (0.5 * h)
-      ).attr('class', 'column-label')
-      .attr('opacity', 0)
-      .transition().delay(300).duration(700)
+      .attr('height', @height)
       .attr('opacity', 1)
 
-  _chart
+     
+
+
+  
+
+  initializeY: ->
+    @y = d3.scale.linear().range([0, @height])
+    @current_y = 0
+
+  initializeLabels: ->
+    @labels = d3.scale.linear().range([0, 1])
+    @percent = d3.format('.0%')
 
 
 
-column = ZVG.column()
-raw_data = [
-  {
-    series_1: "Survey A"
-    series_2: "male"
-    n: 400
-    data:  [300, 100, 50, 25]
-  }
-  {
-    series_1: "Survey A"
-    series_2: "female"
-    n: 700
-    data:  [300, 250, 9, 150]
-  } 
-  {
-    series_1: "Survey A"
-    series_2: "other"
-    n: 700
-    data:  [340, 50,89, 150]
-  } 
-  {
-    series_1: "Survey B"
-    series_2: "all"
-    n: 650
-    data: [500, 150, 15,  0]
-  }
-  {
-    series_1: "Survey C"
-    series_2: "male"
-    n: 200
-    data: [100, 25, 75]
-  }
-  {
-    series_1: "Survey C"
-    series_2: "female"
-    n: 400
-    data: [100, 16, 250, 50]
-  }
-  {
-    series_1: "Survey D"
-    series_2: "male"
-    n: 900
-    data: [19, 500, 300, 100]
-  }
-  {
-    series_1: "Survey D"
-    series_2: "female"
-    n: 800
-    data: [500, 200, 100]
-  }
-  {
-    series_1: "Survey D"
-    series_2: "other"
-    n: 900
-    data: [500, 300, 100]
-  }
-]
+  appendSeries1Labels: ->
+    @series_1_labels = @svg.selectAll('text.series1label')
+      .data(@_data)
+    @series_1_labels.enter()
+      .append('text')
+      .attr('class', 'series1label')
+    @series_1_labels.attr('y', @height + 20)
+      .text((d) -> d.key)
+      .attr('x', (d,i) => @series1x[i])
+      .style('fill', '#f00')
+    @series_1_labels.exit().remove()
 
-data = d3.nest()
-  .key((d) -> d.series_1)
-  .key((d) -> d.series_2)
-  .entries(raw_data)
-window.raw_data = raw_data
-window.data = data
-column.data(raw_data)
-window.column = column
+
+
+
+
+
+window.chart = new ZVG.Column
+chart.randomizeData()
+chart.render()
