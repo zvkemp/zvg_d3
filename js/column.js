@@ -89,13 +89,14 @@
       this.resetWidth();
       this.setSeries1Spacing();
       this.initializeSeries1();
-      this.buildSeries2Domains();
+      this.buildSeriesDomains();
       this.initializeSeries2();
       this.appendSeries1Labels();
       this.initializeY();
       this.initializeLabels();
       this.appendSeries2Borders();
-      return this.initializeSeries3();
+      this.initializeSeries3();
+      return this.bindValueGroupHover();
     };
 
     Column.prototype.setSeries1Spacing = function() {
@@ -163,17 +164,17 @@
       return this.series_1.exit().remove();
     };
 
-    Column.prototype.buildSeries2Domains = function() {
+    Column.prototype.buildSeriesDomains = function() {
       var s1, _i, _len, _ref, _results,
         _this = this;
-      this.series2Domains = {};
+      this.series3Domains = {};
       _ref = this._data;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         s1 = _ref[_i];
         _results.push((function(s1) {
           var s2, _j, _len1, _ref1, _results1;
-          _this.series2Domains[s1.key] = {};
+          _this.series3Domains[s1.key] = {};
           _ref1 = s1.values;
           _results1 = [];
           for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
@@ -183,7 +184,7 @@
               s3 = s2.values.map(function(d) {
                 return d.values[0].value;
               });
-              return _this.series2Domains[s1.key][s2.key] = d3.scale.linear().domain([0, d3.sum(s3)]).range([0, _this.height]);
+              return _this.series3Domains[s1.key][s2.key] = d3.scale.linear().domain([0, d3.sum(s3)]).range([0, _this.height]);
             })(s2));
           }
           return _results1;
@@ -217,7 +218,7 @@
       height = function(d) {
         var dp;
         dp = d.values[0];
-        return _this.series2Domains[dp.series_1][dp.series_2](dp.value);
+        return _this.series3Domains[dp.series_1][dp.series_2](dp.value);
       };
       this.series_3.style('fill', function(d) {
         return _this.color(d.key);
@@ -230,9 +231,22 @@
         current_y += h;
         return current_y - h;
       }).attr('class', function(d, i) {
-        return "vg vg_" + i;
+        return "vg";
       }).attr('height', height);
       return this.series_3.exit().remove();
+    };
+
+    Column.prototype.bindValueGroupHover = function() {
+      var vg,
+        _this = this;
+      vg = this.svg.selectAll('.vg');
+      return vg.on('mouseover', function(d) {
+        return vg.filter(function(e) {
+          return e.key !== d.key;
+        }).attr('opacity', 0.2);
+      }).on('mouseout', function(d) {
+        return _this.svg.selectAll('.vg').attr('opacity', 1);
+      });
     };
 
     Column.prototype.appendSeries2Borders = function() {
@@ -274,5 +288,79 @@
   chart.randomizeData();
 
   chart.render();
+
+  window.sample_data = [
+    {
+      series_1: 'Survey 1',
+      series_2: 'Filter 1',
+      series_3: 1,
+      value: 100
+    }, {
+      series_1: 'Survey 1',
+      series_2: 'Filter 1',
+      series_3: 2,
+      value: 200
+    }, {
+      series_1: 'Survey 1',
+      series_2: 'Filter 2',
+      series_3: 1,
+      value: 200
+    }, {
+      series_1: 'Survey 1',
+      series_2: 'Filter 2',
+      series_3: 2,
+      value: 300
+    }, {
+      series_1: 'Survey 1',
+      series_2: 'Filter 4',
+      series_3: 1,
+      value: 100
+    }, {
+      series_1: 'Survey 1',
+      series_2: 'Filter 4',
+      series_3: 2,
+      value: 400
+    }, {
+      series_1: 'Survey 2',
+      series_2: 'Filter 1',
+      series_3: 1,
+      value: 100
+    }, {
+      series_1: 'Survey 2',
+      series_2: 'Filter 1',
+      series_3: 2,
+      value: 200
+    }, {
+      series_1: 'Survey 2',
+      series_2: 'Filter 3',
+      series_3: 1,
+      value: 200
+    }, {
+      series_1: 'Survey 2',
+      series_2: 'Filter 3',
+      series_3: 2,
+      value: 300
+    }, {
+      series_1: 'Survey 3',
+      series_2: 'Filter 3',
+      series_3: 1,
+      value: 100
+    }, {
+      series_1: 'Survey 3',
+      series_2: 'Filter 3',
+      series_3: 2,
+      value: 200
+    }, {
+      series_1: 'Survey 3',
+      series_2: 'Filter 2',
+      series_3: 1,
+      value: 200
+    }, {
+      series_1: 'Survey 3',
+      series_2: 'Filter 2',
+      series_3: 2,
+      value: 300
+    }
+  ];
 
 }).call(this);

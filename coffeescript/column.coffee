@@ -43,13 +43,14 @@ class ZVG.Column extends ZVG.BasicChart
     @resetWidth()
     @setSeries1Spacing()
     @initializeSeries1()
-    @buildSeries2Domains()
+    @buildSeriesDomains()
     @initializeSeries2()
     @appendSeries1Labels()
     @initializeY()
     @initializeLabels()
     @appendSeries2Borders()
     @initializeSeries3()
+    @bindValueGroupHover()
 
   setSeries1Spacing: ->
     @series1width      = []
@@ -91,15 +92,15 @@ class ZVG.Column extends ZVG.BasicChart
     @series_1.attr('transform', (d,i) => "translate(#{@series1x[i]}, 0)")
     @series_1.exit().remove()
 
-  buildSeries2Domains: ->
-    @series2Domains = {}
+  buildSeriesDomains: ->
+    @series3Domains = {}
     for s1 in @_data
       do (s1) =>
-        @series2Domains[s1.key] = {}
+        @series3Domains[s1.key] = {}
         for s2 in s1.values
           do (s2) =>
             s3 = s2.values.map((d) => d.values[0].value)
-            @series2Domains[s1.key][s2.key] = d3.scale.linear()
+            @series3Domains[s1.key][s2.key] = d3.scale.linear()
               .domain([0, d3.sum(s3)])
               .range([0, @height])
 
@@ -117,6 +118,7 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('transform', "translate(0,0)")
       .remove()
 
+
   initializeSeries3: ->
     @series_3 = @series_2.selectAll('rect.vg')
       .data((d) -> d.values)
@@ -129,7 +131,7 @@ class ZVG.Column extends ZVG.BasicChart
     current_y = 0
     height = (d) =>
       dp = d.values[0]
-      @series2Domains[dp.series_1][dp.series_2](dp.value)
+      @series3Domains[dp.series_1][dp.series_2](dp.value)
     @series_3.style('fill', (d) => @color(d.key))
       .attr('width', @columnBand.rangeBand())
       .transition().delay(200).duration(500)
@@ -138,9 +140,20 @@ class ZVG.Column extends ZVG.BasicChart
         h = height(d)
         current_y += h
         current_y - h
-      ).attr('class', (d,i) => "vg vg_#{i}")
+      ).attr('class', (d,i) => "vg")
       .attr('height', height)
     @series_3.exit().remove()
+
+  bindValueGroupHover: ->
+    vg = @svg.selectAll('.vg')
+    vg.on('mouseover', (d) =>
+      vg.filter((e) -> e.key != d.key)
+        .attr('opacity', 0.2)
+    ).on('mouseout', (d) =>
+      @svg.selectAll('.vg').attr('opacity', 1)
+    )
+
+
 
   appendSeries2Borders: ->
     @borders = @series_2.selectAll('.border')
@@ -196,3 +209,90 @@ class ZVG.Column extends ZVG.BasicChart
 window.chart = new ZVG.Column
 chart.randomizeData()
 chart.render()
+
+window.sample_data = [
+  {
+    series_1: 'Survey 1'
+    series_2: 'Filter 1'
+    series_3: 1
+    value: 100
+  }
+  {
+    series_1: 'Survey 1'
+    series_2: 'Filter 1'
+    series_3: 2
+    value: 200
+  }
+  {
+    series_1: 'Survey 1'
+    series_2: 'Filter 2'
+    series_3: 1
+    value: 200
+  }
+  {
+    series_1: 'Survey 1'
+    series_2: 'Filter 2'
+    series_3: 2
+    value: 300
+  }
+  {
+    series_1: 'Survey 1'
+    series_2: 'Filter 4'
+    series_3: 1
+    value: 100
+  }
+  {
+    series_1: 'Survey 1'
+    series_2: 'Filter 4'
+    series_3: 2
+    value: 400
+  }
+  {
+    series_1: 'Survey 2'
+    series_2: 'Filter 1'
+    series_3: 1
+    value: 100
+  }
+  {
+    series_1: 'Survey 2'
+    series_2: 'Filter 1'
+    series_3: 2
+    value: 200
+  }
+  {
+    series_1: 'Survey 2'
+    series_2: 'Filter 3'
+    series_3: 1
+    value: 200
+  }
+  {
+    series_1: 'Survey 2'
+    series_2: 'Filter 3'
+    series_3: 2
+    value: 300
+  }
+  {
+    series_1: 'Survey 3'
+    series_2: 'Filter 3'
+    series_3: 1
+    value: 100
+  }
+  {
+    series_1: 'Survey 3'
+    series_2: 'Filter 3'
+    series_3: 2
+    value: 200
+  }
+  {
+    series_1: 'Survey 3'
+    series_2: 'Filter 2'
+    series_3: 1
+    value: 200
+  }
+  {
+    series_1: 'Survey 3'
+    series_2: 'Filter 2'
+    series_3: 2
+    value: 300
+  }
+]
