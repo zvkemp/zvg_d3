@@ -9,11 +9,20 @@
 
     function Column() {
       this.computeFontSize = __bind(this.computeFontSize, this);
-      this.valuePercentFunction = __bind(this.valuePercentFunction, this);
+      this.valueFunction_count = __bind(this.valueFunction_count, this);
+      this.valueFunction_percentage = __bind(this.valueFunction_percentage, this);
       this.valueHeightFunction = __bind(this.valueHeightFunction, this);
+      this.buildSeriesDomains_count = __bind(this.buildSeriesDomains_count, this);
+      this.buildSeriesDomains_percentage = __bind(this.buildSeriesDomains_percentage, this);
       var _this = this;
       d3.select('body').append('button').text('randomize').on('click', function() {
         return _this.randomizeData();
+      });
+      d3.select('body').append('button').text('show percentages').on('click', function() {
+        return _this.render('percentage');
+      });
+      d3.select('body').append('button').text('show counts').on('click', function() {
+        return _this.render('count');
       });
       d3.select('body').append('br');
       this.initializeSvg();
@@ -89,7 +98,11 @@
       return this.widenChart(ZVG.BasicChart.prototype.width);
     };
 
-    Column.prototype.render = function() {
+    Column.prototype.render = function(renderMode) {
+      if (renderMode == null) {
+        renderMode = 'percentage';
+      }
+      this.renderMode = renderMode;
       this.resetWidth();
       this.setSeries1Spacing();
       this.renderSeries1();
@@ -98,7 +111,6 @@
       this.appendSeries1Labels();
       this.initializeY();
       this.initializeLabels();
-      this.appendSeries2Borders();
       this.renderSeries3();
       this.renderSeries3Labels();
       this.bindValueGroupHover();
@@ -171,6 +183,10 @@
     };
 
     Column.prototype.buildSeriesDomains = function() {
+      return this["buildSeriesDomains_" + this.renderMode]();
+    };
+
+    Column.prototype.buildSeriesDomains_percentage = function() {
       var s1, _i, _len, _ref, _results,
         _this = this;
       this.series3Domains = {};
@@ -191,6 +207,63 @@
                 return d.values[0].value;
               });
               return _this.series3Domains[s1.key][s2.key] = d3.scale.linear().domain([0, d3.sum(s3)]).range([0, _this.height]);
+            })(s2));
+          }
+          return _results1;
+        })(s1));
+      }
+      return _results;
+    };
+
+    Column.prototype.buildSeriesDomains_count = function() {
+      var maxScale, maxSum, s1, _fn, _i, _j, _len, _len1, _ref, _ref1, _results,
+        _this = this;
+      maxSum = 0;
+      _ref = this._data;
+      _fn = function(s1) {
+        var s2, _j, _len1, _ref1, _results;
+        _ref1 = s1.values;
+        _results = [];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          s2 = _ref1[_j];
+          _results.push((function(s2) {
+            var d, s3;
+            s3 = d3.sum((function() {
+              var _k, _len2, _ref2, _results1;
+              _ref2 = s2.values;
+              _results1 = [];
+              for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                d = _ref2[_k];
+                _results1.push(d.values[0].value);
+              }
+              return _results1;
+            })());
+            if (s3 > maxSum) {
+              return maxSum = s3;
+            }
+          })(s2));
+        }
+        return _results;
+      };
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        s1 = _ref[_i];
+        _fn(s1);
+      }
+      maxScale = d3.scale.linear().range([0, this.height]).domain([0, maxSum]);
+      this.series3Domains = {};
+      _ref1 = this._data;
+      _results = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        s1 = _ref1[_j];
+        _results.push((function(s1) {
+          var s2, _k, _len2, _ref2, _results1;
+          _this.series3Domains[s1.key] = {};
+          _ref2 = s1.values;
+          _results1 = [];
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            s2 = _ref2[_k];
+            _results1.push((function(s2) {
+              return _this.series3Domains[s1.key][s2.key] = maxScale;
             })(s2));
           }
           return _results1;
@@ -256,16 +329,27 @@
       return this.series3Domains[dp.series_1][dp.series_2](dp.value);
     };
 
-    Column.prototype.valuePercentFunction = function(d) {
+    Column.prototype.valueFunction_percentage = function(d) {
       var dp, n;
       dp = d.values[0];
       n = this.series3Domains[dp.series_1][dp.series_2].domain()[1];
       return this.percentFormat(dp.value / n);
     };
 
-    Column.prototype.renderSeries3Labels = function() {
+    Column.prototype.valueFunction_count = function(d) {
+      return d.values[0].value;
+    };
+
+    Column.prototype.valueFunction = function() {
+      return this["valueFunction_" + this.renderMode];
+    };
+
+    Column.prototype.renderSeries3Labels = function(textFunction) {
       var computeFontSize, current_y, valueHeightFunction,
         _this = this;
+      if (textFunction == null) {
+        textFunction = this.valueFunction();
+      }
       this.series_2.selectAll('text.vg').remove();
       this.series_3_labels = this.series_2.selectAll('text.vg').data(function(d) {
         return d.values;
@@ -282,7 +366,7 @@
       }).attr('opacity', 0).transition().delay(500).attr('opacity', 1);
       computeFontSize = this.computeFontSize;
       valueHeightFunction = this.valueHeightFunction;
-      this.series_3_labels.text(this.valuePercentFunction);
+      this.series_3_labels.text(textFunction);
       return this.series_3_labels.style('font-size', function(d) {
         return computeFontSize(this, valueHeightFunction(d));
       });
@@ -303,6 +387,8 @@
     Column.prototype.percentScale = d3.scale.linear().range([0, 1]);
 
     Column.prototype.percentFormat = d3.format('.0%');
+
+    Column.prototype.countFormat = d3.format('.0');
 
     Column.prototype.initializeY = function() {
       this.y = d3.scale.linear().range([0, this.height]);

@@ -3,6 +3,12 @@ class ZVG.Column extends ZVG.BasicChart
     d3.select('body').append('button')
       .text('randomize')
       .on('click', => @randomizeData())
+    d3.select('body').append('button')
+      .text('show percentages')
+      .on('click', => @render('percentage'))
+    d3.select('body').append('button')
+      .text('show counts')
+      .on('click', => @render('count'))
     d3.select('body').append('br')
     @initializeSvg()
 
@@ -39,7 +45,8 @@ class ZVG.Column extends ZVG.BasicChart
   resetWidth: ->
     @widenChart ZVG.BasicChart.prototype.width
 
-  render: ->
+  render: (renderMode = 'percentage') ->
+    @renderMode = renderMode
     @resetWidth()
     @setSeries1Spacing()
     @renderSeries1()
@@ -48,7 +55,7 @@ class ZVG.Column extends ZVG.BasicChart
     @appendSeries1Labels()
     @initializeY()
     @initializeLabels()
-    @appendSeries2Borders()
+    #@appendSeries2Borders()
     @renderSeries3()
     @renderSeries3Labels()
     @bindValueGroupHover()
@@ -95,6 +102,9 @@ class ZVG.Column extends ZVG.BasicChart
     @series_1.exit().remove()
 
   buildSeriesDomains: ->
+    @["buildSeriesDomains_#{@renderMode}"]()
+
+  buildSeriesDomains_percentage: =>
     @series3Domains = {}
     for s1 in @_data
       do (s1) =>
@@ -106,6 +116,24 @@ class ZVG.Column extends ZVG.BasicChart
               .domain([0, d3.sum(s3)])
               .range([0, @height])
 
+  buildSeriesDomains_count: =>
+    maxSum = 0
+    for s1 in @_data
+      do (s1) =>
+        for s2 in s1.values
+          do (s2) =>
+            s3 = d3.sum(d.values[0].value for d in s2.values)
+            maxSum = s3 if s3 > maxSum
+    maxScale = d3.scale.linear()
+      .range([0, @height])
+      .domain([0, maxSum])
+    @series3Domains = {}
+    for s1 in @_data
+      do (s1) =>
+        @series3Domains[s1.key] = {}
+        for s2 in s1.values
+          do (s2) =>
+            @series3Domains[s1.key][s2.key] = maxScale 
   
   renderSeries2: ->
     @series_2 = @series_1.selectAll('.series2')
@@ -156,12 +184,18 @@ class ZVG.Column extends ZVG.BasicChart
     dp = d.values[0]
     @series3Domains[dp.series_1][dp.series_2](dp.value)
 
-  valuePercentFunction: (d) =>
+  valueFunction_percentage: (d) =>
     dp = d.values[0]
     n = @series3Domains[dp.series_1][dp.series_2].domain()[1]
     @percentFormat dp.value/n
 
-  renderSeries3Labels: ->
+  valueFunction_count: (d) =>
+    d.values[0].value
+
+  valueFunction: ->
+    @["valueFunction_#{@renderMode}"]
+
+  renderSeries3Labels: (textFunction = @valueFunction()) ->
     @series_2.selectAll('text.vg').remove()
     @series_3_labels = @series_2.selectAll('text.vg')
       .data((d) -> d.values)
@@ -179,9 +213,9 @@ class ZVG.Column extends ZVG.BasicChart
       .transition().delay(500).attr('opacity', 1)
     computeFontSize = @computeFontSize
     valueHeightFunction = @valueHeightFunction
-    @series_3_labels.text(@valuePercentFunction)
+    @series_3_labels.text(textFunction)
     @series_3_labels.style('font-size', (d) ->
-      # is there a better way to do this? need class bindings as well as local this
+      # is there a better way to do this? need class bindings as well as local `this`
       computeFontSize(this, valueHeightFunction(d))
     )
 
@@ -209,6 +243,7 @@ class ZVG.Column extends ZVG.BasicChart
 
   percentScale: d3.scale.linear().range([0,1])
   percentFormat: d3.format('.0%')
+  countFormat: d3.format('.0')
 
   initializeY: ->
     @y = d3.scale.linear().range([0, @height])
