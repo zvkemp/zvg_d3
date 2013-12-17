@@ -22,7 +22,60 @@ window.ZVG = {
     'CONCRETE': '#95A5A6'
     'ASBESTOS': '#7F8C8D'
   }
+
+  colorSchemes: {
+    rainbow10: [
+      '#cbb69d'
+      '#7e654f'
+      '#73446f'
+      '#b897a6'
+      '#53bedb'
+      '#009d9d'
+      '#a8cb17'
+      '#fcda51'
+      '#f38d05'
+      '#dc001b'
+    ]
+
+    rainbow20: [
+      '#b09778'
+      '#7d664e'
+      '#57422f'
+      '#50353F'
+      '#4A254D'
+      '#694565'
+      '#957084'
+      '#748DA7'
+      '#43A6CF'
+      '#3392A2'
+      '#1B807C'
+      '#5B9A57'
+      '#8DBA23'
+      '#C1C31E'
+      '#F8CB18'
+      '#EB9415'
+      '#E06314'
+      '#CE3C1A'
+      '#BD031D'
+      '#CD3467'
+    ]
+
+    warmCool10: [
+      '#fcd94f'
+      '#f29738'
+      '#ed782e'
+      '#e85b27'
+      '#e53a22'
+      '#b63133'
+      '#8e283e'
+      '#6c2146'
+      '#501b4d'
+      '#361653'
+    ]
+  }
 }
+
+
 
 class ZVG.BackgroundGradient
   constructor: (svg) ->
@@ -109,3 +162,6 @@ class ZVG.BasicChart
     @svg = d3.select('body').append('svg')
       .attr('height', @height + 200).attr('width', @width + 200)
     @background = (new ZVG.Background(@svg, @height, @width)).background
+
+  renderLegend: ->
+    null

@@ -9,7 +9,7 @@ class ZVG.Column extends ZVG.BasicChart
   randomizeData: (s1count, s2count, s3count) ->
     s1count or= parseInt(Math.random() * 15 + 1)
     s2count or= parseInt(Math.random() * 15 + 1)
-    s3count or= parseInt(Math.random() * 17 + 3)
+    s3count or= parseInt(Math.random() * 8 + 2)
 
     raw = []
     for s in ([1..s1count])
@@ -35,22 +35,23 @@ class ZVG.Column extends ZVG.BasicChart
       .key((z) -> z.series_3)
       .entries(d)
 
-  color: d3.scale.category20()
+  color: d3.scale.ordinal().range(ZVG.colorSchemes.warmCool10)
   resetWidth: ->
     @widenChart ZVG.BasicChart.prototype.width
 
   render: ->
     @resetWidth()
     @setSeries1Spacing()
-    @initializeSeries1()
+    @renderSeries1()
     @buildSeriesDomains()
-    @initializeSeries2()
+    @renderSeries2()
     @appendSeries1Labels()
     @initializeY()
     @initializeLabels()
     @appendSeries2Borders()
-    @initializeSeries3()
+    @renderSeries3()
     @bindValueGroupHover()
+    @renderLegend()
 
   setSeries1Spacing: ->
     @series1width      = []
@@ -83,7 +84,7 @@ class ZVG.Column extends ZVG.BasicChart
 
   series1TotalWidth: -> @width / @_data.length
 
-  initializeSeries1: ->
+  renderSeries1: ->
     @series_1 = @svg.selectAll('.series1')
       .data(@_data)
     @series_1.enter()
@@ -105,7 +106,7 @@ class ZVG.Column extends ZVG.BasicChart
               .range([0, @height])
 
   
-  initializeSeries2: ->
+  renderSeries2: ->
     @series_2 = @series_1.selectAll('.series2')
       .data((d) -> d.values)
     @series_2.enter()
@@ -119,7 +120,7 @@ class ZVG.Column extends ZVG.BasicChart
       .remove()
 
 
-  initializeSeries3: ->
+  renderSeries3: ->
     @series_3 = @series_2.selectAll('rect.vg')
       .data((d) -> d.values)
     @series_3.enter()

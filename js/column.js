@@ -19,7 +19,7 @@
       var raw, s, _fn, _i, _j, _len, _ref, _results;
       s1count || (s1count = parseInt(Math.random() * 15 + 1));
       s2count || (s2count = parseInt(Math.random() * 15 + 1));
-      s3count || (s3count = parseInt(Math.random() * 17 + 3));
+      s3count || (s3count = parseInt(Math.random() * 8 + 2));
       raw = [];
       _ref = (function() {
         _results = [];
@@ -79,7 +79,7 @@
       }).entries(d);
     };
 
-    Column.prototype.color = d3.scale.category20();
+    Column.prototype.color = d3.scale.ordinal().range(ZVG.colorSchemes.warmCool10);
 
     Column.prototype.resetWidth = function() {
       return this.widenChart(ZVG.BasicChart.prototype.width);
@@ -88,15 +88,16 @@
     Column.prototype.render = function() {
       this.resetWidth();
       this.setSeries1Spacing();
-      this.initializeSeries1();
+      this.renderSeries1();
       this.buildSeriesDomains();
-      this.initializeSeries2();
+      this.renderSeries2();
       this.appendSeries1Labels();
       this.initializeY();
       this.initializeLabels();
       this.appendSeries2Borders();
-      this.initializeSeries3();
-      return this.bindValueGroupHover();
+      this.renderSeries3();
+      this.bindValueGroupHover();
+      return this.renderLegend();
     };
 
     Column.prototype.setSeries1Spacing = function() {
@@ -154,7 +155,7 @@
       return this.width / this._data.length;
     };
 
-    Column.prototype.initializeSeries1 = function() {
+    Column.prototype.renderSeries1 = function() {
       var _this = this;
       this.series_1 = this.svg.selectAll('.series1').data(this._data);
       this.series_1.enter().append('g').attr('class', 'series1');
@@ -193,7 +194,7 @@
       return _results;
     };
 
-    Column.prototype.initializeSeries2 = function() {
+    Column.prototype.renderSeries2 = function() {
       var _this = this;
       this.series_2 = this.series_1.selectAll('.series2').data(function(d) {
         return d.values;
@@ -207,7 +208,7 @@
       return this.series_2.exit().attr('transform', "translate(0,0)").remove();
     };
 
-    Column.prototype.initializeSeries3 = function() {
+    Column.prototype.renderSeries3 = function() {
       var current_y, height,
         _this = this;
       this.series_3 = this.series_2.selectAll('rect.vg').data(function(d) {
