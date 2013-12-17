@@ -18,6 +18,10 @@
       d3.select('body').append('button').text('randomize').on('click', function() {
         return _this.randomizeData();
       });
+      d3.select('body').append('button').text('standard sample data').on('click', function() {
+        _this.data(_this.sample_data);
+        return _this.render(_this.renderMode);
+      });
       d3.select('body').append('button').text('show percentages').on('click', function() {
         return _this.render('percentage');
       });
@@ -79,7 +83,7 @@
         _fn(s);
       }
       this.data(raw);
-      return this.render();
+      return this.render(this.renderMode);
     };
 
     Column.prototype.nestData = function(d) {
@@ -422,7 +426,7 @@
 
   chart.render();
 
-  window.sample_data = [
+  chart.sample_data = [
     {
       series_1: 'Survey 1',
       series_2: 'Filter 1',

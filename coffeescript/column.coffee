@@ -4,6 +4,12 @@ class ZVG.Column extends ZVG.BasicChart
       .text('randomize')
       .on('click', => @randomizeData())
     d3.select('body').append('button')
+      .text('standard sample data')
+      .on('click', =>
+        @data(@sample_data)
+        @render(@renderMode)
+      )
+    d3.select('body').append('button')
       .text('show percentages')
       .on('click', => @render('percentage'))
     d3.select('body').append('button')
@@ -32,7 +38,7 @@ class ZVG.Column extends ZVG.BasicChart
                   value: parseInt(Math.random() * 150)
                 }
     @data(raw)
-    @render()
+    @render(@renderMode)
   
   nestData: (d) ->
     d3.nest()
@@ -271,7 +277,7 @@ window.chart = new ZVG.Column
 chart.randomizeData()
 chart.render()
 
-window.sample_data = [
+chart.sample_data = [
   {
     series_1: 'Survey 1'
     series_2: 'Filter 1'
