@@ -59,6 +59,7 @@ class ZVG.Column extends ZVG.BasicChart
     @buildSeriesDomains()
     @renderSeries2()
     @appendSeries1Labels()
+    @appendSeries2Labels()
     @initializeY()
     @initializeLabels()
     #@appendSeries2Borders()
@@ -70,7 +71,7 @@ class ZVG.Column extends ZVG.BasicChart
   setSeries1Spacing: ->
     @series1width      = []
     @series1x          = []
-    scale              = d3.scale.ordinal().domain(@raw_data.map((d) -> d.series_1))
+    scale              = d3.scale.ordinal().domain(d.series_1 for d in @raw_data)
     ranges             = {}
     totalColumnCount   = 0
     totalColumnCount  += d.values.length for d in @_data
@@ -117,7 +118,7 @@ class ZVG.Column extends ZVG.BasicChart
         @series3Domains[s1.key] = {}
         for s2 in s1.values
           do (s2) =>
-            s3 = s2.values.map((d) => d.values[0].value)
+            s3 = (d.values[0].value for d in s2.values)
             @series3Domains[s1.key][s2.key] = d3.scale.linear()
               .domain([0, d3.sum(s3)])
               .range([0, @height])
@@ -267,9 +268,19 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('class', 'series1label')
     @series_1_labels.attr('y', @height + 20)
       .text((d) -> d.key)
-      .attr('x', (d,i) => @series1x[i])
-      .style('fill', '#f00')
+      .attr('x', (d,i) => @series1x[i] + @series1width[i]/2)
     @series_1_labels.exit().remove()
+
+  appendSeries2Labels: ->
+    @svg.selectAll('.series2label').remove()
+    series_2_labels = @series_1.selectAll('text.series2label')
+      .data((d) -> d.values)
+    series_2_labels.enter()
+      .append('text')
+      .attr('class', 'series2label')
+    series_2_labels.attr('y', @height + 10)
+      .attr('x', (d,i) => @columnBand(i) + @columnBand.rangeBand()/2)
+      .text((d) -> d.key)
 
 
 

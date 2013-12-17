@@ -113,6 +113,7 @@
       this.buildSeriesDomains();
       this.renderSeries2();
       this.appendSeries1Labels();
+      this.appendSeries2Labels();
       this.initializeY();
       this.initializeLabels();
       this.renderSeries3();
@@ -126,9 +127,16 @@
         _this = this;
       this.series1width = [];
       this.series1x = [];
-      scale = d3.scale.ordinal().domain(this.raw_data.map(function(d) {
-        return d.series_1;
-      }));
+      scale = d3.scale.ordinal().domain((function() {
+        var _i, _len, _ref, _results;
+        _ref = this.raw_data;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          d = _ref[_i];
+          _results.push(d.series_1);
+        }
+        return _results;
+      }).call(this));
       ranges = {};
       totalColumnCount = 0;
       _ref = this._data;
@@ -206,10 +214,17 @@
           for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
             s2 = _ref1[_j];
             _results1.push((function(s2) {
-              var s3;
-              s3 = s2.values.map(function(d) {
-                return d.values[0].value;
-              });
+              var d, s3;
+              s3 = (function() {
+                var _k, _len2, _ref2, _results2;
+                _ref2 = s2.values;
+                _results2 = [];
+                for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                  d = _ref2[_k];
+                  _results2.push(d.values[0].value);
+                }
+                return _results2;
+              })();
               return _this.series3Domains[s1.key][s2.key] = d3.scale.linear().domain([0, d3.sum(s3)]).range([0, _this.height]);
             })(s2));
           }
@@ -411,9 +426,24 @@
       this.series_1_labels.attr('y', this.height + 20).text(function(d) {
         return d.key;
       }).attr('x', function(d, i) {
-        return _this.series1x[i];
-      }).style('fill', '#f00');
+        return _this.series1x[i] + _this.series1width[i] / 2;
+      });
       return this.series_1_labels.exit().remove();
+    };
+
+    Column.prototype.appendSeries2Labels = function() {
+      var series_2_labels,
+        _this = this;
+      this.svg.selectAll('.series2label').remove();
+      series_2_labels = this.series_1.selectAll('text.series2label').data(function(d) {
+        return d.values;
+      });
+      series_2_labels.enter().append('text').attr('class', 'series2label');
+      return series_2_labels.attr('y', this.height + 10).attr('x', function(d, i) {
+        return _this.columnBand(i) + _this.columnBand.rangeBand() / 2;
+      }).text(function(d) {
+        return d.key;
+      });
     };
 
     return Column;
