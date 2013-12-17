@@ -75,7 +75,7 @@ class ZVG.Column extends ZVG.BasicChart
     @columnBand = d3.scale.ordinal()
       .domain([0...maxCount])
       .rangeRoundBands([0, @columnSpacing * maxCount], 0.1)
-    @widenChart(@width + 100) if @columnBand.rangeBand() < 15
+    @widenChart(@width + 100) if @columnBand.rangeBand() < 20
 
   widenChart: (width) ->
     @width = width
@@ -159,7 +159,6 @@ class ZVG.Column extends ZVG.BasicChart
   valuePercentFunction: (d) =>
     dp = d.values[0]
     n = @series3Domains[dp.series_1][dp.series_2].domain()[1]
-    console.log dp, n
     @percentFormat dp.value/n
 
   renderSeries3Labels: ->
@@ -178,8 +177,16 @@ class ZVG.Column extends ZVG.BasicChart
         current_y + h/2
       ).attr('opacity', 0)
       .transition().delay(500).attr('opacity', 1)
+    computeFontSize = @computeFontSize
+    valueHeightFunction = @valueHeightFunction
     @series_3_labels.text(@valuePercentFunction)
+    @series_3_labels.style('font-size', (d) ->
+      # is there a better way to do this? need class bindings as well as local this
+      computeFontSize(this, valueHeightFunction(d))
+    )
 
+  computeFontSize: (node, maxHeight) =>
+    "#{d3.min([10, @columnBand.rangeBand()/3, maxHeight])}pt"
 
   appendSeries2Borders: ->
     @borders = @series_2.selectAll('.border')

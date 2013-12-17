@@ -8,6 +8,7 @@
     __extends(Column, _super);
 
     function Column() {
+      this.computeFontSize = __bind(this.computeFontSize, this);
       this.valuePercentFunction = __bind(this.valuePercentFunction, this);
       this.valueHeightFunction = __bind(this.valueHeightFunction, this);
       var _this = this;
@@ -143,7 +144,7 @@
         for (var _k = 0; 0 <= maxCount ? _k < maxCount : _k > maxCount; 0 <= maxCount ? _k++ : _k--){ _results.push(_k); }
         return _results;
       }).apply(this)).rangeRoundBands([0, this.columnSpacing * maxCount], 0.1);
-      if (this.columnBand.rangeBand() < 15) {
+      if (this.columnBand.rangeBand() < 20) {
         return this.widenChart(this.width + 100);
       }
     };
@@ -259,12 +260,11 @@
       var dp, n;
       dp = d.values[0];
       n = this.series3Domains[dp.series_1][dp.series_2].domain()[1];
-      console.log(dp, n);
       return this.percentFormat(dp.value / n);
     };
 
     Column.prototype.renderSeries3Labels = function() {
-      var current_y,
+      var computeFontSize, current_y, valueHeightFunction,
         _this = this;
       this.series_2.selectAll('text.vg').remove();
       this.series_3_labels = this.series_2.selectAll('text.vg').data(function(d) {
@@ -280,7 +280,16 @@
         current_y -= h;
         return current_y + h / 2;
       }).attr('opacity', 0).transition().delay(500).attr('opacity', 1);
-      return this.series_3_labels.text(this.valuePercentFunction);
+      computeFontSize = this.computeFontSize;
+      valueHeightFunction = this.valueHeightFunction;
+      this.series_3_labels.text(this.valuePercentFunction);
+      return this.series_3_labels.style('font-size', function(d) {
+        return computeFontSize(this, valueHeightFunction(d));
+      });
+    };
+
+    Column.prototype.computeFontSize = function(node, maxHeight) {
+      return "" + (d3.min([10, this.columnBand.rangeBand() / 3, maxHeight])) + "pt";
     };
 
     Column.prototype.appendSeries2Borders = function() {
