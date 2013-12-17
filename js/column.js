@@ -81,7 +81,12 @@
 
     Column.prototype.color = d3.scale.category20();
 
+    Column.prototype.resetWidth = function() {
+      return this.widenChart(ZVG.BasicChart.prototype.width);
+    };
+
     Column.prototype.render = function() {
+      this.resetWidth();
       this.setSeries1Spacing();
       this.initializeSeries1();
       this.buildSeries2Domains();
@@ -133,12 +138,12 @@
         return _results;
       }).apply(this)).rangeRoundBands([0, this.columnSpacing * maxCount], 0.1);
       if (this.columnBand.rangeBand() < 15) {
-        return this.widenChart();
+        return this.widenChart(this.width + 100);
       }
     };
 
-    Column.prototype.widenChart = function() {
-      this.width += 100;
+    Column.prototype.widenChart = function(width) {
+      this.width = width;
       this.svg.attr('width', this.width);
       this.background.attr('width', this.width);
       return this.setSeries1Spacing();

@@ -36,8 +36,11 @@ class ZVG.Column extends ZVG.BasicChart
       .entries(d)
 
   color: d3.scale.category20()
+  resetWidth: ->
+    @widenChart ZVG.BasicChart.prototype.width
 
   render: ->
+    @resetWidth()
     @setSeries1Spacing()
     @initializeSeries1()
     @buildSeries2Domains()
@@ -69,10 +72,10 @@ class ZVG.Column extends ZVG.BasicChart
     @columnBand = d3.scale.ordinal()
       .domain([0...maxCount])
       .rangeRoundBands([0, @columnSpacing * maxCount], 0.1)
-    @widenChart() if @columnBand.rangeBand() < 15
+    @widenChart(@width + 100) if @columnBand.rangeBand() < 15
 
-  widenChart: ->
-    @width += 100
+  widenChart: (width) ->
+    @width = width
     @svg.attr('width', @width)
     @background.attr('width', @width)
     @setSeries1Spacing()
