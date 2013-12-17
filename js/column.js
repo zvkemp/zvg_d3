@@ -214,7 +214,7 @@
         return d.values;
       });
       this.series_3.enter().append("rect").attr("class", 'vg').attr('x', 0).attr('y', this.height).attr('height', 0);
-      current_y = 0;
+      current_y = this.height;
       height = function(d) {
         var dp;
         dp = d.values[0];
@@ -225,11 +225,11 @@
       }).attr('width', this.columnBand.rangeBand()).transition().delay(200).duration(500).attr('y', function(d, i) {
         var h;
         if (i === 0) {
-          current_y = 0;
+          current_y = _this.height;
         }
         h = height(d);
-        current_y += h;
-        return current_y - h;
+        current_y -= h;
+        return current_y;
       }).attr('class', function(d, i) {
         return "vg";
       }).attr('height', height);
@@ -254,7 +254,7 @@
         return d.key;
       });
       this.borders.enter().append('rect').attr('class', 'border');
-      return this.borders.style('stroke', 'white').style('stroke-width', '2pt').style('fill', 'none').attr('x', 0).attr('y', this.height).attr('height', 0).attr('width', this.columnBand.rangeBand()).attr('opacity', 0).transition().delay(300).duration(700).attr('y', 0).attr('height', this.height).attr('opacity', 1);
+      return this.borders.style('stroke', 'white').style('stroke-width', '1pt').style('fill', 'none').attr('x', 0).attr('y', this.height).attr('height', 0).attr('width', this.columnBand.rangeBand()).attr('opacity', 0).transition().delay(300).duration(700).attr('y', 0).attr('height', this.height).attr('opacity', 1);
     };
 
     Column.prototype.initializeY = function() {

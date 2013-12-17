@@ -128,7 +128,7 @@
   })();
 
   window.map = new ZVG.Map({
-    scale: 4000,
+    scale: 43000,
     center: [122.4100, 37.7800],
     parallels: [35, 36]
   });
