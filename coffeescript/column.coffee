@@ -156,6 +156,12 @@ class ZVG.Column extends ZVG.BasicChart
     dp = d.values[0]
     @series3Domains[dp.series_1][dp.series_2](dp.value)
 
+  valuePercentFunction: (d) =>
+    dp = d.values[0]
+    n = @series3Domains[dp.series_1][dp.series_2].domain()[1]
+    console.log dp, n
+    @percentFormat dp.value/n
+
   renderSeries3Labels: ->
     @series_2.selectAll('text.vg').remove()
     @series_3_labels = @series_2.selectAll('text.vg')
@@ -172,7 +178,7 @@ class ZVG.Column extends ZVG.BasicChart
         current_y + h/2
       ).attr('opacity', 0)
       .transition().delay(500).attr('opacity', 1)
-    @series_3_labels.text((d) -> d.key)
+    @series_3_labels.text(@valuePercentFunction)
 
 
   appendSeries2Borders: ->
@@ -194,6 +200,8 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('height', @height)
       .attr('opacity', 1)
 
+  percentScale: d3.scale.linear().range([0,1])
+  percentFormat: d3.format('.0%')
 
   initializeY: ->
     @y = d3.scale.linear().range([0, @height])
@@ -202,8 +210,6 @@ class ZVG.Column extends ZVG.BasicChart
   initializeLabels: ->
     @labels = d3.scale.linear().range([0, 1])
     @percent = d3.format('.0%')
-
-
 
   appendSeries1Labels: ->
     @series_1_labels = @svg.selectAll('text.series1label')

@@ -8,6 +8,7 @@
     __extends(Column, _super);
 
     function Column() {
+      this.valuePercentFunction = __bind(this.valuePercentFunction, this);
       this.valueHeightFunction = __bind(this.valueHeightFunction, this);
       var _this = this;
       d3.select('body').append('button').text('randomize').on('click', function() {
@@ -254,6 +255,14 @@
       return this.series3Domains[dp.series_1][dp.series_2](dp.value);
     };
 
+    Column.prototype.valuePercentFunction = function(d) {
+      var dp, n;
+      dp = d.values[0];
+      n = this.series3Domains[dp.series_1][dp.series_2].domain()[1];
+      console.log(dp, n);
+      return this.percentFormat(dp.value / n);
+    };
+
     Column.prototype.renderSeries3Labels = function() {
       var current_y,
         _this = this;
@@ -271,9 +280,7 @@
         current_y -= h;
         return current_y + h / 2;
       }).attr('opacity', 0).transition().delay(500).attr('opacity', 1);
-      return this.series_3_labels.text(function(d) {
-        return d.key;
-      });
+      return this.series_3_labels.text(this.valuePercentFunction);
     };
 
     Column.prototype.appendSeries2Borders = function() {
@@ -283,6 +290,10 @@
       this.borders.enter().append('rect').attr('class', 'border');
       return this.borders.style('stroke', 'white').style('stroke-width', '1pt').style('fill', 'none').attr('x', 0).attr('y', this.height).attr('height', 0).attr('width', this.columnBand.rangeBand()).attr('opacity', 0).transition().delay(300).duration(700).attr('y', 0).attr('height', this.height).attr('opacity', 1);
     };
+
+    Column.prototype.percentScale = d3.scale.linear().range([0, 1]);
+
+    Column.prototype.percentFormat = d3.format('.0%');
 
     Column.prototype.initializeY = function() {
       this.y = d3.scale.linear().range([0, this.height]);
