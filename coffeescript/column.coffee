@@ -50,6 +50,7 @@ class ZVG.Column extends ZVG.BasicChart
     @initializeLabels()
     @appendSeries2Borders()
     @renderSeries3()
+    @renderSeries3Labels()
     @bindValueGroupHover()
     @renderLegend()
 
@@ -130,19 +131,16 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('y', @height)
       .attr('height', 0)
     current_y = @height
-    height = (d) =>
-      dp = d.values[0]
-      @series3Domains[dp.series_1][dp.series_2](dp.value)
     @series_3.style('fill', (d) => @color(d.key))
       .attr('width', @columnBand.rangeBand())
       .transition().delay(200).duration(500)
       .attr('y', (d,i) =>
         current_y = @height if i is 0
-        h = height(d)
+        h = @valueHeightFunction(d)
         current_y -= h
         current_y
       ).attr('class', (d,i) => "vg")
-      .attr('height', height)
+      .attr('height', @valueHeightFunction)
     @series_3.exit().remove()
 
   bindValueGroupHover: ->
@@ -153,7 +151,28 @@ class ZVG.Column extends ZVG.BasicChart
     ).on('mouseout', (d) =>
       @svg.selectAll('.vg').attr('opacity', 1)
     )
+  
+  valueHeightFunction: (d) =>
+    dp = d.values[0]
+    @series3Domains[dp.series_1][dp.series_2](dp.value)
 
+  renderSeries3Labels: ->
+    @series_2.selectAll('text.vg').remove()
+    @series_3_labels = @series_2.selectAll('text.vg')
+      .data((d) -> d.values)
+    current_y = @height
+    @series_3_labels.enter()
+      .append('text')
+      .attr('class', 'vg column-label')
+      .attr('x', @columnBand.rangeBand()/2)
+      .attr('y', (d,i) =>
+        current_y = @height if i is 0
+        h = @valueHeightFunction(d)
+        current_y -= h
+        current_y + h/2
+      ).attr('opacity', 0)
+      .transition().delay(500).attr('opacity', 1)
+    @series_3_labels.text((d) -> d.key)
 
 
   appendSeries2Borders: ->
@@ -175,10 +194,6 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('height', @height)
       .attr('opacity', 1)
 
-     
-
-
-  
 
   initializeY: ->
     @y = d3.scale.linear().range([0, @height])
