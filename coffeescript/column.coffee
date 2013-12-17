@@ -128,7 +128,7 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('x', 0)
       .attr('y', @height)
       .attr('height', 0)
-    current_y = 0
+    current_y = @height
     height = (d) =>
       dp = d.values[0]
       @series3Domains[dp.series_1][dp.series_2](dp.value)
@@ -136,10 +136,10 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('width', @columnBand.rangeBand())
       .transition().delay(200).duration(500)
       .attr('y', (d,i) =>
-        current_y = 0 if i is 0
+        current_y = @height if i is 0
         h = height(d)
-        current_y += h
-        current_y - h
+        current_y -= h
+        current_y
       ).attr('class', (d,i) => "vg")
       .attr('height', height)
     @series_3.exit().remove()
@@ -162,7 +162,7 @@ class ZVG.Column extends ZVG.BasicChart
       .append('rect')
       .attr('class', 'border')
     @borders.style('stroke', 'white')
-      .style('stroke-width', '2pt')
+      .style('stroke-width', '1pt')
       .style('fill', 'none')
       .attr('x', 0)
       .attr('y', @height)
@@ -200,9 +200,6 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('x', (d,i) => @series1x[i])
       .style('fill', '#f00')
     @series_1_labels.exit().remove()
-
-
-
 
 
 
