@@ -158,6 +158,7 @@ class ZVG.BasicChart
       return @
     @_series_2_domain
 
+
   initializeSvg: ->
     @svg = d3.select('body').append('svg')
       .attr('height', @height + 200).attr('width', @width + 200)

@@ -124,7 +124,7 @@ class ZVG.Column extends ZVG.BasicChart
     @series_1.enter()
       .append('g')
       .attr('class', 'series1')
-    @series_1.attr('transform', (d,i) => "translate(#{@series1x[i]}, 0)")
+    @series_1.transition().duration(500).attr('transform', (d,i) => "translate(#{@series1x[i]}, 0)")
     @series_1.exit().remove()
 
   buildSeriesDomains: ->
@@ -168,10 +168,11 @@ class ZVG.Column extends ZVG.BasicChart
       .append('g')
       .attr('class', 'column series2')
       .attr('transform', "translate(0,0)")
-    @series_2.attr('label', (d) -> d.key).transition().duration(300)
+    @series_2.attr('label', (d) -> d.key).transition().duration(500)
       .attr('transform', (d,i) => "translate(#{@columnBand(i)}, 0)")
     @series_2.exit()
-      .attr('transform', "translate(0,0)")
+      .transition().duration(500)
+      .attr('transform', "translate(0,-1000)")
       .remove()
 
 
@@ -285,7 +286,7 @@ class ZVG.Column extends ZVG.BasicChart
     @series_1_labels.enter()
       .append('text')
       .attr('class', 'series1label')
-    @series_1_labels.attr('y', @height + 20)
+    @series_1_labels.attr('y', @height + 30)
       .text((d) -> d.key)
       .attr('x', (d,i) => @series1x[i] + @series1width[i]/2)
     @series_1_labels.exit().remove()
@@ -300,6 +301,18 @@ class ZVG.Column extends ZVG.BasicChart
     series_2_labels.attr('y', @height + 10)
       .attr('x', (d,i) => @columnBand(i) + @columnBand.rangeBand()/2)
       .text((d) -> d.key)
+
+    series_2_labels.on('click', (d,i) =>
+      @filterData(d.key)
+      @render()
+    )
+
+  filterData: (filter) ->
+    if filter
+      # prevent @raw_data from being overwritten
+      @_data = @nestData(x for x in @raw_data when x.series_2 == filter)
+    else
+      @data(@raw_data)
 
 
 
