@@ -15,6 +15,7 @@ buttons.append('button')
   .on('click', =>
     chart.series_1_domain("Survey #{n}" for n in [3,2,1])
     chart.series_2_domain("Filter #{n}" for n in [1,2,3,4])
+    chart.series_3_domain("#{n}" for n in [1,2])
     chart.data(chart.sample_data)
     chart.render(chart.renderMode)
   )

@@ -16,7 +16,7 @@ class ZVG.Column extends ZVG.BasicChart
   randomizeData: (s1count, s2count, s3count) ->
     s1count or= parseInt(Math.random() * 15 + 1)
     s2count or= parseInt(Math.random() * 15 + 1)
-    s3count or= parseInt(Math.random() * 8 + 2)
+    s3count or= parseInt(Math.random() * 8 + 12)
 
     raw = []
     for s in ([1..s1count])
@@ -71,8 +71,8 @@ class ZVG.Column extends ZVG.BasicChart
     #@appendSeries2Borders()
     @renderSeries3()
     @renderSeries3Labels()
-    @bindValueGroupHover()
     @renderLegend()
+    @bindValueGroupHover()
 
   # pre-establishes indexes for the spacing and grouping of series 1 data
   # based on its contents (necessary because of the variable length of data within
@@ -106,6 +106,7 @@ class ZVG.Column extends ZVG.BasicChart
     @svg.attr('width', @width)
     @background.attr('width', @width)
     @setSeries1Spacing()
+    @positionLegend()
 
   series1TotalWidth: -> @width / @_data.length
 
@@ -150,7 +151,7 @@ class ZVG.Column extends ZVG.BasicChart
         @series3Domains[s1.key] = {}
         for s2 in s1.values
           do (s2) =>
-            @series3Domains[s1.key][s2.key] = maxScale 
+            @series3Domains[s1.key][s2.key] = maxScale
   
   renderSeries2: ->
     @series_2 = @series_1.selectAll('.series2')
@@ -190,12 +191,12 @@ class ZVG.Column extends ZVG.BasicChart
     @series_3.exit().remove()
 
   bindValueGroupHover: ->
-    vg = @svg.selectAll('.vg')
+    vg = @container.selectAll('.vg')
     vg.on('mouseover', (d) =>
       vg.filter((e) -> e.key != d.key)
-        .attr('opacity', 0.2)
+        .style('opacity', 0.1)
     ).on('mouseout', (d) =>
-      @svg.selectAll('.vg').attr('opacity', 1)
+      @container.selectAll('.vg').style('opacity', 1)
     )
   
   valueHeightFunction: (d) =>
@@ -305,6 +306,78 @@ class ZVG.Column extends ZVG.BasicChart
     else
       @data(@raw_data)
 
+  #renderLegend: ->
+  #  @svg.attr('width', @width + 200)
+  #  @initializeLegend()
+  #  @legend.selectAll('g.legend_item').remove()
+  #  items = @legend.selectAll('g.legend_item')
+  #    .data({ key: x, text: "Label for #{x}" } for x in @series_3_domain().slice(0).reverse())
+
+  #  items.enter()
+  #    .append('g')
+  #    .attr('class', 'legend_item vg')
+  #    .attr('label', (d) -> d.key)
+  #    .attr('transform', (d,i) -> "translate(0, #{20 * i})")
+  #    .append('rect')
+  #    .style('fill', 'white')
+  #    .attr('x', 0)
+  #    .attr('y', 0)
+  #    .attr('width', 200)
+  #    .attr('height', 20)
+
+  #  icons = items.selectAll('rect.icon').data((d) -> [d])
+  #  icons.enter()
+  #    .append('rect')
+  #    .attr('class', 'icon')
+  #    .attr('x', 0)
+  #    .attr('y', 0)
+  #    .attr('width', 15)
+  #    .attr('height', 15)
+
+  #  icons.style('fill', (d) => @color(d.key))
+
+  #  text = items.selectAll('text').data((d) -> [d])
+  #    .enter()
+  #    .append('text')
+  #    .attr('x', 20)
+  #    .attr('y', 5)
+  #    .attr('class', 'legend_text')
+  #  text.text((d) -> d.text)
+  #  items.exit().remove()
+  #
+  renderLegend: ->
+    console.log('renderLegend')
+    @initializeLegend()
+    @legend.selectAll('div.legend_item').remove()
+    items = @legend.selectAll('div.legend_item')
+      .data({ key: x, text: "An exceptionally long and rambling Label for #{x}" } for x in @series_3_domain().slice(0).reverse())
+    items.enter()
+      .append('div')
+      .attr('class', 'legend_item vg')
+      .attr('label', (d) -> d.key)
+      .style('padding', '3px')
+    items.append('div')
+      .attr('class', 'legend-icon')
+      .style('background-color', (d) => @color(d.key))
+      .style('width', '15px')
+      .style('height', '15px')
+      .style('padding', '1px')
+      .style('float', 'left')
+      .style('margin-right', '5px')
+    items.append('span').attr('class','legend_text')
+      .text((d) -> d.text)
+
+  initializeLegend: ->
+    @legend or= @container.append('div').attr('class', 'legend zvg-chart')
+      .style('width', '200px')
+      .style('padding', '10px')
+
+  # initializeLegend: ->
+  #   @legend or= @svg.append('g')
+  #   @positionLegend()
+  positionLegend: -> null
+  #   @legend.attr('transform', "translate(#{@width + 10}, 20)") if @legend
+
 
   sample_data: [
     {
@@ -380,7 +453,7 @@ class ZVG.Column extends ZVG.BasicChart
       value: 200
     }
     {
-      series_1: 'Survey 3'
+      series_1: 'Sromervey 3'
       series_2: 'Filter 2'
       series_3: 1
       value: 200
