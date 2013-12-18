@@ -2,6 +2,7 @@ describe 'Charts::Column', ->
   afterEach ->
     d3.selectAll('svg').remove()
     d3.selectAll('div#testing').remove()
+    d3.selectAll('div.zvg').remove()
 
   it 'should be defined', ->
     expect(ZVG.Column).toBeDefined()
@@ -106,5 +107,33 @@ describe 'Charts::Column', ->
     it 'saves the element as an attribute', ->
       column = new ZVG.Column('#testing')
       expect(column.element).toBe('#testing')
+
+  describe 'filtering data', ->
+    beforeEach ->
+      column = new ZVG.Column
+      column.series_1_domain(['A', 'B', 'C'])
+      column.series_2_domain(['X', 'Y', 'Z'])
+      column.data(data)
+
+    it 'displays all by default', ->
+      column.filterData()
+      expect(column.raw_data).toBe(data)
+
+    it 'displays a single series 2 range', ->
+      column.filterData('Y')
+      column.data().forEach (s1) ->
+        series_2_keys = (x.key for x in s1.values)
+        expect(series_2_keys).toEqual ['Y']
+
+    it 'maintains the original raw data when filtering', ->
+      column.filterData('Z')
+      expect(column.raw_data).toEqual(data)
+
+    it 'returns to unfiltered data', ->
+      column.filterData('X')
+      column.filterData()
+      column.data().forEach (s1) ->
+        series_2_keys = (x.key for x in s1.values)
+        expect(series_2_keys).toEqual ['X', 'Y', 'Z']
 
 
