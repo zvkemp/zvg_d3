@@ -13,23 +13,6 @@ class ZVG.Column extends ZVG.BasicChart
   # legend labels for series_3
   #
   constructor: ->
-    d3.select('body').append('button')
-      .text('randomize')
-      .on('click', => @randomizeData())
-    d3.select('body').append('button')
-      .text('standard sample data')
-      .on('click', =>
-        @data(@sample_data)
-        @series_2_domain("Filter #{n}" for n in [1,2,3,4])
-        @render(@renderMode)
-      )
-    d3.select('body').append('button')
-      .text('show percentages')
-      .on('click', => @render('percentage'))
-    d3.select('body').append('button')
-      .text('show counts')
-      .on('click', => @render('count'))
-    d3.select('body').append('br')
     @initializeSvg()
 
   randomizeData: (s1count, s2count, s3count) ->
@@ -316,94 +299,89 @@ class ZVG.Column extends ZVG.BasicChart
       @data(@raw_data)
 
 
-
-window.chart = new ZVG.Column
-chart.randomizeData()
-chart.render()
-
-chart.sample_data = [
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 1'
-    series_3: 1
-    value: 100
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 1'
-    series_3: 2
-    value: 200
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 2'
-    series_3: 1
-    value: 200
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 2'
-    series_3: 2
-    value: 300
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 4'
-    series_3: 1
-    value: 100
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 4'
-    series_3: 2
-    value: 400
-  }
-  {
-    series_1: 'Survey 2'
-    series_2: 'Filter 1'
-    series_3: 1
-    value: 100
-  }
-  {
-    series_1: 'Survey 2'
-    series_2: 'Filter 1'
-    series_3: 2
-    value: 200
-  }
-  {
-    series_1: 'Survey 2'
-    series_2: 'Filter 3'
-    series_3: 1
-    value: 200
-  }
-  {
-    series_1: 'Survey 2'
-    series_2: 'Filter 3'
-    series_3: 2
-    value: 300
-  }
-  {
-    series_1: 'Survey 3'
-    series_2: 'Filter 3'
-    series_3: 1
-    value: 100
-  }
-  {
-    series_1: 'Survey 3'
-    series_2: 'Filter 3'
-    series_3: 2
-    value: 200
-  }
-  {
-    series_1: 'Survey 3'
-    series_2: 'Filter 2'
-    series_3: 1
-    value: 200
-  }
-  {
-    series_1: 'Survey 3'
-    series_2: 'Filter 2'
-    series_3: 2
-    value: 300
-  }
-]
+  sample_data: [
+    {
+      series_1: 'Survey 1'
+      series_2: 'Filter 1'
+      series_3: 1
+      value: 100
+    }
+    {
+      series_1: 'Survey 1'
+      series_2: 'Filter 1'
+      series_3: 2
+      value: 200
+    }
+    {
+      series_1: 'Survey 1'
+      series_2: 'Filter 2'
+      series_3: 1
+      value: 200
+    }
+    {
+      series_1: 'Survey 1'
+      series_2: 'Filter 2'
+      series_3: 2
+      value: 300
+    }
+    {
+      series_1: 'Survey 1'
+      series_2: 'Filter 4'
+      series_3: 1
+      value: 100
+    }
+    {
+      series_1: 'Survey 1'
+      series_2: 'Filter 4'
+      series_3: 2
+      value: 400
+    }
+    {
+      series_1: 'Survey 2'
+      series_2: 'Filter 1'
+      series_3: 1
+      value: 100
+    }
+    {
+      series_1: 'Survey 2'
+      series_2: 'Filter 1'
+      series_3: 2
+      value: 200
+    }
+    {
+      series_1: 'Survey 2'
+      series_2: 'Filter 3'
+      series_3: 1
+      value: 200
+    }
+    {
+      series_1: 'Survey 2'
+      series_2: 'Filter 3'
+      series_3: 2
+      value: 300
+    }
+    {
+      series_1: 'Survey 3'
+      series_2: 'Filter 3'
+      series_3: 1
+      value: 100
+    }
+    {
+      series_1: 'Survey 3'
+      series_2: 'Filter 3'
+      series_3: 2
+      value: 200
+    }
+    {
+      series_1: 'Survey 3'
+      series_2: 'Filter 2'
+      series_3: 1
+      value: 200
+    }
+    {
+      series_1: 'Survey 3'
+      series_2: 'Filter 2'
+      series_3: 2
+      value: 300
+    }
+  ]
