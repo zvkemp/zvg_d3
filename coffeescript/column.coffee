@@ -20,6 +20,7 @@ class ZVG.Column extends ZVG.BasicChart
       .text('standard sample data')
       .on('click', =>
         @data(@sample_data)
+        @series_2_domain("Filter #{n}" for n in [1,2,3,4])
         @render(@renderMode)
       )
     d3.select('body').append('button')
