@@ -11,10 +11,9 @@ class ZVG.Radar extends ZVG.BasicChart
     @initializeSvg()
 
   render: ->
-    @initializeCenterGroup()
+    @initializeCenterGroup() unless @center # prevent multiple base group appends when re-rendering
     @establishRadialDomain()
     @establishAngularDomain()
-    # @renderTestingMarks()
     @renderAxes()
     @renderSeries()
 
@@ -23,44 +22,6 @@ class ZVG.Radar extends ZVG.BasicChart
       .attr('transform', "translate(#{@width/2}, #{@height/2})")
     @axes = @center.append('g').attr('label', 'axes')
     @polygons = @center.append('g').attr('label', 'polygons')
-
-  renderTestingMarks: ->
-    # should point to upper-right corner
-    @center.append('line')
-      .attr('x1', 0)
-      .attr('x2', @width/2)
-      .attr('y1', 0)
-      .attr('y2', -@height/2)
-      .style('stroke', '#ddd')
-    @center.selectAll('circle.testing')
-      .data([1..@maxRadius()])
-      .enter()
-      .append('circle')
-      .attr('class', 'testing')
-      .attr('cx', 0)
-      .attr('cy', 0)
-      .attr('r', (d) => @radialDomain(d))
-      .style('fill', 'none')
-      .style('stroke', '#ddd')
-    pentagon = [(@convertToXY(5,index) for index in ([0..4]))]
-    spokes = [0,1,2,3,4]
-#    @center.selectAll('path.testing')
-#      .data(pentagon)
-#      .enter()
-#      .append('path')
-#      .attr('d', @polygon)
-#      .style('fill', 'none')
-#      .style('stroke', 'black')
-#    @center.selectAll('line.spoke')
-#      .data(spokes)
-#      .enter()
-#      .append('line')
-#      .attr('x1', 0)
-#      .attr('y1', 0)
-#      .attr('x2', (d) => @convertToXY(5, d).x)
-#      .attr('y2', (d) => @convertToXY(5, d).y)
-#      .style('stroke', 'black')
-#      .attr('label', (d) -> d)
 
   # not yet in use
   series_3_domain: (d) ->
@@ -99,7 +60,6 @@ class ZVG.Radar extends ZVG.BasicChart
   renderSeries: ->
     polygons = @polygons.selectAll('path.polygon')
       .data(@polygonData())
-
     polygons.enter()
       .append('path')
       .attr('class', 'polygon')
@@ -109,6 +69,7 @@ class ZVG.Radar extends ZVG.BasicChart
       .transition().duration(1000)
       .attr('d', (d) => @polygon(d.points))
       .style('fill', (d) => @colors(d.key))
+    polygons.exit().remove()
 
   polygonData: ->
     (for d in @_data
@@ -125,6 +86,9 @@ class ZVG.Radar extends ZVG.BasicChart
 
   currentFilter: ->
     @_currentFilter or= @series_2_domain()[0]
+
+  setFilter: (filter) ->
+    @_currentFilter = filter
 
 
 
@@ -166,6 +130,24 @@ class ZVG.Radar extends ZVG.BasicChart
     d3.nest()
       .key((z) -> z.series_1)
       .entries(d)
+
+  randomizeData: (nSeries1, nSeries2, nSeries3, max) ->
+    data = []
+    for s1 in ([1..nSeries1])
+      do (s1) ->
+        for s2 in ([1..nSeries2])
+          do (s2) ->
+            for s3 in ([1..nSeries3])
+              do (s3) ->
+                data.push({
+                  series_1: "Survey #{s1}"
+                  series_2: "Filter #{s2}"
+                  series_3: 100 * s3
+                  value: Math.random() * max
+                })
+    @data(data)
+    @render()
+
 
 
 
@@ -209,37 +191,55 @@ window.simpleTestData = [
   }
   
   {
-    series_1: 'Survey 2'
-    series_2: 'all'
+    series_1: 'Survey 1'
+    series_2: 'Filter 2'
     series_3: 100
     value: 3.5
   }
   {
-    series_1: 'Survey 2'
-    series_2: 'all'
+    series_1: 'Survey 1'
+    series_2: 'Filter 2'
     series_3: 200
     value: 1.5
   }
   {
-    series_1: 'Survey 2'
-    series_2: 'all'
+    series_1: 'Survey 1'
+    series_2: 'Filter 2'
     series_3: 300
     value: 2.1
   }
   {
-    series_1: 'Survey 2'
-    series_2: 'all'
+    series_1: 'Survey 1'
+    series_2: 'Filter 2'
     series_3: 400
     value: 3.8
   }
   {
-    series_1: 'Survey 2'
-    series_2: 'all'
+    series_1: 'Survey 1'
+    series_2: 'Filter 2'
     series_3: 500
     value: 3.1
   }
 ]
-chart.data(simpleTestData)
-  .maxRadius(5)
-  .series_2_domain(d3.scale.ordinal().domain(x.series_2 for x in simpleTestData).domain())
+
+window.moreComplexData = [
+  {series_1: 'Survey 1',series_2: "Filter 1", series_3:100, value: 3.4941219999454916},
+  {series_1: 'Survey 1',series_2: "Filter 1", series_3:200, value: 1.9292143830098212},
+  {series_1: 'Survey 1',series_2: "Filter 1", series_3:300, value: 2.713041902985424},
+  {series_1: 'Survey 1',series_2: "Filter 1", series_3:400, value: 1.5061968080699444},
+  {series_1: 'Survey 1',series_2: "Filter 1", series_3:500, value: 5.406578453723341},
+  {series_1: 'Survey 1',series_2: "Filter 2", series_3:100, value: 4.2298069428652525},
+  {series_1: 'Survey 1',series_2: "Filter 2", series_3:200, value: 5.5519170253537595},
+  {series_1: 'Survey 1',series_2: "Filter 2", series_3:300, value: 0.2769786645658314},
+  {series_1: 'Survey 1',series_2: "Filter 2", series_3:400, value: 1.6917675621807575},
+  {series_1: 'Survey 1',series_2: "Filter 2", series_3:500, value: 0.619645903352648},
+  {series_1: 'Survey 1',series_2: "Filter 3", series_3:100, value: 4.02297692745924},
+  {series_1: 'Survey 1',series_2: "Filter 3", series_3:200, value: 2.8029478769749403},
+  {series_1: 'Survey 1',series_2: "Filter 3", series_3:300, value: 0.9199619614519179},
+  {series_1: 'Survey 1',series_2: "Filter 3", series_3:400, value: 2.8409991916269064},
+  {series_1: 'Survey 1',series_2: "Filter 3", series_3:500, value: 4.59977040393278}]
+
+chart.data(moreComplexData)
+  .maxRadius(6)
+  .series_2_domain(d3.scale.ordinal().domain(x.series_2 for x in moreComplexData).domain())
   .render()
