@@ -8,12 +8,14 @@ chart.render()
 
 buttons.append('button')
   .text('randomize')
-  .on('click', => chart.randomizeData())
+  .on('click', => 
+    chart.randomizeData())
 buttons.append('button')
   .text('standard sample data')
   .on('click', =>
-    chart.data(chart.sample_data)
+    chart.series_1_domain("Survey #{n}" for n in [3,2,1])
     chart.series_2_domain("Filter #{n}" for n in [1,2,3,4])
+    chart.data(chart.sample_data)
     chart.render(chart.renderMode)
   )
 buttons.append('button')

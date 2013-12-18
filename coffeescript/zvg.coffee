@@ -133,6 +133,10 @@ class ZVG.BasicChart
   width: 900
   height: 500
 
+  constructor: (element) ->
+    @element = element
+    @initializeSvg(element)
+
   data: (d) ->
     if d
       @raw_data = d
@@ -158,9 +162,15 @@ class ZVG.BasicChart
       return @
     @_series_2_domain
 
+  series_3_domain: (d) ->
+    if d
+      @_series_3_domain = d
+      return @
+    @_series_3_domain
 
-  initializeSvg: ->
-    @svg = d3.select('body').append('svg')
+
+  initializeSvg: (element = 'body') ->
+    @svg = d3.select(element).append('svg')
       .attr('height', @height + 200).attr('width', @width + 200)
     @background = (new ZVG.Background(@svg, @height, @width)).background
 

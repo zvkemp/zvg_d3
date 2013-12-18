@@ -12,8 +12,6 @@ class ZVG.Column extends ZVG.BasicChart
   # defined order to series_1, series_2, series_3 domains
   # legend labels for series_3
   #
-  constructor: ->
-    @initializeSvg()
 
   randomizeData: (s1count, s2count, s3count) ->
     s1count or= parseInt(Math.random() * 15 + 1)
@@ -34,15 +32,24 @@ class ZVG.Column extends ZVG.BasicChart
                   series_3: d
                   value: parseInt(Math.random() * 150)
                 }
+    @series_1_domain("Survey #{n}" for n in [1..s1count])
+    @series_2_domain("Filter #{n}" for n in [1..s2count])
+    @series_3_domain("#{n}" for n in [1..s3count])
     @data(raw)
     @render(@renderMode)
   
   nestData: (d) ->
     d3.nest()
-      .key((z) -> z.series_1)
-      .key((z) -> z.series_2)
-      .key((z) -> z.series_3)
+      .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
+      .key((z) -> z.series_2).sortKeys(@seriesSortFunction(@series_2_domain()))
+      .key((z) -> z.series_3).sortKeys(@seriesSortFunction(@series_3_domain()))
       .entries(d)
+
+  seriesSortFunction: (priority_seed) ->
+    priority_seed or= []
+    (a,b) ->
+      priority_seed.indexOf(a) - priority_seed.indexOf(b)
+
 
   color: d3.scale.ordinal().range(ZVG.colorSchemes.warmCool10)
 
@@ -303,13 +310,13 @@ class ZVG.Column extends ZVG.BasicChart
     {
       series_1: 'Survey 1'
       series_2: 'Filter 1'
-      series_3: 1
+      series_3: 2
       value: 100
     }
     {
       series_1: 'Survey 1'
       series_2: 'Filter 1'
-      series_3: 2
+      series_3: 1
       value: 200
     }
     {
