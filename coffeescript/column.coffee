@@ -1,4 +1,17 @@
 class ZVG.Column extends ZVG.BasicChart
+  # Data structure:
+  # Raw dataset is array of series_1,series_2,series_3 key pairs:
+  # {
+  #   series_1: ... (survey or filter 1)
+  #   series_2: ... (filter 1 or filter 2)
+  #   series_3: ... (numeric value of datapoint)
+  #   value: ...    (raw value, percentage not precalculated).
+  # }
+  # Auxilliary data (not yet implemented): 
+  # n-values
+  # defined order to series_1, series_2, series_3 domains
+  # legend labels for series_3
+  #
   constructor: ->
     d3.select('body').append('button')
       .text('randomize')
@@ -48,6 +61,8 @@ class ZVG.Column extends ZVG.BasicChart
       .entries(d)
 
   color: d3.scale.ordinal().range(ZVG.colorSchemes.warmCool10)
+
+  # used to re-narrow the chart in case new data is smaller than current data.
   resetWidth: ->
     @widenChart ZVG.BasicChart.prototype.width
 
@@ -68,6 +83,9 @@ class ZVG.Column extends ZVG.BasicChart
     @bindValueGroupHover()
     @renderLegend()
 
+  # pre-establishes indexes for the spacing and grouping of series 1 data
+  # based on its contents (necessary because of the variable length of data within
+  # the series, otherwise simple rangebands could be used)
   setSeries1Spacing: ->
     @series1width      = []
     @series1x          = []
@@ -90,7 +108,8 @@ class ZVG.Column extends ZVG.BasicChart
       .domain([0...maxCount])
       .rangeRoundBands([0, @columnSpacing * maxCount], 0.1)
     @widenChart(@width + 100) if @columnBand.rangeBand() < 20
-
+  
+  # used to ensure a minimum viable width of individual columns.
   widenChart: (width) ->
     @width = width
     @svg.attr('width', @width)
