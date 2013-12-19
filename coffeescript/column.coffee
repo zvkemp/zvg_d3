@@ -16,7 +16,7 @@ class ZVG.Column extends ZVG.BasicChart
   randomizeData: (s1count, s2count, s3count) ->
     s1count or= parseInt(Math.random() * 15 + 1)
     s2count or= parseInt(Math.random() * 15 + 1)
-    s3count or= parseInt(Math.random() * 8 + 12)
+    s3count or= parseInt(Math.random() * 8 + 2)
 
     raw = []
     for s in ([1..s1count])
@@ -58,6 +58,7 @@ class ZVG.Column extends ZVG.BasicChart
     @widenChart ZVG.BasicChart.prototype.width
 
   render: (renderMode = 'percentage') ->
+    @undimAllValues()
     @renderMode = renderMode
     @resetWidth()
     @setSeries1Spacing()
@@ -73,6 +74,7 @@ class ZVG.Column extends ZVG.BasicChart
     @renderSeries3Labels()
     @renderLegend()
     @bindValueGroupHover()
+    @bindValueGroupClick()
 
   # pre-establishes indexes for the spacing and grouping of series 1 data
   # based on its contents (necessary because of the variable length of data within
@@ -193,12 +195,31 @@ class ZVG.Column extends ZVG.BasicChart
   bindValueGroupHover: ->
     vg = @container.selectAll('.vg')
     vg.on('mouseover', (d) =>
-      vg.filter((e) -> e.key != d.key)
-        .style('opacity', 0.1)
-    ).on('mouseout', (d) =>
-      @container.selectAll('.vg').style('opacity', 1)
+      @dimValuesNotMatching(d.key) unless @freeze
+    ).on('mouseout', => @undimAllValues() unless @freeze)
+
+  bindValueGroupClick: ->
+    vg = @container.selectAll('.vg')
+    vg.on('click', (d) =>
+      if @freeze && @freeze == d.key
+        @freeze = null # unfreeze if clicked again
+        @undimAllValues()
+      else
+        @freeze = d.key
+        @undimAllValues()
+        @dimValuesNotMatching(d.key)
+      console.log('freeze: ', @freeze)
     )
-  
+
+  # set opacity to 10% unless key property matches arg.
+  # Used for hover and click events.
+  dimValuesNotMatching: (key) =>
+    @container.selectAll('.vg').filter((e) -> e.key != key)
+      .style('opacity', 0.1)
+
+  undimAllValues: =>
+    @container.selectAll('.vg').style('opacity', 1)
+
   valueHeightFunction: (d) =>
     dp = d.values[0]
     @series3Domains[dp.series_1][dp.series_2](dp.value)
@@ -355,7 +376,6 @@ class ZVG.Column extends ZVG.BasicChart
       .append('div')
       .attr('class', 'legend_item vg')
       .attr('label', (d) -> d.key)
-      .style('padding', '3px')
     items.append('div')
       .attr('class', 'legend-icon')
       .style('background-color', (d) => @color(d.key))
@@ -370,7 +390,7 @@ class ZVG.Column extends ZVG.BasicChart
   initializeLegend: ->
     @legend or= @container.append('div').attr('class', 'legend zvg-chart')
       .style('width', '200px')
-      .style('padding', '10px')
+
 
   # initializeLegend: ->
   #   @legend or= @svg.append('g')
@@ -453,7 +473,7 @@ class ZVG.Column extends ZVG.BasicChart
       value: 200
     }
     {
-      series_1: 'Sromervey 3'
+      series_1: 'Survey 3'
       series_2: 'Filter 2'
       series_3: 1
       value: 200

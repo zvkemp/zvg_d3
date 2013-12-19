@@ -117,10 +117,12 @@ class ZVG.BackgroundGradient
 class ZVG.Background
   constructor: (svg, height, width, radius = 5) ->
 
-    ZVG.BackgroundGradient(svg)
+    # ZVG.BackgroundGradient(svg)
     backgroundGroup = svg.append('g')
     @background = backgroundGroup.append('rect')
-      .attr('fill', ZVG.flatUIColors['CLOUDS'])
+      .style('fill', ZVG.flatUIColors['CLOUDS'])
+      #.style('stroke', ZVG.flatUIColors['SILVER'])
+      #.style('stroke-width', '1px')
       # .style('fill', 'url(#standardBackgroundGradient)')
       #.style('fill', ZVG.flatUIColors['MIDNIGHT BLUE'])
       .attr('height', height)
@@ -175,7 +177,7 @@ class ZVG.BasicChart
     @chart     = @container.append('div').attr('class', 'zvg-chart')
     @svg = @chart.append('svg')
       .attr('height', @height + 200).attr('width', @width + 200)
-    @background = (new ZVG.Background(@svg, @height, @width)).background
+    @background = (new ZVG.Background(@svg, @height, @width, 0)).background
 
   renderLegend: ->
     null
