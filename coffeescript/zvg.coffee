@@ -148,9 +148,14 @@ class ZVG.BasicChart
 
   nestData: (d) ->
     d3.nest()
-      .key((z) -> z.series_1)
-      .key((z) -> z.series_2)
+      .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
+      .key((z) -> z.series_2).sortKeys(@seriesSortFunction(@series_2_domain()))
       .entries(d)
+
+  seriesSortFunction: (priority_seed) ->
+    priority_seed or= []
+    (a,b) ->
+      priority_seed.indexOf(a) - priority_seed.indexOf(b)
 
   series_1_domain: (d) ->
     if d

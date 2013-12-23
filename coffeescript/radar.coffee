@@ -9,6 +9,7 @@ class ZVG.Radar extends ZVG.BasicChart
   # }
   constructor: ->
     @initializeSvg()
+    @_currentFilter = @nullFilter
 
   render: ->
     @initializeCenterGroup() unless @center # prevent multiple base group appends when re-rendering
@@ -72,23 +73,39 @@ class ZVG.Radar extends ZVG.BasicChart
     polygons.exit().remove()
 
   polygonData: ->
+    # Map data to objects:
+    # 1. Nest and filter data based on current filter selections
+    # 2. In case of NullFilter, all values are averaged together
+    # 3. 0 is subbed in for missing values.
+    # 4. Final object has original series 1 key, plus a set of XY coordinates and an array of means.
     (for d in @_data
       do (d) =>
-        values = (x.value for x in d.values when x.series_2 is @currentFilter())
+        valuesHash = {}
+        values = d3.nest()
+          .key((x) -> x.series_3)
+          .entries((z for z in d.values when @currentFilter(z)))
+        (valuesHash[v.key] = v.values) for v in values
+        means = ((d3.mean(z.value for z in (valuesHash[s3] or [{ value: 0 }]))) for s3 in @series_3_domain())
         {
           key: d.key
-          points: (@convertToXY(v,index) for v,index in values)
-          values: values
+          points: (@convertToXY(v,index) for v,index in means)
+          values: means
         }
 
     )
 
 
-  currentFilter: ->
-    @_currentFilter or= @series_2_domain()[0]
+  currentFilter: (obj) ->
+    @_currentFilter(obj)
 
   setFilter: (filter) ->
-    @_currentFilter = filter
+    if filter
+      @_currentFilter = (x) -> x.series_2 is filter
+    else
+      @_currentFilter = @nullFilter
+    @
+
+  nullFilter: (x) -> true
 
 
 
@@ -111,7 +128,10 @@ class ZVG.Radar extends ZVG.BasicChart
       .range([0, 0.9 * @height/2])
 
   series3Length: ->
-    @_series3Length or= (d3.scale.ordinal().domain(x.series_3 for x in @raw_data).domain().length)
+    @series_3_domain().length
+
+  numberOfVertices: ->
+    @series3Length()
 
   # the angle at which each question point is rendered around the center
   establishAngularDomain: ->
@@ -128,7 +148,7 @@ class ZVG.Radar extends ZVG.BasicChart
 
   nestData: (d) ->
     d3.nest()
-      .key((z) -> z.series_1)
+      .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
       .entries(d)
 
   randomizeData: (nSeries1, nSeries2, nSeries3, max) ->
@@ -159,67 +179,17 @@ window.chart = new ZVG.Radar
 
 window.simpleTestData = [
   # Single survey, single filter, 5 questions
-  {
-    series_1: 'Survey 1'
-    series_2: 'all'
-    series_3: 100
-    value: 4.5
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'all'
-    series_3: 200
-    value: 3.5
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'all'
-    series_3: 300
-    value: 4.1
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'all'
-    series_3: 400
-    value: 2.8
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'all'
-    series_3: 500
-    value: 2.1
-  }
+  { series_1: 'Survey 1', series_2: 'all', series_3: 100, value: 4.5 }
+  { series_1: 'Survey 1', series_2: 'all', series_3: 200, value: 3.5 }
+  { series_1: 'Survey 1', series_2: 'all', series_3: 300, value: 4.1 }
+  { series_1: 'Survey 1', series_2: 'all', series_3: 400, value: 2.8 }
+  { series_1: 'Survey 1', series_2: 'all', series_3: 500, value: 2.1 }
   
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 2'
-    series_3: 100
-    value: 3.5
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 2'
-    series_3: 200
-    value: 1.5
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 2'
-    series_3: 300
-    value: 2.1
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 2'
-    series_3: 400
-    value: 3.8
-  }
-  {
-    series_1: 'Survey 1'
-    series_2: 'Filter 2'
-    series_3: 500
-    value: 3.1
-  }
+  { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 100, value: 3.5 }
+  { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 200, value: 1.5 }
+  { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 300, value: 2.1 }
+  { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 400, value: 3.8 }
+  { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 500, value: 3.1 }
 ]
 
 window.moreComplexData = [
@@ -237,9 +207,14 @@ window.moreComplexData = [
   {series_1: 'Survey 1',series_2: "Filter 3", series_3:200, value: 2.8029478769749403},
   {series_1: 'Survey 1',series_2: "Filter 3", series_3:300, value: 0.9199619614519179},
   {series_1: 'Survey 1',series_2: "Filter 3", series_3:400, value: 2.8409991916269064},
-  {series_1: 'Survey 1',series_2: "Filter 3", series_3:500, value: 4.59977040393278}]
+  {series_1: 'Survey 1',series_2: "Filter 3", series_3:500, value: 4.59977040393278}
+]
 
-chart.data(moreComplexData)
+chart
+  .series_1_domain(['Survey 1'])
+  .series_2_domain("Filter #{n}" for n in [1..3])
+  .series_3_domain("#{n}" for n in [100, 200, 300, 400, 500])
+  .data(moreComplexData)
   .maxRadius(6)
-  .series_2_domain(d3.scale.ordinal().domain(x.series_2 for x in moreComplexData).domain())
+  .setFilter('Filter 1')
   .render()

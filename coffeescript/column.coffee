@@ -14,8 +14,9 @@ class ZVG.Column extends ZVG.BasicChart
   #
 
   randomizeData: (s1count, s2count, s3count) ->
-    s1count or= parseInt(Math.random() * 15 + 1)
-    s2count or= parseInt(Math.random() * 15 + 1)
+    @undimAllValues()
+    s1count or= parseInt(Math.random() * 10 + 1)
+    s2count or= parseInt(Math.random() * 6 + 1)
     s3count or= parseInt(Math.random() * 8 + 2)
 
     raw = []
@@ -45,12 +46,6 @@ class ZVG.Column extends ZVG.BasicChart
       .key((z) -> z.series_3).sortKeys(@seriesSortFunction(@series_3_domain()))
       .entries(d)
 
-  seriesSortFunction: (priority_seed) ->
-    priority_seed or= []
-    (a,b) ->
-      priority_seed.indexOf(a) - priority_seed.indexOf(b)
-
-
   color: d3.scale.ordinal().range(ZVG.colorSchemes.warmCool10)
 
   # used to re-narrow the chart in case new data is smaller than current data.
@@ -58,7 +53,6 @@ class ZVG.Column extends ZVG.BasicChart
     @widenChart ZVG.BasicChart.prototype.width
 
   render: (renderMode = 'percentage') ->
-    @undimAllValues()
     @renderMode = renderMode
     @resetWidth()
     @setSeries1Spacing()
@@ -108,7 +102,6 @@ class ZVG.Column extends ZVG.BasicChart
     @svg.attr('width', @width)
     @background.attr('width', @width)
     @setSeries1Spacing()
-    @positionLegend()
 
   series1TotalWidth: -> @width / @_data.length
 
@@ -208,7 +201,6 @@ class ZVG.Column extends ZVG.BasicChart
         @freeze = d.key
         @undimAllValues()
         @dimValuesNotMatching(d.key)
-      console.log('freeze: ', @freeze)
     )
 
   # set opacity to 10% unless key property matches arg.
@@ -327,51 +319,11 @@ class ZVG.Column extends ZVG.BasicChart
     else
       @data(@raw_data)
 
-  #renderLegend: ->
-  #  @svg.attr('width', @width + 200)
-  #  @initializeLegend()
-  #  @legend.selectAll('g.legend_item').remove()
-  #  items = @legend.selectAll('g.legend_item')
-  #    .data({ key: x, text: "Label for #{x}" } for x in @series_3_domain().slice(0).reverse())
-
-  #  items.enter()
-  #    .append('g')
-  #    .attr('class', 'legend_item vg')
-  #    .attr('label', (d) -> d.key)
-  #    .attr('transform', (d,i) -> "translate(0, #{20 * i})")
-  #    .append('rect')
-  #    .style('fill', 'white')
-  #    .attr('x', 0)
-  #    .attr('y', 0)
-  #    .attr('width', 200)
-  #    .attr('height', 20)
-
-  #  icons = items.selectAll('rect.icon').data((d) -> [d])
-  #  icons.enter()
-  #    .append('rect')
-  #    .attr('class', 'icon')
-  #    .attr('x', 0)
-  #    .attr('y', 0)
-  #    .attr('width', 15)
-  #    .attr('height', 15)
-
-  #  icons.style('fill', (d) => @color(d.key))
-
-  #  text = items.selectAll('text').data((d) -> [d])
-  #    .enter()
-  #    .append('text')
-  #    .attr('x', 20)
-  #    .attr('y', 5)
-  #    .attr('class', 'legend_text')
-  #  text.text((d) -> d.text)
-  #  items.exit().remove()
-  #
   renderLegend: ->
-    console.log('renderLegend')
     @initializeLegend()
     @legend.selectAll('div.legend_item').remove()
     items = @legend.selectAll('div.legend_item')
-      .data({ key: x, text: "An exceptionally long and rambling Label for #{x}" } for x in @series_3_domain().slice(0).reverse())
+      .data({ key: x, text: "Label for #{x}" } for x in @series_3_domain().slice(0).reverse())
     items.enter()
       .append('div')
       .attr('class', 'legend_item vg')
@@ -391,97 +343,19 @@ class ZVG.Column extends ZVG.BasicChart
     @legend or= @container.append('div').attr('class', 'legend zvg-chart')
       .style('width', '200px')
 
-
-  # initializeLegend: ->
-  #   @legend or= @svg.append('g')
-  #   @positionLegend()
-  positionLegend: -> null
-  #   @legend.attr('transform', "translate(#{@width + 10}, 20)") if @legend
-
-
   sample_data: [
-    {
-      series_1: 'Survey 1'
-      series_2: 'Filter 1'
-      series_3: 2
-      value: 100
-    }
-    {
-      series_1: 'Survey 1'
-      series_2: 'Filter 1'
-      series_3: 1
-      value: 200
-    }
-    {
-      series_1: 'Survey 1'
-      series_2: 'Filter 2'
-      series_3: 1
-      value: 200
-    }
-    {
-      series_1: 'Survey 1'
-      series_2: 'Filter 2'
-      series_3: 2
-      value: 300
-    }
-    {
-      series_1: 'Survey 1'
-      series_2: 'Filter 4'
-      series_3: 1
-      value: 100
-    }
-    {
-      series_1: 'Survey 1'
-      series_2: 'Filter 4'
-      series_3: 2
-      value: 400
-    }
-    {
-      series_1: 'Survey 2'
-      series_2: 'Filter 1'
-      series_3: 1
-      value: 100
-    }
-    {
-      series_1: 'Survey 2'
-      series_2: 'Filter 1'
-      series_3: 2
-      value: 200
-    }
-    {
-      series_1: 'Survey 2'
-      series_2: 'Filter 3'
-      series_3: 1
-      value: 200
-    }
-    {
-      series_1: 'Survey 2'
-      series_2: 'Filter 3'
-      series_3: 2
-      value: 300
-    }
-    {
-      series_1: 'Survey 3'
-      series_2: 'Filter 3'
-      series_3: 1
-      value: 100
-    }
-    {
-      series_1: 'Survey 3'
-      series_2: 'Filter 3'
-      series_3: 2
-      value: 200
-    }
-    {
-      series_1: 'Survey 3'
-      series_2: 'Filter 2'
-      series_3: 1
-      value: 200
-    }
-    {
-      series_1: 'Survey 3'
-      series_2: 'Filter 2'
-      series_3: 2
-      value: 300
-    }
+    { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 2, value: 100 }
+    { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 1, value: 200 }
+    { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 1, value: 200 }
+    { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 2, value: 300 }
+    { series_1: 'Survey 1', series_2: 'Filter 4', series_3: 1, value: 100 }
+    { series_1: 'Survey 1', series_2: 'Filter 4', series_3: 2, value: 400 }
+    { series_1: 'Survey 2', series_2: 'Filter 1', series_3: 1, value: 100 }
+    { series_1: 'Survey 2', series_2: 'Filter 1', series_3: 2, value: 200 }
+    { series_1: 'Survey 2', series_2: 'Filter 3', series_3: 1, value: 200 }
+    { series_1: 'Survey 2', series_2: 'Filter 3', series_3: 2, value: 300 }
+    { series_1: 'Survey 3', series_2: 'Filter 3', series_3: 1, value: 100 }
+    { series_1: 'Survey 3', series_2: 'Filter 3', series_3: 2, value: 200 }
+    { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 1, value: 200 }
+    { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 2, value: 300 }
   ]

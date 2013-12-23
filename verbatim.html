@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Simple D3 Dev Env</title>
   <script type="text/javascript" src="vendor/d3.v3.min.js"></script>
-  <script type="text/javascript" src="js/dashboard.js"></script>
+  <script type="text/javascript" src="js/zvg.js"></script>
   <style type="text/css">
     .border {
       fill: none;
@@ -35,13 +35,13 @@
   </style>
 </head>
 <body>
-  <div id="verbatims">  
-    <select id="series_selector" name="series_selector"></select>
-    <select id="filter_selector" name="filter_selector"></select>
-    <div id="paginate"></div>
-    <table class="verbatim"></table>
-  </div>
+
+  <div id="chart_100"></div>
   <script type="text/javascript" src="js/verbatim.js"></script>
+  <script type="text/javascript">
+    verbatim = new ZVG.Verbatim("#chart_100", 182);
+    verbatim.getData('data/verbatims_age.json')
+  </script>
 
 </body>
 </html>
