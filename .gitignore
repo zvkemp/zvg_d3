@@ -20,3 +20,5 @@ exp
 js/*
 
 *DS_Store
+
+*.js
