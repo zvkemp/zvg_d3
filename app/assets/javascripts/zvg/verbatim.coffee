@@ -116,13 +116,13 @@ class ZVG.Verbatim
     includeEndEllipsis = pEnd < @numberOfPages
 
     pagination = []
-    pagination.push({ text: 'prev', page: @_page - 1 }) if @_page > 1
+    pagination.push({ text: 'prev', page: if @_page > 1 then @_page - 1 else @_page })
     pagination.push({ text: 1, page: 1 }) if includeStartEllipsis
     pagination.push({ text: '...', page: null }) if includeStartEllipsis
     pagination.push({ text: x, page: x }) for x in [pStart..pEnd]
     pagination.push({ text: '...', page: null }) if includeEndEllipsis
     pagination.push({ text: @numberOfPages, page: @numberOfPages }) if includeEndEllipsis
-    pagination.push({ text: 'next', page: @_page + 1 }) if @_page < @numberOfPages
+    pagination.push({ text: 'next', page: if @_page < @numberOfPages then @_page + 1 else @page })
 
     console.log(pagination)
     links = @pagination.selectAll('a.zvg_page').data(pagination)
