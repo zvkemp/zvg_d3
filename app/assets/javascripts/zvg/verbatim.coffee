@@ -26,7 +26,16 @@ class ZVG.Verbatim
     rows.selectAll('td').remove()
     rows.append('td').text((d) -> d.series_1).attr('class', 'zvg_series_1 zvg_series')
     rows.append('td').text((d) -> d.series_2).attr('class', 'zvg_series_2 zvg_series')
-    rows.append('td').text((d) -> d.value).attr('class', 'zvg_verbatim_value')
+    response_td = rows.append('td')
+    response_td.append('div').attr('class', 'text').text((d) -> d.value)
+    tags = response_td.append('div').attr('class', 'tags')
+
+    tag_spans = tags.selectAll('span.tag').data((d) -> d.tags or [])
+    tag_spans.enter()
+      .append('span').attr('class', 'tag')
+
+    tag_spans.text((d) -> d)
+
 
   initializeQuestionTable: ->
     @controls = d3.select(@container).append('div').attr('class', 'controls')
