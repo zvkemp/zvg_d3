@@ -116,8 +116,8 @@ class ZVG.Verbatim
     includeEndEllipsis = pEnd < @numberOfPages
 
     pagination = []
-    pagination.push({ text: 'prev', page: if @_page > 1 then @_page - 1 else @_page })
-    pagination.push({ text: 'next', page: if @_page < @numberOfPages then @_page + 1 else @page })
+    pagination.push({ text: 'prev', page: if @_page > 1 then @_page - 1 else null })
+    pagination.push({ text: 'next', page: if @_page < @numberOfPages then @_page + 1 else null })
     pagination.push({ text: 1, page: 1 }) if includeStartEllipsis
     pagination.push({ text: '...', page: null }) if includeStartEllipsis
     pagination.push({ text: x, page: x }) for x in [pStart..pEnd]
