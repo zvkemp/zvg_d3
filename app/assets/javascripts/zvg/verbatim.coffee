@@ -24,7 +24,9 @@ class ZVG.Verbatim
 
     rows.exit().remove()
     rows.selectAll('td').remove()
-    rows.append('td').text((d) -> d[attribute]) for attribute in ['id', 'series_1', 'series_2', 'value']
+    rows.append('td').text((d) -> d.series_1).attr('class', 'zvg_series_1 zvg_series')
+    rows.append('td').text((d) -> d.series_2).attr('class', 'zvg_series_2 zvg_series')
+    rows.append('td').text((d) -> d.value).attr('class', 'zvg_verbatim_value')
 
   initializeQuestionTable: ->
     @controls = d3.select(@container).append('div').attr('class', 'controls')
@@ -123,14 +125,14 @@ class ZVG.Verbatim
     pagination.push({ text: 'next', page: @_page + 1 }) if @_page < @numberOfPages
 
     console.log(pagination)
-    links = @pagination.selectAll('a.number').data(pagination)
+    links = @pagination.selectAll('a.zvg_page').data(pagination)
     pageAction = (d) =>
       @page(d.page) if d.page
       @render(@currentSelectedOptions())
 
     links.enter()
       .append('a')
-      .attr('class', 'number')
+      .attr('class', (d) -> "zvg_page_#{d.text} zvg_page")
       .attr('href', '#')
     links.text((d) -> " #{d.text} ")
       .style('color', (d) =>
