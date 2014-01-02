@@ -135,12 +135,7 @@ class ZVG.Verbatim
       .attr('class', (d) -> "zvg_page_#{d.text} zvg_page")
       .attr('href', '#')
     links.text((d) -> " #{d.text} ")
-      .style('color', (d) =>
-        if d.page == @_page
-          'red'
-        else
-          'black'
-      )
+      .classed('current', (d) => d.page == @_page)
       .on('click', (d) ->
         pageAction(d)
         d3.event.preventDefault()
