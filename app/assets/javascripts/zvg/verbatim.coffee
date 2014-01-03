@@ -22,6 +22,8 @@ class ZVG.Verbatim
       .append('tr')
       .attr('class', 'response')
 
+    rows.attr('id', (d) -> "respondent_#{d.id}")
+
     rows.exit().remove()
     rows.selectAll('td').remove()
     rows.append('td').text((d) -> d.series_1).attr('class', 'zvg_series_1 zvg_series')
