@@ -1,10 +1,11 @@
 class ZVG.Verbatim
-  constructor: (container,question_id) ->
+  constructor: (container,question_id,renderCallback = -> null) ->
     @container = container
     @initializeQuestionTable()
     @_page = 1
     @_perPage = 15
     @question_id = question_id
+    @renderCallback = renderCallback
 
   render: (options = {}, callback) ->
     dataFilter = (d) ->
@@ -37,7 +38,7 @@ class ZVG.Verbatim
       .append('span').attr('class', 'tag')
 
     tag_spans.text((d) -> d)
-    callback(@) if callback
+    @renderCallback(@)
 
 
   initializeQuestionTable: ->
