@@ -6,7 +6,7 @@ class ZVG.Verbatim
     @_perPage = 15
     @question_id = question_id
 
-  render: (options = {}) ->
+  render: (options = {}, callback) ->
     dataFilter = (d) ->
       s = options.series_1 if options.series_1 && options.series_1 != '[all]'
       f = options.series_2 if options.series_2 && options.series_2 != '[all]'
@@ -37,6 +37,7 @@ class ZVG.Verbatim
       .append('span').attr('class', 'tag')
 
     tag_spans.text((d) -> d)
+    callback(@) if callback
 
 
   initializeQuestionTable: ->
@@ -60,7 +61,7 @@ class ZVG.Verbatim
   getData: (source) =>
     d3.json(source, (error, json) =>
       @data(json)
-      @render()
+      @render({}, (chart) -> console.log('getData callback, chart: ', chart))
     )
 
   seriesDomain: (d) ->
