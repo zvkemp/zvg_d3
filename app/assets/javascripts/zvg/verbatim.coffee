@@ -8,12 +8,7 @@ class ZVG.Verbatim
     @renderCallback = renderCallback
 
   render: (options = {}, callback) ->
-    dataFilter = (d) ->
-      s = options.series_1 if options.series_1 && options.series_1 != '[all]'
-      f = options.series_2 if options.series_2 && options.series_2 != '[all]'
-      d.filter((e) -> if s then e.series_1 == s else e)
-        .filter((e) -> if f then e.series_2 == f else e)
-
+    dataFilter = @constructDataFilter(options)
     filtered = dataFilter(@_data)
     @paginate(options.page, filtered.length)
     rows = @question_table.selectAll('tr')
@@ -40,14 +35,23 @@ class ZVG.Verbatim
     tag_spans.text((d) -> d)
     @renderCallback(@)
 
-
   initializeQuestionTable: ->
-    @controls = d3.select(@container).append('div').attr('class', 'controls')
-    @pagination = d3.select(@container).append('div').attr('class', 'pagination')
-    @question_table = d3.select(@container).append('table').attr('class', 'verbatim')
+    @controls        = d3.select(@container).append('div').attr('class', 'controls')
+    @pagination      = d3.select(@container).append('div').attr('class', 'pagination')
+    @question_table  = d3.select(@container).append('table').attr('class', 'verbatim')
     @series_selector = @controls.append('select').attr('name', 'series_selector')
     @filter_selector = @controls.append('select').attr('name', 'filter_selector')
-    
+
+
+  constructDataFilter: (options) ->
+    s = options.series_1 if options.series_1 && options.series_1 != '[all]'
+    f = options.series_2 if options.series_2 && options.series_2 != '[all]'
+    t = options.tag if options.tag
+    (d) ->
+      d.filter((e) -> if s then e.series_1 == s else e)
+        .filter((e) -> if f then e.series_2 == f else e)
+        .filter((e) -> if t then e.tags.indexOf(t) else e)
+
 
   colors: -> @_colors
 
