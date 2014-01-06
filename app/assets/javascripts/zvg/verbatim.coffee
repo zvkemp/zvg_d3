@@ -17,6 +17,11 @@ class ZVG.Verbatim
     rows.enter()
       .append('tr')
       .attr('class', 'response')
+      .on('click', ->
+        selection = d3.select(@)
+        isSelected = selection.classed('selected')
+        selection.classed('selected', not isSelected)
+      )
 
     rows.attr('id', (d) -> "respondent_#{d.id}")
 
