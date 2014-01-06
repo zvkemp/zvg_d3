@@ -41,16 +41,18 @@ class ZVG.Verbatim
     @question_table  = d3.select(@container).append('table').attr('class', 'verbatim')
     @series_selector = @controls.append('select').attr('name', 'series_selector')
     @filter_selector = @controls.append('select').attr('name', 'filter_selector')
+    @tag_selector = @controls.append('select').attr('name', 'tag_selector')
 
 
   constructDataFilter: (options) ->
     s = options.series_1 if options.series_1 && options.series_1 != '[all]'
     f = options.series_2 if options.series_2 && options.series_2 != '[all]'
-    t = options.tag if options.tag
+    t = options.tag if options.tag && options.series_2 != '[all]'
+
     (d) ->
       d.filter((e) -> if s then e.series_1 == s else e)
         .filter((e) -> if f then e.series_2 == f else e)
-        .filter((e) -> if t then e.tags.indexOf(t) else e)
+        .filter((e) -> if t then (e.tags or []).indexOf(t) >= 0 else e)
 
 
   colors: -> @_colors
@@ -60,6 +62,7 @@ class ZVG.Verbatim
       @_data = (x for x in d when x.question == @question_id)
       @seriesDomain(d3.scale.ordinal().domain(x.series_1 for x in d).domain())
       @filterDomain(d3.scale.ordinal().domain(x.series_2 for x in d).domain())
+      @tagDomain(d3.scale.ordinal().domain((x.tags for x in d).reduce((x, y) -> x.concat(y))).domain())
       return @
     @_data
 
@@ -82,6 +85,13 @@ class ZVG.Verbatim
       @appendSelectorOptions(@filter_selector, @_filterDomain)
       return @
     @_filterDomain
+
+  tagDomain: (d) ->
+    if d
+      @_tagDomain = d
+      @appendSelectorOptions(@tag_selector, @_tagDomain)
+      return @
+    @_tagDomain
 
   page: (p) ->
     if p
@@ -110,6 +120,7 @@ class ZVG.Verbatim
     {
       series_1: @_seriesDomain[@series_selector[0][0].selectedIndex - 1]
       series_2: @_filterDomain[@filter_selector[0][0].selectedIndex - 1]
+      tag: @_tagDomain[@tag_selector[0][0].selectedIndex - 1]
       page: @page()
     }
 
