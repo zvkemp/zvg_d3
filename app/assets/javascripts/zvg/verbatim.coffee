@@ -36,12 +36,21 @@ class ZVG.Verbatim
     @renderCallback(@)
 
   initializeQuestionTable: ->
-    @controls        = d3.select(@container).append('div').attr('class', 'controls')
+    @controls        = d3.select(@container).append('table').attr('class', 'controls')
+    @control_row     = @controls.append('tr')
     @pagination      = d3.select(@container).append('div').attr('class', 'pagination')
     @question_table  = d3.select(@container).append('table').attr('class', 'verbatim')
-    @series_selector = @controls.append('select').attr('name', 'series_selector')
-    @filter_selector = @controls.append('select').attr('name', 'filter_selector')
-    @tag_selector = @controls.append('select').attr('name', 'tag_selector')
+
+    @series_cell     = @control_row.append('td')
+    @series_title    = @series_cell.append('h4').text('series_title').attr('class', 'verb_selector_title')
+    @series_selector = @series_cell.append('select').attr('name', 'series_selector')
+    @filter_cell     = @control_row.append('td')
+    @filter_title    = @filter_cell.append('h4').text('filter_title').attr('class', 'verb_selector_title')
+    @filter_selector = @filter_cell.append('select').attr('name', 'filter_selector')
+    @tag_cell        = @control_row.append('td')
+    @tag_title       = @tag_cell.append('h4').text('tag_title').attr('class', 'verb_selector_title')
+    @tag_selector    = @tag_cell.append('select').attr('name', 'tag_selector')
+
 
 
   constructDataFilter: (options) ->
