@@ -60,9 +60,9 @@ class ZVG.Verbatim
   data: (d) ->
     if d
       @_data = (x for x in d when x.question == @question_id)
-      @seriesDomain(d3.scale.ordinal().domain(x.series_1 for x in d).domain())
-      @filterDomain(d3.scale.ordinal().domain(x.series_2 for x in d).domain())
-      @tagDomain(d3.scale.ordinal().domain((x.tags for x in d).reduce((x, y) -> x.concat(y))).domain())
+      @seriesDomain(d3.scale.ordinal().domain(x.series_1 for x in @_data).domain())
+      @filterDomain(d3.scale.ordinal().domain(x.series_2 for x in @_data).domain())
+      @tagDomain(d3.scale.ordinal().domain((x.tags for x in @_data).reduce((x, y) -> x.concat(y))).domain())
       return @
     @_data
 
@@ -87,6 +87,9 @@ class ZVG.Verbatim
     @_filterDomain
 
   tagDomain: (d) ->
+    console.log("tagDomain() for #{@}:")
+    console.log("question_id: #{@question_id}")
+    console.log(d)
     if d
       @_tagDomain = d
       @appendSelectorOptions(@tag_selector, @_tagDomain)

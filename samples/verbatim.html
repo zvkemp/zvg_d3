@@ -43,11 +43,17 @@
 </head>
 <body>
 
-  <div id="chart_100"></div>
+  <div id="chart_174"></div>
+  <hr>
+  
+  <div id="chart_182"></div>
   <script type="text/javascript" src="../js/zvg/verbatim.js"></script>
   <script type="text/javascript">
-    verbatim = new ZVG.Verbatim("#chart_100", 174);
+    verbatim = new ZVG.Verbatim("#chart_174", 174);
     verbatim.getData('data/verbatims_tags.json')
+
+    verbatim2 = new ZVG.Verbatim("#chart_182", 182);
+    verbatim2.getData('data/verbatims_tags.json')
   </script>
 
 </body>
