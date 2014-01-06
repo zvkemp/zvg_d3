@@ -62,7 +62,7 @@ class ZVG.Verbatim
       @_data = (x for x in d when x.question == @question_id)
       @seriesDomain(d3.scale.ordinal().domain(x.series_1 for x in @_data).domain())
       @filterDomain(d3.scale.ordinal().domain(x.series_2 for x in @_data).domain())
-      @tagDomain(d3.scale.ordinal().domain((x.tags for x in @_data).reduce((x, y) -> x.concat(y))).domain())
+      @tagDomain(d3.scale.ordinal().domain((x.tags for x in @_data).reduce(((x, y) -> x.concat(y)), [])).domain())
       return @
     @_data
 
