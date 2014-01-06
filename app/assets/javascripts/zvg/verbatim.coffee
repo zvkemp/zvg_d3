@@ -42,10 +42,10 @@ class ZVG.Verbatim
     @renderCallback(@)
 
   selectAllResponses: ->
-    @container.selectAll('tr.response').classed('selected', true)
+    @question_table.selectAll('tr.response').classed('selected', true)
 
   selectNoResponses: ->
-    @container.selectAll('tr.response').classed('selected', false)
+    @question_table.selectAll('tr.response').classed('selected', false)
 
   initializeQuestionTable: ->
     @controls        = d3.select(@container).append('table').attr('class', 'controls')
