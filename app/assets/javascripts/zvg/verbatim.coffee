@@ -102,7 +102,6 @@ class ZVG.Verbatim
     s.exit().remove()
 
     selector.on('change', =>
-      console.log('change event')
       @_page = 1
       @render(@currentSelectedOptions())
     )
@@ -141,7 +140,6 @@ class ZVG.Verbatim
     pagination.push({ text: '...', page: null }) if includeEndEllipsis
     pagination.push({ text: @numberOfPages, page: @numberOfPages }) if includeEndEllipsis
 
-    console.log(pagination)
     links = @pagination.selectAll('a.zvg_page').data(pagination)
     pageAction = (d) =>
       @page(d.page) if d.page
