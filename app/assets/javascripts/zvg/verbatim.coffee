@@ -24,6 +24,7 @@ class ZVG.Verbatim
       )
 
     rows.attr('id', (d) -> "respondent_#{d.id}")
+    @selectNoResponses()
 
     rows.exit().remove()
     rows.selectAll('td').remove()
