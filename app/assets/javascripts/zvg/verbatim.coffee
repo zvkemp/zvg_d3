@@ -40,6 +40,12 @@ class ZVG.Verbatim
     tag_spans.text((d) -> d)
     @renderCallback(@)
 
+  selectAllResponses: ->
+    @container.selectAll('tr.response').classed('selected', true)
+
+  selectNoResponses: ->
+    @container.selectAll('tr.response').classed('selected', false)
+
   initializeQuestionTable: ->
     @controls        = d3.select(@container).append('table').attr('class', 'controls')
     @control_row     = @controls.append('tr')
