@@ -9,7 +9,7 @@ class ZVG.Verbatim
 
   render: (options = {}, callback) ->
     dataFilter = @constructDataFilter(options)
-    filtered = dataFilter(@_data)
+    filtered = dataFilter(@displayData())
     @paginate(options.page, filtered.length)
     rows = @question_table.selectAll('tr')
       .data(filtered.slice((@_page - 1) * @_perPage, @_perPage * @_page))
@@ -40,6 +40,13 @@ class ZVG.Verbatim
 
     tag_spans.text((d) -> d)
     @renderCallback(@)
+
+  renderTags: (container, tag_list) ->
+    tag_spans = tags.selectAll('span.tag').data((d) -> d.tags or [])
+    tag_spans.remove()
+
+  displayData: ->
+    @_data
 
   selectAllResponses: ->
     @question_table.selectAll('tr.response').classed('selected', true)
