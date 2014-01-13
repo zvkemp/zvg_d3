@@ -11,7 +11,7 @@ class ZVG.Verbatim
     dataFilter = @constructDataFilter(options)
     filtered = dataFilter(@displayData())
     @paginate(options.page, filtered.length)
-    rows = @question_table.selectAll('tr')
+    rows = @question_table.selectAll('tr.response')
       .data(filtered.slice((@_page - 1) * @_perPage, @_perPage * @_page))
 
     rows.enter()
@@ -55,10 +55,10 @@ class ZVG.Verbatim
     @question_table.selectAll('tr.response').classed('selected', false)
 
   initializeQuestionTable: ->
-    @controls        = d3.select(@container).append('table').attr('class', 'controls')
-    @control_row     = @controls.append('tr')
     @pagination      = d3.select(@container).append('div').attr('class', 'pagination')
+    # @controls        = d3.select(@container).append('table').attr('class', 'controls')
     @question_table  = d3.select(@container).append('table').attr('class', 'verbatim')
+    @control_row     = @question_table.append('tr').attr('class', 'controls')
 
     @series_cell     = @control_row.append('td')
     @series_title    = @series_cell.append('h4').text('series_title').attr('class', 'verb_selector_title')
