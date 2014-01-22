@@ -26,3 +26,5 @@ buttons.append('button')
   .text('show counts')
   .on('click', => chart.render('count'))
 
+
+window.chart = chart

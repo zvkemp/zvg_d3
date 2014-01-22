@@ -10,7 +10,6 @@ class ZVG.Column extends ZVG.BasicChart
   # Auxilliary data (not yet implemented): 
   # n-values
   # defined order to series_1, series_2, series_3 domains
-  # legend labels for series_3
   #
 
   randomizeData: (s1count, s2count, s3count) ->
@@ -344,14 +343,15 @@ class ZVG.Column extends ZVG.BasicChart
       .text((d) -> d.key)
 
     series_2_labels.on('click', (d,i) =>
-      @filterData(d.key)
+      @filterData([d.key])
       @render()
     )
 
-  filterData: (filter) ->
-    if filter
+  filterData: (filters) ->
+    if filters
+      @_filters = filters
       # prevent @raw_data from being overwritten
-      @_data = @nestData(x for x in @raw_data when x.series_2 == filter)
+      @_data = @nestData(x for x in @raw_data when x.series_2 in filters)
     else
       @data(@raw_data)
 
@@ -374,6 +374,36 @@ class ZVG.Column extends ZVG.BasicChart
       .style('margin-right', '5px')
     items.append('span').attr('class','legend_text')
       .text((d) -> d.text)
+
+    @renderFilterLegend()
+
+  renderFilterLegend: =>
+    @legend.selectAll('div.filter_legend_item').remove()
+
+    items = @legend.selectAll('div.filter_legend_item')
+      .data(@series_2_domain().slice(0).reverse())
+    items.enter()
+      .append('div')
+      .attr('class', 'filter_legend_item')
+      .attr('label', (d) -> d)
+
+    filter_checkboxes = items.append('input')
+      .attr('type', 'checkbox')
+      .attr('checked',(d) =>
+        if @_filters
+          d in @_filters or null
+        else
+          true
+      )
+
+    filter_checkboxes.on('change', (d,i) =>
+      @filterData(@container.selectAll('input:checked').data())
+      @render()
+
+    )
+    items.append('span').attr('class', 'legend_text')
+      .text((d) -> d)
+
 
   initializeLegend: ->
     @legend or= @container.append('div').attr('class', 'legend zvg-chart')
