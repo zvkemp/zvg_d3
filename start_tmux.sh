@@ -14,6 +14,10 @@ tmux select-pane -t 1
 tmux send-keys "coffee -o js/zvg/ -cw app/assets/javascripts/zvg" C-m
 tmux select-pane -t 2
 tmux send-keys "coffee -o js/spec/ -cw spec/coffee" C-m
+tmux split-window -v
+tmux select-pane -t 3
+tmux send-keys "coffee -o samples/js/ -cw samples/coffee" C-m
+tmux select-layout main-horizontal
 
 tmux new-window -t $SESSION:2 -n 'vim'
 tmux split-window -h
