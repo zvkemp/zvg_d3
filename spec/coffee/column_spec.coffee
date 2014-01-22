@@ -136,4 +136,9 @@ describe 'Charts::Column', ->
         series_2_keys = (x.key for x in s1.values)
         expect(series_2_keys).toEqual ['X', 'Y', 'Z']
 
+  describe 'multiple select column', ->
+    beforeEach ->
+      column = new ZVG.Column
+      column.series_1_domain(['A', 'B', 'C'])
+
 

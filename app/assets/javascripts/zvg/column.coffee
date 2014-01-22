@@ -118,6 +118,7 @@ class ZVG.Column extends ZVG.BasicChart
     @["buildSeriesDomains_#{@renderMode}"]()
 
   buildSeriesDomains_percentage: =>
+    return @buildSeriesDomains_percentage_with_n_overrides() if @_custom_n_values
     @series3Domains = {}
     for s1 in @_data
       do (s1) =>
@@ -128,6 +129,29 @@ class ZVG.Column extends ZVG.BasicChart
             @series3Domains[s1.key][s2.key] = d3.scale.linear()
               .domain([0, d3.sum(s3)])
               .range([0, @height])
+
+  buildSeriesDomains_percentage_with_n_overrides: =>
+    maxSum = 0
+    for s1 in @_data
+      do (s1) =>
+        for s2 in s1.values
+          do (s2) =>
+            n = @n_values[s1.key][s2.key]
+            s3 = d3.sum(d.values[0].value/n for d in s2.values)
+            maxSum = s3 if s3 > maxSum
+    console.log(maxSum)
+    maxScale = d3.scale.linear()
+      .range([0, @height])
+      .domain([0, maxSum])
+    @series3Domains = {}
+    for s1 in @_data
+      do (s1) =>
+        @series3Domains[s1.key] = {}
+        for s2 in s1.values
+          do (s2) =>
+            @series3Domains[s1.key][s2.key] = maxScale
+
+
 
   buildSeriesDomains_count: =>
     maxSum = 0
@@ -214,15 +238,28 @@ class ZVG.Column extends ZVG.BasicChart
 
   valueHeightFunction: (d) =>
     dp = d.values[0]
-    @series3Domains[dp.series_1][dp.series_2](dp.value)
+    if @_custom_n_values and @renderMode is "percentage"
+      n = @n_values[dp.series_1][dp.series_2]
+      v = dp.value/n
+    else
+      v = dp.value
+    @series3Domains[dp.series_1][dp.series_2](v)
 
   valueFunction_percentage: (d) =>
     dp = d.values[0]
-    n = @series3Domains[dp.series_1][dp.series_2].domain()[1]
+    if @_custom_n_values
+      n = @n_values[dp.series_1][dp.series_2]
+    else
+      n = @series3Domains[dp.series_1][dp.series_2].domain()[1]
     @percentFormat dp.value/n
 
   valueFunction_count: (d) =>
     d.values[0].value
+
+  valueFunction_percentage_with_n_overrides: (d) =>
+    dp = d.values[0]
+    n = @n_values[dp.series_1][dp.series_2]
+    @percentFormat dp.value/n
 
   valueFunction: ->
     @["valueFunction_#{@renderMode}"]
@@ -359,3 +396,7 @@ class ZVG.Column extends ZVG.BasicChart
     { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 1, value: 200 }
     { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 2, value: 300 }
   ]
+
+  override_n_values: (values) ->
+    @_custom_n_values = true
+    @n_values = values
