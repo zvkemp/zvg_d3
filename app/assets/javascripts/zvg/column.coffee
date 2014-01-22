@@ -139,7 +139,6 @@ class ZVG.Column extends ZVG.BasicChart
             n = @n_values[s1.key][s2.key]
             s3 = d3.sum(d.values[0].value/n for d in s2.values)
             maxSum = s3 if s3 > maxSum
-    console.log(maxSum)
     maxScale = d3.scale.linear()
       .range([0, @height])
       .domain([0, maxSum])

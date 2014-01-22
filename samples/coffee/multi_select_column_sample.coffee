@@ -33,7 +33,7 @@ data = [
 #
 
 n_values = {
-  "Survey A": { "all": 450 }
+  "Survey A": { "all": 1050 }
   "Survey B": { "all": 515 }
   "Survey C": { "all": 250 }
 }

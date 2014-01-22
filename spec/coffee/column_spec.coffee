@@ -137,8 +137,46 @@ describe 'Charts::Column', ->
         expect(series_2_keys).toEqual ['X', 'Y', 'Z']
 
   describe 'multiple select column', ->
+    n_values = {
+      'A': { all: 200 }
+      'B': { all: 400 }
+      'C': { all: 800 }
+    }
+
     beforeEach ->
+      data = [
+        { series_1: "A", series_2: "all", series_3: 1, value: 150 }
+        { series_1: "A", series_2: "all", series_3: 2, value: 200 }
+        { series_1: "A", series_2: "all", series_3: 3, value: 150 }
+        { series_1: "B", series_2: "all", series_3: 1, value: 100 }
+        { series_1: "B", series_2: "all", series_3: 2, value: 200 }
+        { series_1: "B", series_2: "all", series_3: 3, value: 150 }
+        { series_1: "C", series_2: "all", series_3: 1, value: 100 }
+        { series_1: "C", series_2: "all", series_3: 2, value: 200 }
+        { series_1: "C", series_2: "all", series_3: 3, value: 150 }
+      ]
       column = new ZVG.Column
       column.series_1_domain(['A', 'B', 'C'])
+      column.series_2_domain(['all'])
+      column.series_3_domain(['1', '2', '3'])
+      column.override_n_values(n_values)
+      column.data(data)
+
+    it 'stores custom nvalues', ->
+      expect(column.n_values).toEqual(n_values)
+
+    it 'scales the columns based on custom n values', ->
+      column.render('percentage')
+      expect(column.series3Domains['A']['all'](150/200)).toBeCloseTo(150, 1)
+      expect(column.series3Domains['C']['all'](150/800)).toBeCloseTo(37.5, 1)
+
+    it 'scales the columns based on raw counts', ->
+      column.render('count')
+      expect(column.series3Domains['C']['all'](500)).toEqual(chart.height) # max sum from series A
+      expect(column.series3Domains['B']['all'](450)).toEqual(450)
+      expect(column.series3Domains['A']['all'](100)).toEqual(100)
+
+
+
 
 
