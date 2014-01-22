@@ -1,10 +1,14 @@
 class ZVG.Verbatim
-  constructor: (container,question_id,renderCallback = -> null) ->
-    @container = container
+  constructor: (container,options,renderCallback = -> null) ->
+    @container       = container
+    @_series_header  = options.series_header or "series_title"
+    @_filter_header  = options.filter_header or "filter_title"
+    @_tag_header     = options.tag_header or "tag_title"
     @initializeQuestionTable()
-    @_page = 1
-    @_perPage = 15
-    @question_id = question_id
+
+    @_page          = 1
+    @_perPage       = 15
+    @question_id    = options.question_id
     @renderCallback = renderCallback
 
   render: (options = {}, callback) ->
@@ -54,22 +58,23 @@ class ZVG.Verbatim
   selectNoResponses: ->
     @question_table.selectAll('tr.response').classed('selected', false)
 
-  initializeQuestionTable: ->
-    @pagination      = d3.select(@container).append('div').attr('class', 'pagination')
+  initializeQuestionTable: =>
     # @controls        = d3.select(@container).append('table').attr('class', 'controls')
+    @pagination      = d3.select(@container).append('div').attr('class', 'pagination')
     @question_table  = d3.select(@container).append('table').attr('class', 'verbatim')
     @control_row     = @question_table.append('tr').attr('class', 'controls')
 
+
+    console.log(@_series_header, @_filter_header, @_tag_header)
     @series_cell     = @control_row.append('td')
-    @series_title    = @series_cell.append('h4').text('series_title').attr('class', 'verb_selector_title')
+    @series_title    = @series_cell.append('h5').text(@_series_header).attr('class', 'verb_selector_title')
     @series_selector = @series_cell.append('select').attr('name', 'series_selector')
     @filter_cell     = @control_row.append('td')
-    @filter_title    = @filter_cell.append('h4').text('filter_title').attr('class', 'verb_selector_title')
+    @filter_title    = @filter_cell.append('h5').text(@_filter_header).attr('class', 'verb_selector_title')
     @filter_selector = @filter_cell.append('select').attr('name', 'filter_selector')
     @tag_cell        = @control_row.append('td')
-    @tag_title       = @tag_cell.append('h4').text('tag_title').attr('class', 'verb_selector_title')
+    @tag_title       = @tag_cell.append('h5').text(@_tag_header).attr('class', 'verb_selector_title')
     @tag_selector    = @tag_cell.append('select').attr('name', 'tag_selector')
-
 
 
   constructDataFilter: (options) ->
@@ -115,9 +120,6 @@ class ZVG.Verbatim
     @_filterDomain
 
   tagDomain: (d) ->
-    console.log("tagDomain() for #{@}:")
-    console.log("question_id: #{@question_id}")
-    console.log(d)
     if d
       @_tagDomain = d
       @appendSelectorOptions(@tag_selector, @_tagDomain)
