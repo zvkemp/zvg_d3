@@ -11,6 +11,15 @@ class ZVG.Column extends ZVG.BasicChart
   # n-values
   # defined order to series_1, series_2, series_3 domains
   #
+  #
+
+
+  # reset s1 label container height
+  # rotate labels, or stagger?
+  # reset s1 label text-anchor
+  constructor: (element) ->
+    super(element)
+    @initializeSeries1LabelContainer()
 
   randomizeData: (s1count, s2count, s3count) ->
     @undimAllValues()
@@ -320,16 +329,23 @@ class ZVG.Column extends ZVG.BasicChart
     @labels = d3.scale.linear().range([0, 1])
     @percent = d3.format('.0%')
 
+  initializeSeries1LabelContainer: ->
+    @series_1_label_container = @svg.append('g')
+      .attr('transform', "translate(0, #{@height + 30})")
+
   appendSeries1Labels: ->
-    @series_1_labels = @svg.selectAll('text.series1label')
+    @series_1_labels = @series_1_label_container.selectAll('text.series1label')
       .data(@_data)
     @series_1_labels.enter()
       .append('text')
       .attr('class', 'series1label')
-    @series_1_labels.attr('y', @height + 30)
+    @series_1_labels.attr('y', 0)
+      .attr('transform', '')
       .text((d) -> d.key)
       .attr('x', (d,i) => @series1x[i] + @series1width[i]/2)
     @series_1_labels.exit().remove()
+    @constructSeries1LabelMap()
+    @rotateSeries1Labels() if @detect_overlaps(@series1LabelMap)
 
   appendSeries2Labels: (rotate = 0) ->
     @svg.selectAll('.series2label').remove()
@@ -344,22 +360,55 @@ class ZVG.Column extends ZVG.BasicChart
         x = @columnBand(i) + @columnBand.rangeBand()/2
         y = @height + 10
         "rotate(#{rotate}, #{x}, #{y})"
+      ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
+      .text((d) =>
+        console.log(d.values)
+        sum = d3.sum(value.values[0].value for value in d.values)
+        "#{d.key} (#{sum})"
       )
-      .text((d) -> d.key)
 
     @series_2_labels.on('click', (d,i) =>
       @filterData([d.key])
       @render()
     )
+    @constructSeries2LabelMap()
+    @rotateSeries2Labels() if @detect_overlaps(@series2LabelMap) and (rotate is 0)
 
-    @adjustSeries2Labels()
+  rotateSeries2Labels: ->
+    console.log("ROTATING LABELS")
+    max_length = d3.max(l.length for l in @series2LabelMap)
+    @appendSeries2Labels(-90)
+    @series_1_label_container.transition().attr('transform', "translate(0, #{@height + max_length + 25})")
 
-  adjustSeries2Labels: ->
-    all_labels = @container.selectAll('text.series2label')
-    #@ console.log(all_labels, all_labels.length)
-    lengths = (node.getComputedTextLength() for node in all_labels[0])
-    @detect_overlaps(all_labels[0])
+  rotateSeries1Labels: ->
+    console.log("ROTATING LABELS (1)")
+    @series_1_labels.attr('transform', (d) -> 
+      s = d3.select(@)
+      x = s.attr('x')
+      y = s.attr('y')
+      "rotate(-45, #{x}, #{y})"
+    ).style('text-anchor', 'end')
 
+
+
+  staggerSeries2Labels: ->
+    @series_1_label_container.transition().attr('transform', "translate(0, #{@height + 45})")
+    for label, index in @container.selectAll('text.series2label')[0]
+      do (label, index) ->
+        if (index % 2) is 1
+          current_y = parseFloat(d3.select(label).attr('y'))
+          d3.select(label).attr('y', 15 + current_y)
+
+  staggerSeries1Labels: ->
+    console.log("STAGGERING LABELS")
+    for label, index in @series_1_labels[0]
+      do (label, index) =>
+        if (index % 2) is 1
+          d3.select(label).attr('y', 15)
+
+
+
+  # to be used to in the detection of overlapping labels (in detect_overlaps()
   constructSeries2LabelMap: ->
     label_map = []
     for g1, g1i in @series_1[0]
@@ -377,35 +426,33 @@ class ZVG.Column extends ZVG.BasicChart
               start: x - (length / 2.0)
               end: x + (length / 2.0)
             })
-    label_map
+    @series2LabelMap = label_map
 
+  constructSeries1LabelMap: ->
+    label_map = []
+    for label, index in @series_1_labels[0]
+      do (label, index) =>
+        ls = d3.select(label)
+        x = parseFloat(ls.attr('x'))
+        length = label.getComputedTextLength()
+        label_map.push({
+          label: ls.text()
+          x: x
+          length: length
+          start: x - (length / 2.0)
+          end: x + (length / 2.0)
+        })
+    @series1LabelMap = label_map
 
-
-     
-  detect_overlaps: (labels) ->
-    label_map = @constructSeries2LabelMap()
+  detect_overlaps: (label_map) ->
     overlap = false
     for label, index in label_map
       do (label, index) =>
         prev = label_map[index - 1]
         if prev and (prev.end > label.start)
-          console.log("OVERLAPS DETECTED at #{index}")
           overlap = true
 
     return overlap
-
-  label_overlap_mapping: (label) ->
-    l = d3.select(label)
-    x = l.attr('x')
-    length = label.getComputedTextLength()
-
-    {
-      label: l.text()
-      x: l.attr('x')
-      length: length
-      start: x - (length / 2.0)
-      end: x + (length / 2.0)
-    }
 
 
   filterData: (filters) ->

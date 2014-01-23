@@ -177,6 +177,22 @@ describe 'Charts::Column', ->
       expect(column.series3Domains['A']['all'](100)).toEqual(100)
 
 
+  describe 'overlapping label detection', ->
+    beforeEach ->
+      column = new ZVG.Column
 
+    it 'does not find overlaps in charts with few columns (series 1)', ->
+      column.randomizeData(3, 3, 5)
+      labels = column.constructSeries1LabelMap()
+      expect(column.detect_overlaps(labels)).toBe(false)
 
+    it 'does not find overlaps in charts with few columns (series 2)', ->
+      column.randomizeData(3, 3, 5)
+      labels = column.constructSeries2LabelMap()
+      expect(column.detect_overlaps(labels)).toBe(false)
+
+    it 'finds overlaps when many columns are present (series 2)', ->
+      column.randomizeData(30, 10, 5)
+      labels = column.constructSeries2LabelMap()
+      expect(column.detect_overlaps(labels)).toBe(true)
 
