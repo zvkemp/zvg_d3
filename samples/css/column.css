@@ -1,0 +1,43 @@
+  
+.column-label, .series1label, .series2label, .legend_text {
+  font-family: arial, sans-serif;
+  font-weight: bold;
+  text-anchor: middle;
+  font-size: 10pt;
+  alignment-baseline: central;
+}
+
+.column-label {
+  color: white;
+  fill: white;
+}
+.series2label {
+  font-size: 9pt;
+  fill: #888;
+  font-weight: normal;
+}
+
+.legend_text {
+  text-anchor: start;
+  alignment-baseline: baseline;
+}
+
+.zvg {
+  display: table;
+}
+
+.zvg-container {
+  display: table-row;
+}
+
+.zvg-chart {
+  display: table-cell;
+  margin: 10px;
+  vertical-align: top;
+
+}
+.legend_item {
+  padding-left: 10px;
+  padding-bottom: 5px;
+}
+
