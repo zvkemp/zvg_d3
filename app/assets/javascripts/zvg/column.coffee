@@ -358,6 +358,7 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('transform', '')
       .text((d) -> d.key)
       .attr('x', (d,i) => @series1x[i] + @series1width[i]/2)
+      .style('text-anchor', null)
     @series_1_labels.exit().remove()
     @constructSeries1LabelMap()
     @rotateSeries1Labels() if @detect_overlaps(@series1LabelMap)
