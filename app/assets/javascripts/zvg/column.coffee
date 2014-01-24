@@ -8,14 +8,12 @@ class ZVG.Column extends ZVG.BasicChart
   #   value: ...    (raw value, percentage not precalculated).
   # }
   # Auxilliary data (not yet implemented): 
-  # n-values
   # defined order to series_1, series_2, series_3 domains
   #
   #
 
 
   # rotate labels, or stagger?
-  # reset s1 label text-anchor
   # line breaks in s1 labels?
   #
   constructor: (element, options = {}) ->
@@ -361,7 +359,28 @@ class ZVG.Column extends ZVG.BasicChart
       .style('text-anchor', null)
     @series_1_labels.exit().remove()
     @constructSeries1LabelMap()
-    @rotateSeries1Labels() if @detect_overlaps(@series1LabelMap)
+    @adjustSeries1EndLabels()
+    # @rotateSeries1Labels() if @detect_overlaps(@series1LabelMap)
+
+  adjustSeries1EndLabels: ->
+    # initial condition is horizontal labels with text-anchor: middle
+    end_index = @series1LabelMap.length - 1
+    start = @series1LabelMap[0]
+    end   = @series1LabelMap[end_index]
+    _start = d3.select(@series_1_labels[0][0])
+    _end = d3.select(@series_1_labels[0][end_index])
+    console.log('start', _start, 'end', _end)
+    if start.start < 0
+      console.log("START IS CUT OFF")
+      difference = start.start
+      new_center = start.x - difference # subtract the negative
+      _start.attr('x', new_center)
+    if end.end > @width
+      console.log("END IS CUT OFF")
+      difference = end.end - @width
+      new_center = end.x - difference
+      _end.attr('x', new_center)
+
 
   renderSeries2Labels: (rotate = 0) ->
     @svg.selectAll('.series2label').remove()
