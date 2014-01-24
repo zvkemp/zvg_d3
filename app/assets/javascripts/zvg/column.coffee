@@ -68,6 +68,9 @@ class ZVG.Column extends ZVG.BasicChart
   resetWidth: ->
     @widenChart ZVG.BasicChart.prototype.width
 
+
+  # the only one that matters.
+  # Runs the necessary functions in order to render the chart.
   render: (renderMode = 'percentage') ->
     @renderMode = renderMode
     @resetWidth()
@@ -79,7 +82,6 @@ class ZVG.Column extends ZVG.BasicChart
     @renderSeries2Labels()
     @initializeY()
     @initializeLabels()
-    #@appendSeries2Borders()
     @renderSeries3()
     @renderSeries3Labels()
     @renderLegend()
@@ -119,20 +121,19 @@ class ZVG.Column extends ZVG.BasicChart
     @background.attr('width', @width)
     @setSeries1Spacing()
 
-  series1TotalWidth: -> @width / @_data.length
-
+  # appends a <g> element and places it along the x axis for each member of series 1
   renderSeries1: ->
-    @series_1 = @svg.selectAll('.series1')
-      .data(@_data)
-    @series_1.enter()
-      .append('g')
-      .attr('class', 'series1')
+    @series_1 = @svg.selectAll('.series1').data(@_data)
+    @series_1.enter().append('g').attr('class', 'series1')
     @series_1.transition().duration(500).attr('transform', (d,i) => "translate(#{@series1x[i]}, 0)")
     @series_1.exit().remove()
 
-  buildSeriesDomains: ->
-    @["buildSeriesDomains_#{@renderMode}"]()
 
+  # builds domains for individual columns (series_1/series_2 pairs).
+  # @renderMode must be set.
+  buildSeriesDomains: -> @["buildSeriesDomains_#{@renderMode}"]()
+  #
+  # To render as a 100% stacked column chart
   buildSeriesDomains_percentage: =>
     return @buildSeriesDomains_percentage_with_n_overrides() if @_custom_n_values
     @series3Domains = {}
@@ -145,7 +146,10 @@ class ZVG.Column extends ZVG.BasicChart
             @series3Domains[s1.key][s2.key] = d3.scale.linear()
               .domain([0, d3.sum(s3)])
               .range([0, @height])
-
+  #
+  # Finds the maximum n value of all columns in series 2.
+  # Scales on sum of percentages of given n value.
+  # Used for 'select all that apply' type data.
   buildSeriesDomains_percentage_with_n_overrides: =>
     maxSum = 0
     for s1 in @_data
@@ -165,9 +169,10 @@ class ZVG.Column extends ZVG.BasicChart
         for s2 in s1.values
           do (s2) =>
             @series3Domains[s1.key][s2.key] = maxScale
-
-
-
+  #
+  # Finds the maximum sum of all columns in series 2
+  # and scales it to the maximum height. All other columns
+  # are scaled relatively.
   buildSeriesDomains_count: =>
     maxSum = 0
     for s1 in @_data
@@ -186,10 +191,13 @@ class ZVG.Column extends ZVG.BasicChart
         for s2 in s1.values
           do (s2) =>
             @series3Domains[s1.key][s2.key] = maxScale
-  
+
+
+  # Sets up <g> elements for each series_2 group within
+  # each series_1 group. Places along x axis (relative to
+  # parent series_1 group).
   renderSeries2: ->
-    @series_2 = @series_1.selectAll('.series2')
-      .data((d) -> d.values)
+    @series_2 = @series_1.selectAll('.series2').data((d) -> d.values)
     @series_2.enter()
       .append('g')
       .attr('class', 'column series2')
@@ -201,7 +209,7 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('transform', "translate(0,-1000)")
       .remove()
 
-
+  # 
   renderSeries3: ->
     @series_3 = @series_2.selectAll('rect.vg')
       .data((d) -> d.values)
