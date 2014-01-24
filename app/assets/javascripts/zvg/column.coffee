@@ -14,18 +14,26 @@ class ZVG.Column extends ZVG.BasicChart
   #
 
 
-  # reset s1 label container height
   # rotate labels, or stagger?
   # reset s1 label text-anchor
-  constructor: (element) ->
+  # line breaks in s1 labels?
+  #
+  constructor: (element, options = {}) ->
     super(element)
+    @_options = options
     @initializeSeries1LabelContainer()
 
   randomizeData: (s1count, s2count, s3count) ->
+    @_filters = null
     @undimAllValues()
+    randomness = ->
+      i = parseInt(Math.random() * 25)
+      'Hello This is Extra Text'.substr(0, i)
     s1count or= parseInt(Math.random() * 10 + 1)
     s2count or= parseInt(Math.random() * 6 + 1)
     s3count or= parseInt(Math.random() * 8 + 2)
+
+    s1d = ("Survey#{randomness()}#{n}" for n in [1..s1count])
 
     raw = []
     for s in ([1..s1count])
@@ -36,12 +44,12 @@ class ZVG.Column extends ZVG.BasicChart
             for d in ([1..s3count])
               do (d) ->
                 raw.push {
-                  series_1: "Survey #{s}"
+                  series_1: s1d[s-1]
                   series_2: "Filter #{f}"
                   series_3: d
                   value: parseInt(Math.random() * 150)
                 }
-    @series_1_domain("Survey #{n}" for n in [1..s1count])
+    @series_1_domain("Survey#{randomness()}#{n}" for n in [1..s1count])
     @series_2_domain("Filter #{n}" for n in [1..s2count])
     @series_3_domain("#{n}" for n in [1..s3count])
     @data(raw)
@@ -67,8 +75,8 @@ class ZVG.Column extends ZVG.BasicChart
     @renderSeries1()
     @buildSeriesDomains()
     @renderSeries2()
-    @appendSeries1Labels()
-    @appendSeries2Labels()
+    @renderSeries1Labels()
+    @renderSeries2Labels()
     @initializeY()
     @initializeLabels()
     #@appendSeries2Borders()
@@ -331,9 +339,8 @@ class ZVG.Column extends ZVG.BasicChart
 
   initializeSeries1LabelContainer: ->
     @series_1_label_container = @svg.append('g')
-      .attr('transform', "translate(0, #{@height + 30})")
 
-  appendSeries1Labels: ->
+  renderSeries1Labels: ->
     @series_1_labels = @series_1_label_container.selectAll('text.series1label')
       .data(@_data)
     @series_1_labels.enter()
@@ -347,7 +354,7 @@ class ZVG.Column extends ZVG.BasicChart
     @constructSeries1LabelMap()
     @rotateSeries1Labels() if @detect_overlaps(@series1LabelMap)
 
-  appendSeries2Labels: (rotate = 0) ->
+  renderSeries2Labels: (rotate = 0) ->
     @svg.selectAll('.series2label').remove()
     @series_2_labels = @series_1.selectAll('text.series2label')
       .data((d) -> d.values)
@@ -362,9 +369,8 @@ class ZVG.Column extends ZVG.BasicChart
         "rotate(#{rotate}, #{x}, #{y})"
       ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
       .text((d) =>
-        console.log(d.values)
         sum = d3.sum(value.values[0].value for value in d.values)
-        "#{d.key} (#{sum})"
+        "#{@series_2_label_visibility(d.key)} (#{sum})"
       )
 
     @series_2_labels.on('click', (d,i) =>
@@ -372,16 +378,17 @@ class ZVG.Column extends ZVG.BasicChart
       @render()
     )
     @constructSeries2LabelMap()
-    @rotateSeries2Labels() if @detect_overlaps(@series2LabelMap) and (rotate is 0)
+    if @detect_overlaps(@series2LabelMap) and (rotate is 0)
+      @rotateSeries2Labels()
+    else
+      @series_1_label_container.transition().attr('transform', "translate(0, #{@height + 30})")
 
   rotateSeries2Labels: ->
-    console.log("ROTATING LABELS")
     max_length = d3.max(l.length for l in @series2LabelMap)
-    @appendSeries2Labels(-90)
+    @renderSeries2Labels(-90)
     @series_1_label_container.transition().attr('transform', "translate(0, #{@height + max_length + 25})")
 
   rotateSeries1Labels: ->
-    console.log("ROTATING LABELS (1)")
     @series_1_labels.attr('transform', (d) -> 
       s = d3.select(@)
       x = s.attr('x')
@@ -389,7 +396,11 @@ class ZVG.Column extends ZVG.BasicChart
       "rotate(-45, #{x}, #{y})"
     ).style('text-anchor', 'end')
 
-
+  series_2_label_visibility: (label) ->
+    if @series_2_domain()[0] is 'all' and @series_2_domain().length is 1
+      ""
+    else
+      label
 
   staggerSeries2Labels: ->
     @series_1_label_container.transition().attr('transform', "translate(0, #{@height + 45})")
@@ -400,7 +411,6 @@ class ZVG.Column extends ZVG.BasicChart
           d3.select(label).attr('y', 15 + current_y)
 
   staggerSeries1Labels: ->
-    console.log("STAGGERING LABELS")
     for label, index in @series_1_labels[0]
       do (label, index) =>
         if (index % 2) is 1
