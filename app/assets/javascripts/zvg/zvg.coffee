@@ -77,6 +77,20 @@ window.ZVG = {
 
 
 
+ZVG.Utilities = {
+  splitString: (string, n_lines = 2) ->
+    words = string.split(' ')
+    length = words.length
+    words_per_line = Math.ceil(length / n_lines)
+    result = []
+
+    for i in (x for x in [0..(length - 1)] by words_per_line)
+      result.push(words.slice(i, i + words_per_line).join(' '))
+
+    return result
+
+}
+
 class ZVG.BackgroundGradient
   constructor: (svg) ->
     @gradient = svg.append('defs')

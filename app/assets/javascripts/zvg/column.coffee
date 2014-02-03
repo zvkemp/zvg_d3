@@ -359,8 +359,9 @@ class ZVG.Column extends ZVG.BasicChart
       .style('text-anchor', null)
     @series_1_labels.exit().remove()
     @constructSeries1LabelMap()
-    @adjustSeries1EndLabels()
+    # @adjustSeries1EndLabels()
     # @rotateSeries1Labels() if @detect_overlaps(@series1LabelMap)
+    @addLineBreaksToSeries1Labels() if @detect_overlaps(@series1LabelMap)
 
   adjustSeries1EndLabels: ->
     # initial condition is horizontal labels with text-anchor: middle
@@ -380,6 +381,20 @@ class ZVG.Column extends ZVG.BasicChart
       difference = end.end - @width
       new_center = end.x - difference
       _end.attr('x', new_center)
+
+  addLineBreaksToSeries1Labels: ->
+    console.log("ADD LINE BREAKS")
+    @series_1_labels.text(null)
+    tspans = @series_1_labels.selectAll('tspan')
+      .data((d) -> ZVG.Utilities.splitString(d.key))
+    tspans.enter()
+      .append('tspan')
+    tspans.text((d) -> d)
+      .attr('dy', (d, i) -> "#{i * 1.2}em")
+      .attr('x', (d) -> d3.select(@parentNode).attr('x'))
+
+
+    
 
 
   renderSeries2Labels: (rotate = 0) ->
