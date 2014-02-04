@@ -5,6 +5,40 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   # series_3: { question (one chart will be combine existing point/multipoint functions }
   # value: { average }
   #
+  #
+  randomizeData: (s1count, s2count, s3count) ->
+    randomness = ->
+      i = parseInt(Math.random() * 25)
+      'Hello This is Extra Text'.substr(0, i)
+    s1count or= parseInt(Math.random() * 10 + 1)
+    s2count or= parseInt(Math.random() * 6 + 1)
+    s3count or= parseInt(Math.random() * 4 + 1)
+
+    s1d = ("Survey#{randomness()}#{n}" for n in [1..s1count])
+    @min_value(0)
+    max = parseInt(Math.random() * 100)
+    @max_value(max)
+
+    raw = []
+    for s in ([1..s1count])
+      do (s) ->
+        s2actual = parseInt(Math.random() * s2count) + 1
+        for f in ([1..s2actual])
+          do (f) ->
+            for d in ([1..s3count])
+              do (d) ->
+                raw.push {
+                  series_1: s1d[s-1]
+                  series_2: "Filter #{f}"
+                  series_3: d
+                  value: (Math.random() * max)
+                }
+    @series_1_domain("Survey#{randomness()}#{n}" for n in [1..s1count])
+    @series_2_domain("Filter #{n}" for n in [1..s2count])
+    @series_3_domain("#{n}" for n in [1..s3count])
+    @data(raw)
+    @render()
+
   
   sample_data: [ # single question
     { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 100, value: 4.6 }
@@ -55,7 +89,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   ]
 
   min_value: (value) ->
-    if value
+    if value or value is 0
       @_min_value = value
       return @
     @_min_value
@@ -88,6 +122,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @build_value_domain()
     @render_y_scale()
     @render_series_3()
+    @set_series_2_shapes_and_colors()
     @render_series_2()
 
   minimum_column_width: 10
@@ -162,6 +197,21 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       .attr('class', 'scale_line')
     @series_3.exit().transition().attr('transform', "translate(0, #{@height})").remove()
 
+  set_series_2_shapes_and_colors: ->
+    @series_2_shapes = {}
+    @series_2_colors = {}
+    colorset = ZVG.colorSchemes.rainbow10
+    colorset = (value for key,value of ZVG.flatUIColors)
+    l = colorset.length
+
+    for key,index in @series_2_domain()
+      do (key, index) =>
+        @series_2_colors[key] = colorset[(index*2)%colorset.length]
+        @series_2_shapes[key] = ZVG.PointShapes[index%4]
+
+        
+
+
   render_series_2: ->
     @series_2 = @series_3.selectAll('.series2').data((d) -> d.values)
     @series_2.enter()
@@ -169,12 +219,63 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       .attr('class', 'series2')
       .attr('transform', "translate(0, #{@value_domain(@min_value())})")
 
+    colors = @series_2_colors
+    shapes = @series_2_shapes
+
+    @series_2.each((d) ->
+      new (shapes[d.key])(this, colors[d.key], "#{d.key}:#{d.values[0].series_1}:#{d.values[0].series_3}")
+    )
+
     @series_2.transition().duration(700)
       .attr('transform', (d) => "translate(0, #{@value_domain(d.values[0].value)})")
-    @series_2.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 10)
     @series_2.exit().remove()
 
 
 
 
+class ZVG.PointShape
+  constructor: (container, fill, label) ->
+    @container = container
+    @fill = fill
+    @render()
+    # d3.select(@container).append('text').text(label) if label
 
+  render: ->
+    @apply_standard_attributes(@render_object())
+
+  apply_standard_attributes: (obj) ->
+    obj.attr('class', 'zvg-point-shape')
+      .style('fill', @fill)
+
+  render_object: ->
+    d3.select(@container).append('circle')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', 8)
+
+class ZVG.SquarePoint extends ZVG.PointShape
+  render_object: ->
+    d3.select(@container).append('rect')
+        .attr('x', -7)
+        .attr('y', -7)
+        .attr('width', 14)
+        .attr('height', 14)
+
+class ZVG.DiamondPoint extends ZVG.PointShape
+  render_object: ->
+    d3.select(@container).append('rect')
+      .attr('x', -6.5)
+      .attr('y', -6.5)
+      .attr('width', 13)
+      .attr('height', 13)
+      .attr('transform', 'rotate(45)')
+
+class ZVG.CirclePoint extends ZVG.PointShape
+
+class ZVG.TrianglePoint extends ZVG.PointShape
+  render_object: ->
+    d3.select(@container).append('path')
+      .attr('d', "M 0 -7 L 8 7 L -8 7 z")
+
+      # 0,-5 6,5 -6,5
+ZVG.PointShapes = [ZVG.SquarePoint, ZVG.DiamondPoint, ZVG.CirclePoint, ZVG.TrianglePoint]

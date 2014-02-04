@@ -36,6 +36,16 @@
   vertical-align: top;
 
 }
+
+.zvg-point-shape {
+  stroke: white;
+  stroke-width: 1pt;
+}
+
+.series2 text {
+  font-size: 8pt;
+}
+
 .legend_item {
   padding-left: 10px;
   padding-bottom: 5px;
