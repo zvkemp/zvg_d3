@@ -79,7 +79,7 @@ describe "point chart", ->
       point.data(data)
       point.data().forEach (s1) ->
         series_2_keys = (x.key for x in s1.values)
-        expect(series_2_keys).toEqual(['1', '3', '2'])
+        expect(series_2_keys.sort()).toEqual(['1', '2', '3'])
 
     it 'sorts the third series', ->
       point.series_2_domain(['X', 'Y', 'Z'])
