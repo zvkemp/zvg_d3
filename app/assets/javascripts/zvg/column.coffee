@@ -1,4 +1,4 @@
-class ZVG.Column extends ZVG.BasicChart
+class ZVG.Column extends ZVG.ColumnarLayoutChart
   # Data structure:
   # Raw dataset is array of series_1,series_2,series_3 key pairs:
   # {
@@ -16,10 +16,6 @@ class ZVG.Column extends ZVG.BasicChart
   # rotate labels, or stagger?
   # line breaks in s1 labels?
   #
-  constructor: (element, options = {}) ->
-    super(element)
-    @_options = options
-    @initializeSeries1LabelContainer()
 
   randomizeData: (s1count, s2count, s3count) ->
     @_filters = null
@@ -62,19 +58,15 @@ class ZVG.Column extends ZVG.BasicChart
 
   color: d3.scale.ordinal().range(ZVG.colorSchemes.warmCool10)
 
-  # used to re-narrow the chart in case new data is smaller than current data.
-  resetWidth: ->
-    @widenChart ZVG.BasicChart.prototype.width
-
 
   # the only one that matters.
   # Runs the necessary functions in order to render the chart.
   render: (renderMode = 'percentage') ->
     @renderMode = renderMode
-    @resetWidth()
-    @setSeries1Spacing()
+    @reset_width()
+    @set_series_1_spacing()
     @renderSeries1()
-    @buildSeriesDomains()
+    @build_series_domains()
     @renderSeries2()
     @renderSeries1Labels()
     @renderSeries2Labels()
@@ -86,54 +78,23 @@ class ZVG.Column extends ZVG.BasicChart
     @bindValueGroupHover()
     @bindValueGroupClick()
 
-  # pre-establishes indexes for the spacing and grouping of series 1 data
-  # based on its contents (necessary because of the variable length of data within
-  # the series, otherwise simple rangebands could be used)
-  setSeries1Spacing: ->
-    @series1width      = []
-    @series1x          = []
-    scale              = d3.scale.ordinal().domain(d.series_1 for d in @raw_data)
-    ranges             = {}
-    totalColumnCount   = 0
-    totalColumnCount  += d.values.length for d in @_data
-    @columnSpacing     = @width/(totalColumnCount + @_data.length)
-    @columnPadding     = 0.1 * @columnSpacing
-    @seriesPadding     = @columnSpacing / 2
-    current_x          = 0
-    maxCount           = d3.max(@_data, (d) -> d.values.length)
-    for d,i in @_data
-      do (d,i) =>
-        w = @columnSpacing * (d.values.length + 1)
-        @series1width[i] = w - @seriesPadding * 2
-        @series1x[i] = current_x + @seriesPadding
-        current_x += w
-    @columnBand = d3.scale.ordinal()
-      .domain([0...maxCount])
-      .rangeRoundBands([0, @columnSpacing * maxCount], 0.1)
-    @widenChart(@width + 100) if @columnBand.rangeBand() < 20
+  minimum_column_width: 20
   
-  # used to ensure a minimum viable width of individual columns.
-  widenChart: (width) ->
-    @width = width
-    @svg.attr('width', @width)
-    @background.attr('width', @width)
-    @setSeries1Spacing()
-
   # appends a <g> element and places it along the x axis for each member of series 1
   renderSeries1: ->
     @series_1 = @svg.selectAll('.series1').data(@_data)
     @series_1.enter().append('g').attr('class', 'series1')
-    @series_1.transition().duration(500).attr('transform', (d,i) => "translate(#{@series1x[i]}, 0)")
+    @series_1.transition().duration(500).attr('transform', (d,i) => "translate(#{@series_1_x[i]}, 0)")
     @series_1.exit().remove()
 
 
   # builds domains for individual columns (series_1/series_2 pairs).
   # @renderMode must be set.
-  buildSeriesDomains: -> @["buildSeriesDomains_#{@renderMode}"]()
+  build_series_domains: -> @["build_series_domains_#{@renderMode}"]()
   #
   # To render as a 100% stacked column chart
-  buildSeriesDomains_percentage: =>
-    return @buildSeriesDomains_percentage_with_n_overrides() if @_custom_n_values
+  build_series_domains_percentage: =>
+    return @build_series_domains_percentage_with_n_overrides() if @_custom_n_values
     @series3Domains = {}
     for s1 in @_data
       do (s1) =>
@@ -148,7 +109,7 @@ class ZVG.Column extends ZVG.BasicChart
   # Finds the maximum n value of all columns in series 2.
   # Scales on sum of percentages of given n value.
   # Used for 'select all that apply' type data.
-  buildSeriesDomains_percentage_with_n_overrides: =>
+  build_series_domains_percentage_with_n_overrides: =>
     maxSum = 0
     for s1 in @_data
       do (s1) =>
@@ -171,7 +132,7 @@ class ZVG.Column extends ZVG.BasicChart
   # Finds the maximum sum of all columns in series 2
   # and scales it to the maximum height. All other columns
   # are scaled relatively.
-  buildSeriesDomains_count: =>
+  build_series_domains_count: =>
     maxSum = 0
     for s1 in @_data
       do (s1) =>
@@ -201,7 +162,7 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('class', 'column series2')
       .attr('transform', "translate(0,0)")
     @series_2.attr('label', (d) -> d.key).transition().duration(500)
-      .attr('transform', (d,i) => "translate(#{@columnBand(i)}, 0)")
+      .attr('transform', (d,i) => "translate(#{@column_band(i)}, 0)")
     @series_2.exit()
       .transition().duration(500)
       .attr('transform', "translate(0,-1000)")
@@ -219,7 +180,7 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('height', 0)
     current_y = @height
     @series_3.style('fill', (d) => @color(d.key))
-      .attr('width', @columnBand.rangeBand())
+      .attr('width', @column_band.rangeBand())
       .transition().delay(200).duration(500)
       .attr('y', (d,i) =>
         current_y = @height if i is 0
@@ -293,7 +254,7 @@ class ZVG.Column extends ZVG.BasicChart
     @series_3_labels.enter()
       .append('text')
       .attr('class', 'vg column-label')
-      .attr('x', @columnBand.rangeBand()/2)
+      .attr('x', @column_band.rangeBand()/2)
       .attr('y', (d,i) =>
         current_y = @height if i is 0
         h = @valueHeightFunction(d)
@@ -310,7 +271,7 @@ class ZVG.Column extends ZVG.BasicChart
     )
 
   computeFontSize: (node, maxHeight) =>
-    "#{d3.min([10, @columnBand.rangeBand()/3, maxHeight])}pt"
+    "#{d3.min([10, @column_band.rangeBand()/3, maxHeight])}pt"
 
   appendSeries2Borders: ->
     @borders = @series_2.selectAll('.border')
@@ -324,7 +285,7 @@ class ZVG.Column extends ZVG.BasicChart
       .attr('x', 0)
       .attr('y', @height)
       .attr('height', 0)
-      .attr('width', @columnBand.rangeBand())
+      .attr('width', @column_band.rangeBand())
       .attr('opacity', 0)
       .transition().delay(300).duration(700)
       .attr('y', 0)
@@ -343,8 +304,6 @@ class ZVG.Column extends ZVG.BasicChart
     @labels = d3.scale.linear().range([0, 1])
     @percent = d3.format('.0%')
 
-  initializeSeries1LabelContainer: ->
-    @series_1_label_container = @svg.append('g')
 
   renderSeries1Labels: ->
     @series_1_labels = @series_1_label_container.selectAll('text.series1label')
@@ -355,7 +314,7 @@ class ZVG.Column extends ZVG.BasicChart
     @series_1_labels.attr('y', 0)
       .attr('transform', '')
       .text((d) -> d.key)
-      .attr('x', (d,i) => @series1x[i] + @series1width[i]/2)
+      .attr('x', (d,i) => @series_1_x[i] + @series_1_width[i]/2)
       .style('text-anchor', null)
     @series_1_labels.exit().remove()
     @constructSeries1LabelMap()
@@ -405,9 +364,9 @@ class ZVG.Column extends ZVG.BasicChart
       .append('text')
       .attr('class', 'series2label')
     @series_2_labels.attr('y', @height + 10)
-      .attr('x', (d,i) => @columnBand(i) + @columnBand.rangeBand()/2)
+      .attr('x', (d,i) => @column_band(i) + @column_band.rangeBand()/2)
       .attr('transform', (d,i) =>
-        x = @columnBand(i) + @columnBand.rangeBand()/2
+        x = @column_band(i) + @column_band.rangeBand()/2
         y = @height + 10
         "rotate(#{rotate}, #{x}, #{y})"
       ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
@@ -466,7 +425,7 @@ class ZVG.Column extends ZVG.BasicChart
     label_map = []
     for g1, g1i in @series_1[0]
       do (g1, g1i) =>
-        g1_x = @series1x[g1i] # correctly correctington
+        g1_x = @series_1_x[g1i] # correctly correctington
         for label in (d3.select(g1).selectAll('text.series2label')[0])
           do (label) ->
             ls     = d3.select(label)

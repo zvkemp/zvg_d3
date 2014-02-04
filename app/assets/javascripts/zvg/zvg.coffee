@@ -200,3 +200,61 @@ class ZVG.BasicChart
 
   renderLegend: ->
     null
+
+class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
+  constructor: (element, options = {}) ->
+    super(element)
+    @_options = options
+    @initialize_series_1_label_container()
+
+  initialize_series_1_label_container: -> @series_1_label_container = @svg.append('g')
+
+  # used to re-narrow chart in case new data is smaller than current
+  reset_width: ->
+    @widen_chart ZVG.BasicChart.prototype.width
+
+  # ensure a minimum viable width of individual columns
+  widen_chart: (width) ->
+    @width = width
+    @svg.attr('width', @width)
+    @background.attr('width', @width)
+    @set_series_1_spacing()
+
+  # x offset for point chart scale on left
+  x_offset: 0
+
+
+  # pre-establishes indexes for the spacing and grouping of series 1 data
+  # based on its contents (necessary because of the variable length of data within
+  # the series, otherwise simple rangebands could be used)
+  #
+  set_series_1_spacing: ->
+    @series_1_width      = []
+    @series_1_x          = []
+    scale                = d3.scale.ordinal().domain(@series_1_domain())
+    ranges               = {}
+    total_column_count   = 0
+    total_column_count  += d.values.length for d in @_data
+    @column_spacing      = (@width - @x_offset)/(total_column_count + @_data.length)
+    @column_padding      = 0.1 * @column_spacing
+    @series_padding      = @column_spacing / 2
+    current_x            = @x_offset # allow for scale on left
+    maxCount             = d3.max(@_data, (d) -> d.values.length)
+    for d,i in @_data
+      do (d,i) =>
+        w = @column_spacing * (d.values.length + 1)
+        @series_1_width[i] = w - @series_padding * 2
+        @series_1_x[i] = current_x + @series_padding
+        current_x += w
+    @column_band = d3.scale.ordinal()
+      .domain([0...maxCount])
+      .rangeRoundBands([0, @column_spacing * maxCount], 0.1)
+    @widen_chart((@width - @x_offset) + 100) if @column_band.rangeBand() < @minimum_column_width
+
+  render_series_1: ->
+    @series_1 = @svg.selectAll('.series1').data(@_data)
+    @series_1.enter().append('g').attr('class', 'series1')
+    @series_1.attr('transform', (d,i) => "translate(#{@series_1_x[i]}, 0)")
+    @series_1.exit().remove()
+
+
