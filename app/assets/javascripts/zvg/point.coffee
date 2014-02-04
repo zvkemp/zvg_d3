@@ -125,6 +125,8 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @render_series_1()
     @build_value_domain()
     @render_y_scale()
+    @render_series_1_labels()
+    @render_series_2_labels() # series 3 for this chart
     @render_series_3()
     @set_series_2_shapes_and_colors()
     @render_series_2()
@@ -253,7 +255,16 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   value_group_selector: '.series2'
 
   renderFilterLegend: -> null
-      
+
+
+  series_2_label_sum: (d) ->
+    d3.sum((value.values[0].n or 0) for value in d.values)
+
+  series_2_label_visibility: (label) ->
+    if @series_3_domain().length is 1
+      ""
+    else
+      label
 
 
 

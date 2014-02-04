@@ -271,7 +271,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
 
   render_legend: ->
-    @initializeLegend()
+    @initialize_legend()
     @legend.selectAll('div.legend_item').remove()
     items = @legend.selectAll('div.legend_item')
       .data(@legend_data())
@@ -324,7 +324,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .text((d) -> d)
 
 
-  initializeLegend: ->
+  initialize_legend: ->
     @legend or= @container.append('div').attr('class', 'legend zvg-chart')
       .style('width', '200px')
 
@@ -353,3 +353,172 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   dim_values_not_matching: (key) =>
     @container.selectAll(@value_group_selector).filter((e) -> e.key != key)
       .style('opacity', 0.1)
+
+  render_series_1_labels: ->
+    @series_1_labels = @series_1_label_container.selectAll('text.series1label')
+      .data(@_data)
+    @series_1_labels.enter()
+      .append('text')
+      .attr('class', 'series1label')
+    @series_1_labels.attr('y', 0)
+      .attr('transform', '')
+      .text((d) -> d.key)
+      .attr('x', (d,i) => @series_1_x[i] + @series_1_width[i]/2)
+      .style('text-anchor', null)
+    @series_1_labels.exit().remove()
+    @construct_series_1_label_map()
+    @addLineBreaksToSeries1Labels() if @detect_overlaps(@series1LabelMap)
+
+  initialize_labels: ->
+    @labels = d3.scale.linear().range([0, 1])
+    @percent = d3.format('.0%')
+
+
+
+  adjustSeries1EndLabels: ->
+    # initial condition is horizontal labels with text-anchor: middle
+    end_index = @series1LabelMap.length - 1
+    start = @series1LabelMap[0]
+    end   = @series1LabelMap[end_index]
+    _start = d3.select(@series_1_labels[0][0])
+    _end = d3.select(@series_1_labels[0][end_index])
+    console.log('start', _start, 'end', _end)
+    if start.start < 0
+      console.log("START IS CUT OFF")
+      difference = start.start
+      new_center = start.x - difference # subtract the negative
+      _start.attr('x', new_center)
+    if end.end > @width
+      console.log("END IS CUT OFF")
+      difference = end.end - @width
+      new_center = end.x - difference
+      _end.attr('x', new_center)
+
+  addLineBreaksToSeries1Labels: ->
+    console.log("ADD LINE BREAKS")
+    @series_1_labels.text(null)
+    tspans = @series_1_labels.selectAll('tspan')
+      .data((d) -> ZVG.Utilities.splitString(d.key))
+    tspans.enter()
+      .append('tspan')
+    tspans.text((d) -> d)
+      .attr('dy', (d, i) -> "#{i * 1.2}em")
+      .attr('x', (d) -> d3.select(@parentNode).attr('x'))
+
+
+    
+
+
+  render_series_2_labels: (rotate = 0) ->
+    @svg.selectAll('.series2label').remove()
+    @series_2_labels = @series_1.selectAll('text.series2label')
+      .data((d) -> d.values)
+    @series_2_labels.enter()
+      .append('text')
+      .attr('class', 'series2label')
+    @series_2_labels.attr('y', @height + 10)
+      .attr('x', (d,i) => @column_band(i) + @column_band.rangeBand()/2)
+      .attr('transform', (d,i) =>
+        x = @column_band(i) + @column_band.rangeBand()/2
+        y = @height + 10
+        "rotate(#{rotate}, #{x}, #{y})"
+      ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
+      .text((d) =>
+        sum = @series_2_label_sum(d)
+        "#{@series_2_label_visibility(d.key)} (#{sum})"
+      )
+
+    @series_2_labels.on('click', (d,i) =>
+      @filter_data([d.key])
+      @render()
+    )
+    @construct_series_2_label_map()
+    if @detect_overlaps(@series_2_label_map) and (rotate is 0)
+      @rotateSeries2Labels()
+    else
+      @series_1_label_container.transition().attr('transform', "translate(0, #{@height + 30})")
+
+  series_2_label_sum: (d) ->
+    d3.sum(value.values[0].value for value in d.values)
+
+  rotateSeries2Labels: ->
+    max_length = d3.max(l.length for l in @series_2_label_map)
+    @render_series_2_labels(-90)
+    @series_1_label_container.transition().attr('transform', "translate(0, #{@height + max_length + 25})")
+
+  rotateSeries1Labels: ->
+    @series_1_labels.attr('transform', (d) -> 
+      s = d3.select(@)
+      x = s.attr('x')
+      y = s.attr('y')
+      "rotate(-45, #{x}, #{y})"
+    ).style('text-anchor', 'end')
+
+  series_2_label_visibility: (label) ->
+    if @series_2_domain()[0] is 'all' and @series_2_domain().length is 1
+      ""
+    else
+      label
+
+  staggerSeries2Labels: ->
+    @series_1_label_container.transition().attr('transform', "translate(0, #{@height + 45})")
+    for label, index in @container.selectAll('text.series2label')[0]
+      do (label, index) ->
+        if (index % 2) is 1
+          current_y = parseFloat(d3.select(label).attr('y'))
+          d3.select(label).attr('y', 15 + current_y)
+
+  stagger_series_1_labels: ->
+    for label, index in @series_1_labels[0]
+      do (label, index) =>
+        if (index % 2) is 1
+          d3.select(label).attr('y', 15)
+
+
+
+  # to be used to in the detection of overlapping labels (in detect_overlaps()
+  construct_series_2_label_map: ->
+    label_map = []
+    for g1, g1i in @series_1[0]
+      do (g1, g1i) =>
+        g1_x = @series_1_x[g1i] # correctly correctington
+        for label in (d3.select(g1).selectAll('text.series2label')[0])
+          do (label) ->
+            ls     = d3.select(label)
+            x      = g1_x + parseFloat(ls.attr('x'))
+            length = label.getComputedTextLength()
+            label_map.push({
+              label: ls.text()
+              x: x
+              length: length
+              start: x - (length / 2.0)
+              end: x + (length / 2.0)
+            })
+    @series_2_label_map = label_map
+
+  construct_series_1_label_map: ->
+    label_map = []
+    for label, index in @series_1_labels[0]
+      do (label, index) =>
+        ls = d3.select(label)
+        x = parseFloat(ls.attr('x'))
+        length = label.getComputedTextLength()
+        label_map.push({
+          label: ls.text()
+          x: x
+          length: length
+          start: x - (length / 2.0)
+          end: x + (length / 2.0)
+        })
+    @series1LabelMap = label_map
+
+  detect_overlaps: (label_map) ->
+    overlap = false
+    for label, index in label_map
+      do (label, index) =>
+        prev = label_map[index - 1]
+        if prev and (prev.end > label.start)
+          overlap = true
+
+    return overlap
+
