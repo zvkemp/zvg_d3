@@ -1,7 +1,9 @@
 class ZVG.Point extends ZVG.ColumnarLayoutChart
   # ISSUES:
-  # series_2 transitions sometimes behave strangely while filtering.
-  #
+  # series_2 transitions sometimes behave strangely while filtering. (maybe not an issue, filtering not active)
+  # add n-values in data stream
+  # display n-values for individual filtered points
+  # display n-values for series3 (question) columns
 
   # DATA:
   # series_1: { survey }
@@ -45,27 +47,31 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
   
   sample_data: [ # single question
-    { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 100, value: 4.6 }
+    { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 100, value: 1.6 }
     { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 101, value: 1.6 }
-    { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 100, value: 4.3 }
-    { series_1: 'Survey 1', series_2: 'Filter 3', series_3: 100, value: 3.6 }
-    { series_1: 'Survey 1', series_2: 'Filter 4', series_3: 100, value: 2.2 }
-    { series_1: 'Survey 1', series_2: 'Filter 5', series_3: 100, value: 4.1 }
-    { series_1: 'Survey 2', series_2: 'Filter 1', series_3: 100, value: 4.8 }
+    { series_1: 'Survey 2', series_2: 'Filter 1', series_3: 100, value: 1.8 }
+    { series_1: 'Survey 3', series_2: 'Filter 1', series_3: 100, value: 1.5 }
+    { series_1: 'Survey 4', series_2: 'Filter 1', series_3: 100, value: 1.5 }
+
+    { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 100, value: 2.3 }
     { series_1: 'Survey 2', series_2: 'Filter 2', series_3: 100, value: 2.2 }
-    { series_1: 'Survey 2', series_2: 'Filter 3', series_3: 100, value: 4.5 }
-    { series_1: 'Survey 2', series_2: 'Filter 4', series_3: 100, value: 3.6 }
-    { series_1: 'Survey 2', series_2: 'Filter 5', series_3: 100, value: 4.5 }
-    { series_1: 'Survey 3', series_2: 'Filter 1', series_3: 100, value: 2.5 }
     { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 100, value: 2.1 }
-    { series_1: 'Survey 3', series_2: 'Filter 3', series_3: 100, value: 3.3 }
-    { series_1: 'Survey 3', series_2: 'Filter 4', series_3: 100, value: 4.5 }
-    { series_1: 'Survey 3', series_2: 'Filter 5', series_3: 100, value: 4.5 }
-    { series_1: 'Survey 4', series_2: 'Filter 1', series_3: 100, value: 3.5 }
     { series_1: 'Survey 4', series_2: 'Filter 2', series_3: 100, value: 2.6 }
-    { series_1: 'Survey 4', series_2: 'Filter 3', series_3: 100, value: 4.6 }
-    { series_1: 'Survey 4', series_2: 'Filter 4', series_3: 100, value: 4.5 }
-    { series_1: 'Survey 4', series_2: 'Filter 5', series_3: 100, value: 2.8 }
+    
+    { series_1: 'Survey 1', series_2: 'Filter 3', series_3: 100, value: 3.6 }
+    { series_1: 'Survey 2', series_2: 'Filter 3', series_3: 100, value: 3.5 }
+    { series_1: 'Survey 4', series_2: 'Filter 3', series_3: 100, value: 3.6 }
+    { series_1: 'Survey 3', series_2: 'Filter 3', series_3: 100, value: 3.3 }
+    
+    { series_1: 'Survey 1', series_2: 'Filter 4', series_3: 100, value: 4.2 }
+    { series_1: 'Survey 3', series_2: 'Filter 4', series_3: 100, value: 4.3 }
+    { series_1: 'Survey 4', series_2: 'Filter 4', series_3: 100, value: 4.1 }
+    { series_1: 'Survey 2', series_2: 'Filter 4', series_3: 100, value: 4.6 }
+    
+    { series_1: 'Survey 1', series_2: 'Filter 5', series_3: 100, value: 4.8 }
+    { series_1: 'Survey 2', series_2: 'Filter 5', series_3: 100, value: 4.9 }
+    { series_1: 'Survey 3', series_2: 'Filter 5', series_3: 100, value: 4.5 }
+    { series_1: 'Survey 4', series_2: 'Filter 5', series_3: 100, value: 4.8 }
   ]
 
   sample_data2: [
@@ -144,7 +150,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       .range([@height - @y_padding, @y_padding])
 
   initialize_y_scale: ->
-    console.log('initialize_y_scale')
     @y_scale = @svg.append('g').attr('class', 'y_scale')
     @y_scale.append('rect')
       .attr('rx', 0)
@@ -230,9 +235,15 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
     colors = @series_2_colors
     shapes = @series_2_shapes
-
     @series_2.each((d) ->
+      d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
       new (shapes[d.key])(this, colors[d.key], "#{d.key}:#{d.values[0].series_1}:#{d.values[0].series_3}")
+      d3.select(this).append('text')
+        .attr('class', 'zvg-point-label series2label')
+        .text(d3.round(d.values[0].value, 1))
+        .attr('transform', "translate(9,0)")
+        .datum(d.key)
+        .style('opacity', 0)
     )
 
     @series_2.transition().duration(700)
@@ -265,6 +276,16 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       ""
     else
       label
+
+  dim_values_not_matching: (key) =>
+    @container.selectAll(@value_group_selector).filter((e) -> e.key != key)
+      .style('opacity', 0.1)
+    @container.selectAll('.zvg-point-label').filter((e) -> e is key).style('opacity', 1)
+
+  undim_all_values: =>
+    @container.selectAll(@value_group_selector).style('opacity', 1)
+    @container.selectAll('.zvg-point-label').style('opacity', 0)
+
 
 
 
