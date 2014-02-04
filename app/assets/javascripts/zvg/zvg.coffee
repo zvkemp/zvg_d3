@@ -198,7 +198,7 @@ class ZVG.BasicChart
       .attr('height', @height + 200).attr('width', @width + 200)
     @background = (new ZVG.Background(@svg, @height, @width, 0)).background
 
-  renderLegend: ->
+  render_legend: ->
     null
 
 class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
@@ -266,4 +266,90 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @series_1.attr('transform', (d,i) => "translate(#{@series_1_x[i]}, 0)")
     @series_1.exit().remove()
 
+  legend_data: ->
+    ({ key: x, text: "Label for #{x}" } for x in @series_3_domain().slice(0).reverse())
 
+
+  render_legend: ->
+    @initializeLegend()
+    @legend.selectAll('div.legend_item').remove()
+    items = @legend.selectAll('div.legend_item')
+      .data(@legend_data())
+    items.enter()
+      .append('div')
+      .attr('class', "legend_item #{@value_group_selector.substr(1,100)}")
+      .attr('label', (d) -> d.key)
+
+    @apply_legend_elements(items)
+    @renderFilterLegend()
+
+  apply_legend_elements: (selection) ->
+    selection.append('div')
+      .attr('class', 'legend-icon')
+      .style('background-color', (d) => @color(d.key))
+      .style('width', '15px')
+      .style('height', '15px')
+      .style('padding', '1px')
+      .style('float', 'left')
+      .style('margin-right', '5px')
+    selection.append('span').attr('class','legend_text')
+      .text((d) -> d.text)
+
+
+  renderFilterLegend: =>
+    @legend.selectAll('div.filter_legend_item').remove()
+
+    items = @legend.selectAll('div.filter_legend_item')
+      .data(@series_2_domain().slice(0).reverse())
+    items.enter()
+      .append('div')
+      .attr('class', 'filter_legend_item')
+      .attr('label', (d) -> d)
+
+    filter_checkboxes = items.append('input')
+      .attr('type', 'checkbox')
+      .attr('checked',(d) =>
+        if @_filters
+          d in @_filters or null
+        else
+          true
+      )
+
+    filter_checkboxes.on('change', (d,i) =>
+      @filter_data(@container.selectAll('input:checked').data())
+      @render()
+
+    )
+    items.append('span').attr('class', 'legend_text')
+      .text((d) -> d)
+
+
+  initializeLegend: ->
+    @legend or= @container.append('div').attr('class', 'legend zvg-chart')
+      .style('width', '200px')
+
+  
+  bind_value_group_click: ->
+    vg = @container.selectAll(@value_group_selector)
+    vg.on('click', (d) =>
+      if @freeze && @freeze == d.key
+        @freeze = null
+        @undim_all_values()
+      else
+        @freeze = d.key
+        @undim_all_values()
+        @dim_values_not_matching(d.key)
+    )
+
+  bind_value_group_hover: ->
+    vg = @container.selectAll(@value_group_selector)
+    vg.on('mouseover', (d) =>
+      @dim_values_not_matching(d.key) unless @freeze
+    ).on('mouseout', => @undim_all_values() unless @freeze)
+
+  undim_all_values: =>
+    @container.selectAll(@value_group_selector).style('opacity', 1)
+
+  dim_values_not_matching: (key) =>
+    @container.selectAll(@value_group_selector).filter((e) -> e.key != key)
+      .style('opacity', 0.1)

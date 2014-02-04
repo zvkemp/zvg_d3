@@ -1,4 +1,8 @@
 class ZVG.Point extends ZVG.ColumnarLayoutChart
+  # ISSUES:
+  # series_2 transitions sometimes behave strangely while filtering.
+  #
+
   # DATA:
   # series_1: { survey }
   # series_2: { filter }
@@ -124,6 +128,9 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @render_series_3()
     @set_series_2_shapes_and_colors()
     @render_series_2()
+    @render_legend()
+    @bind_value_group_hover()
+    @bind_value_group_click()
 
   minimum_column_width: 10
   x_offset: 30
@@ -230,6 +237,23 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       .attr('transform', (d) => "translate(0, #{@value_domain(d.values[0].value)})")
     @series_2.exit().remove()
 
+  legend_data: ->
+    ({ key: x, text: "Label for #{x}" } for x in @series_2_domain().slice(0).reverse())
+
+  apply_legend_elements: (selection) ->
+    colors = @series_2_colors
+    shapes = @series_2_shapes
+    svgs = selection.append('svg').attr('width', 18).attr('height', 16)
+    groups = svgs.append('g').attr('transform', "translate(8,8)")
+      .attr('class', 'series2')
+    groups.each((d) -> new (shapes[d.key])(this, colors[d.key]))
+    selection.append('span').attr('class', 'legend_text')
+      .text((d) -> d.text)
+
+  value_group_selector: '.series2'
+
+  renderFilterLegend: -> null
+      
 
 
 

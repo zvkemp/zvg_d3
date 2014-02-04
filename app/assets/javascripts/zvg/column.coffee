@@ -19,7 +19,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
 
   randomizeData: (s1count, s2count, s3count) ->
     @_filters = null
-    @undimAllValues()
+    @undim_all_values()
     randomness = ->
       i = parseInt(Math.random() * 25)
       'Hello This is Extra Text'.substr(0, i)
@@ -74,9 +74,9 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     @initializeLabels()
     @renderSeries3()
     @renderSeries3Labels()
-    @renderLegend()
-    @bindValueGroupHover()
-    @bindValueGroupClick()
+    @render_legend()
+    @bind_value_group_hover()
+    @bind_value_group_click()
 
   minimum_column_width: 20
   
@@ -191,32 +191,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       .attr('height', @valueHeightFunction)
     @series_3.exit().remove()
 
-  bindValueGroupHover: ->
-    vg = @container.selectAll('.vg')
-    vg.on('mouseover', (d) =>
-      @dimValuesNotMatching(d.key) unless @freeze
-    ).on('mouseout', => @undimAllValues() unless @freeze)
-
-  bindValueGroupClick: ->
-    vg = @container.selectAll('.vg')
-    vg.on('click', (d) =>
-      if @freeze && @freeze == d.key
-        @freeze = null # unfreeze if clicked again
-        @undimAllValues()
-      else
-        @freeze = d.key
-        @undimAllValues()
-        @dimValuesNotMatching(d.key)
-    )
-
-  # set opacity to 10% unless key property matches arg.
-  # Used for hover and click events.
-  dimValuesNotMatching: (key) =>
-    @container.selectAll('.vg').filter((e) -> e.key != key)
-      .style('opacity', 0.1)
-
-  undimAllValues: =>
-    @container.selectAll('.vg').style('opacity', 1)
+  value_group_selector: ".vg" # for hovers
 
   valueHeightFunction: (d) =>
     dp = d.values[0]
@@ -466,68 +441,6 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
 
     return overlap
 
-
-  filter_data: (filters) ->
-    if filters
-      @_filters = filters
-      # prevent @raw_data from being overwritten
-      @_data = @nestData(x for x in @raw_data when x.series_2 in filters)
-    else
-      @data(@raw_data)
-
-  renderLegend: ->
-    @initializeLegend()
-    @legend.selectAll('div.legend_item').remove()
-    items = @legend.selectAll('div.legend_item')
-      .data({ key: x, text: "Label for #{x}" } for x in @series_3_domain().slice(0).reverse())
-    items.enter()
-      .append('div')
-      .attr('class', 'legend_item vg')
-      .attr('label', (d) -> d.key)
-    items.append('div')
-      .attr('class', 'legend-icon')
-      .style('background-color', (d) => @color(d.key))
-      .style('width', '15px')
-      .style('height', '15px')
-      .style('padding', '1px')
-      .style('float', 'left')
-      .style('margin-right', '5px')
-    items.append('span').attr('class','legend_text')
-      .text((d) -> d.text)
-
-    @renderFilterLegend()
-
-  renderFilterLegend: =>
-    @legend.selectAll('div.filter_legend_item').remove()
-
-    items = @legend.selectAll('div.filter_legend_item')
-      .data(@series_2_domain().slice(0).reverse())
-    items.enter()
-      .append('div')
-      .attr('class', 'filter_legend_item')
-      .attr('label', (d) -> d)
-
-    filter_checkboxes = items.append('input')
-      .attr('type', 'checkbox')
-      .attr('checked',(d) =>
-        if @_filters
-          d in @_filters or null
-        else
-          true
-      )
-
-    filter_checkboxes.on('change', (d,i) =>
-      @filter_data(@container.selectAll('input:checked').data())
-      @render()
-
-    )
-    items.append('span').attr('class', 'legend_text')
-      .text((d) -> d)
-
-
-  initializeLegend: ->
-    @legend or= @container.append('div').attr('class', 'legend zvg-chart')
-      .style('width', '200px')
 
   sample_data: [
     { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 2, value: 100 }
