@@ -223,6 +223,15 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   # x offset for point chart scale on left
   x_offset: 0
 
+   
+  filter_data: (filters) ->
+    if filters
+      @_filters = filters
+      # prevent @raw_data from being overwritten
+      @_data = @nestData(x for x in @raw_data when x.series_2 in filters)
+    else
+      @data(@raw_data)
+
 
   # pre-establishes indexes for the spacing and grouping of series 1 data
   # based on its contents (necessary because of the variable length of data within

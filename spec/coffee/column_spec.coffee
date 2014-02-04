@@ -116,22 +116,22 @@ describe 'Charts::Column', ->
       column.data(data)
 
     it 'displays all by default', ->
-      column.filterData()
+      column.filter_data()
       expect(column.raw_data).toBe(data)
 
     it 'displays a single series 2 range', ->
-      column.filterData('Y')
+      column.filter_data('Y')
       column.data().forEach (s1) ->
         series_2_keys = (x.key for x in s1.values)
         expect(series_2_keys).toEqual ['Y']
 
     it 'maintains the original raw data when filtering', ->
-      column.filterData('Z')
+      column.filter_data('Z')
       expect(column.raw_data).toEqual(data)
 
     it 'returns to unfiltered data', ->
-      column.filterData('X')
-      column.filterData()
+      column.filter_data('X')
+      column.filter_data()
       column.data().forEach (s1) ->
         series_2_keys = (x.key for x in s1.values)
         expect(series_2_keys).toEqual ['X', 'Y', 'Z']

@@ -376,7 +376,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       )
 
     @series_2_labels.on('click', (d,i) =>
-      @filterData([d.key])
+      @filter_data([d.key])
       @render()
     )
     @constructSeries2LabelMap()
@@ -467,7 +467,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     return overlap
 
 
-  filterData: (filters) ->
+  filter_data: (filters) ->
     if filters
       @_filters = filters
       # prevent @raw_data from being overwritten
@@ -517,7 +517,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       )
 
     filter_checkboxes.on('change', (d,i) =>
-      @filterData(@container.selectAll('input:checked').data())
+      @filter_data(@container.selectAll('input:checked').data())
       @render()
 
     )
