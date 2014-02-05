@@ -82,8 +82,8 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
   
   # appends a <g> element and places it along the x axis for each member of series 1
   renderSeries1: ->
-    @series_1 = @svg.selectAll('.series1').data(@_data)
-    @series_1.enter().append('g').attr('class', 'series1')
+    @series_1 = @svg.selectAll('.series1').data(@_data, @key_function)
+    @series_1.enter().append('g').attr('class', 'series1').attr('transform', 'translate(0,0)')
     @series_1.transition().duration(500).attr('transform', (d,i) => "translate(#{@series_1_x[i]}, 0)")
     @series_1.exit().remove()
 
@@ -156,7 +156,8 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
   # each series_1 group. Places along x axis (relative to
   # parent series_1 group).
   renderSeries2: ->
-    @series_2 = @series_1.selectAll('.series2').data((d) -> d.values)
+    # key function ensures proper transitions - data bound to specific series 2 groups
+    @series_2 = @series_1.selectAll('.series2').data(@values_function, @key_function)
     @series_2.enter()
       .append('g')
       .attr('class', 'column series2')
@@ -165,7 +166,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       .attr('transform', (d,i) => "translate(#{@column_band(i)}, 0)")
     @series_2.exit()
       .transition().duration(500)
-      .attr('transform', "translate(0,-1000)")
+      .attr('transform',(d,i) => "translate(#{@column_band(1)},-1000)")
       .remove()
 
   # 
@@ -236,12 +237,11 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
         current_y -= h
         current_y + h/2
       ).attr('opacity', 0)
-      .transition().delay(500).attr('opacity', 1)
+      .transition().delay(300).attr('opacity', 1)
     computeFontSize = @computeFontSize
     valueHeightFunction = @valueHeightFunction
     @series_3_labels.text(textFunction)
     @series_3_labels.style('font-size', (d) ->
-      # is there a better way to do this? need class bindings as well as local `this`
       computeFontSize(this, valueHeightFunction(d))
     )
 

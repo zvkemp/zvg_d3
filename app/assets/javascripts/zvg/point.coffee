@@ -49,56 +49,84 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
   
   sample_data: [ # single question
-    { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 100, value: 1.6 }
-    { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 101, value: 1.6 }
-    { series_1: 'Survey 2', series_2: 'Filter 1', series_3: 100, value: 1.8 }
-    { series_1: 'Survey 3', series_2: 'Filter 1', series_3: 100, value: 1.5 }
-    { series_1: 'Survey 4', series_2: 'Filter 1', series_3: 100, value: 1.5 }
-
-    { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 100, value: 2.3 }
-    { series_1: 'Survey 2', series_2: 'Filter 2', series_3: 100, value: 2.2 }
-    { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 100, value: 2.1 }
-    { series_1: 'Survey 4', series_2: 'Filter 2', series_3: 100, value: 2.6 }
-    
-    { series_1: 'Survey 1', series_2: 'Filter 3', series_3: 100, value: 3.6 }
-    { series_1: 'Survey 2', series_2: 'Filter 3', series_3: 100, value: 3.5 }
-    { series_1: 'Survey 4', series_2: 'Filter 3', series_3: 100, value: 3.6 }
-    { series_1: 'Survey 3', series_2: 'Filter 3', series_3: 100, value: 3.3 }
-    
-    { series_1: 'Survey 1', series_2: 'Filter 4', series_3: 100, value: 4.2 }
-    { series_1: 'Survey 3', series_2: 'Filter 4', series_3: 100, value: 4.3 }
-    { series_1: 'Survey 4', series_2: 'Filter 4', series_3: 100, value: 4.1 }
-    { series_1: 'Survey 2', series_2: 'Filter 4', series_3: 100, value: 4.6 }
-    
-    { series_1: 'Survey 1', series_2: 'Filter 5', series_3: 100, value: 4.8 }
-    { series_1: 'Survey 2', series_2: 'Filter 5', series_3: 100, value: 4.9 }
-    { series_1: 'Survey 3', series_2: 'Filter 5', series_3: 100, value: 4.5 }
-    { series_1: 'Survey 4', series_2: 'Filter 5', series_3: 100, value: 4.8 }
+    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 1,value: 66},
+    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 2,value: 20},
+    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 3,value: 97},
+    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 4,value: 66},
+    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 5,value: 48},
+    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 1,value: 17},
+    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 2,value: 73},
+    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 3,value: 36},
+    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 4,value: 62},
+    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 5,value: 51},
+    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 1,value: 17},
+    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 2,value: 55},
+    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 3,value: 30},
+    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 4,value: 69},
+    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 5,value: 55},
+    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 1,value: 84},
+    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 2,value: 69},
+    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 3,value: 93},
+    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 4,value: 62},
+    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 5,value: 81},
+    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 1,value: 47},
+    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 2,value: 17},
+    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 3,value: 42},
+    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 4,value: 98},
+    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 5,value: 36},
+    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 1,value: 42},
+    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 2,value: 19},
+    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 3,value: 23},
+    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 4,value: 58},
+    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 5,value: 32},
+    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 1,value: 65},
+    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 2,value: 79},
+    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 3,value: 8},
+    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 4,value: 87},
+    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 5,value: 81},
+    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 1,value: 61},
+    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 2,value: 61},
+    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 3,value: 18},
+    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 4,value: 72},
+    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 5,value: 82},
+    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 1,value: 80},
+    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 2,value: 57},
+    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 3,value: 29},
+    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 4,value: 51},
+    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 5,value: 18},
+    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 1,value: 27},
+    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 2,value: 92},
+    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 3,value: 15},
+    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 4,value: 22},
+    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 5,value: 63},
+    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 1,value: 49},
+    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 2,value: 67},
+    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 3,value: 99},
+    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 4,value: 88},
+    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 5,value: 94},
+    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 1,value: 49},
+    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 2,value: 27},
+    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 3,value: 12},
+    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 4,value: 89},
+    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 5,value: 87},
+    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 1,value: 52},
+    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 2,value: 5},
+    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 3,value: 94},
+    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 4,value: 91},
+    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 5,value: 82},
+    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 1,value: 70},
+    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 2,value: 39},
+    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 3,value: 26},
+    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 4,value: 81},
+    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 5,value: 53},
+    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 1,value: 23},
+    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 2,value: 99},
+    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 3,value: 21},
+    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 4,value: 51},
+    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 5,value: 79}
   ]
 
-  sample_data2: [
-    { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 101, value: 4.9 }
-    { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 101, value: 1.6 }
-    { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 101, value: 4.9 }
-    { series_1: 'Survey 1', series_2: 'Filter 3', series_3: 100, value: 3.9 }
-    { series_1: 'Survey 1', series_2: 'Filter 4', series_3: 100, value: 3.2 }
-    { series_1: 'Survey 1', series_2: 'Filter 5', series_3: 100, value: 1.1 }
-    { series_1: 'Survey 2', series_2: 'Filter 1', series_3: 100, value: 1.8 }
-    { series_1: 'Survey 2', series_2: 'Filter 2', series_3: 100, value: 2.2 }
-    { series_1: 'Survey 2', series_2: 'Filter 3', series_3: 100, value: 4.5 }
-    { series_1: 'Survey 2', series_2: 'Filter 4', series_3: 100, value: 3.6 }
-    { series_1: 'Survey 2', series_2: 'Filter 5', series_3: 100, value: 1.5 }
-    { series_1: 'Survey 3', series_2: 'Filter 1', series_3: 100, value: 2.5 }
-    { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 100, value: 2.1 }
-    { series_1: 'Survey 3', series_2: 'Filter 3', series_3: 101, value: 1.3 }
-    { series_1: 'Survey 3', series_2: 'Filter 4', series_3: 101, value: 3.9 }
-    { series_1: 'Survey 3', series_2: 'Filter 5', series_3: 100, value: 4.9 }
-    { series_1: 'Survey 4', series_2: 'Filter 1', series_3: 100, value: 1.5 }
-    { series_1: 'Survey 4', series_2: 'Filter 2', series_3: 100, value: 3.6 }
-    { series_1: 'Survey 4', series_2: 'Filter 3', series_3: 101, value: 1.6 }
-    { series_1: 'Survey 4', series_2: 'Filter 4', series_3: 100, value: 1.5 }
-    { series_1: 'Survey 4', series_2: 'Filter 5', series_3: 100, value: 2.9 }
-  ]
+
 
   min_value: (value) ->
     if value or value is 0

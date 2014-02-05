@@ -356,14 +356,14 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
   render_series_1_labels: ->
     @series_1_labels = @series_1_label_container.selectAll('text.series1label')
-      .data(@_data)
+      .data(@_data, @key_function)
     @series_1_labels.enter()
       .append('text')
       .attr('class', 'series1label')
-    @series_1_labels.attr('y', 0)
-      .attr('transform', '')
-      .text((d) -> d.key)
-      .attr('x', (d,i) => @series_1_x[i] + @series_1_width[i]/2)
+
+    @series_1_labels.text((d) -> d.key)
+    @series_1_labels.transition()
+      .attr('transform', (d,i) => "translate(#{@series_1_x[i] + @series_1_width[i]/2}, 0)")
       .style('text-anchor', null)
     @series_1_labels.exit().remove()
     @construct_series_1_label_map()
@@ -372,6 +372,9 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   initialize_labels: ->
     @labels = d3.scale.linear().range([0, 1])
     @percent = d3.format('.0%')
+
+  key_function: (data) -> data.key
+  values_function: (data) -> data.values
 
 
 
