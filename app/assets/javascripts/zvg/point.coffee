@@ -7,40 +7,49 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   # rewrite so data format matches column chart data format, i.e. series_3 is the response and value is the count
   # where do the additional questions come in? Multiple sets of data? 'question_id' attribute?
 
-  # DATA:
+  # RAW DATA:
   # series_1: { survey }
   # series_2: { filter }
-  # series_3: { question (one chart will be combine existing point/multipoint functions }
-  # value: { average }
+  # series_3: { answer 
+  # question_id: (one chart will combine existing point/multipoint functions)
+  # value: { count of respondents giving that answer }
   #
+  # VARIABLES:
+  # series_1_domain: survey
+  # series_2_domain: filter
+  # series_3_domain: question ids
   #
-  randomizeData: (s1count, s2count, s3count) ->
+  randomizeData: (s1count, s2count, s3count, q_count) ->
     randomness = ->
       i = parseInt(Math.random() * 25)
       'Hello This is Extra Text'.substr(0, i)
     s1count or= parseInt(Math.random() * 10 + 1)
     s2count or= parseInt(Math.random() * 6 + 1)
-    s3count or= parseInt(Math.random() * 4 + 1)
+    s3count or= parseInt(Math.random() * 4 + 3)
+    q_count or= 1
 
     s1d = ("Survey#{randomness()}#{n}" for n in [1..s1count])
     @min_value(0)
-    max = parseInt(Math.random() * 100)
-    @max_value(max)
+    @max_value(s3count)
+
+    sample_data_hash = (survey, filter, question, answer, value) ->
+      {
+        series_1: survey,
+        series_2: filter,
+        question_id: question,
+        series_3: answer,
+        value: value
+      }
 
     raw = []
-    for s in ([1..s1count])
-      do (s) ->
-        s2actual = parseInt(Math.random() * s2count) + 1
-        for f in ([1..s2actual])
-          do (f) ->
-            for d in ([1..s3count])
-              do (d) ->
-                raw.push {
-                  series_1: s1d[s-1]
-                  series_2: "Filter #{f}"
-                  series_3: d
-                  value: (Math.random() * max)
-                }
+
+    ([1..s1count]).forEach (s) ->
+      ([1..s2count]).forEach (f) ->
+        ([1..q_count]).forEach (q) ->
+          ([1..s3count]).forEach (a) ->
+            raw.push(sample_data_hash("Survey #{s}", "Filter #{f}", 100 + q, a, parseInt(Math.random() * 100)))
+
+
     @series_1_domain("Survey#{randomness()}#{n}" for n in [1..s1count])
     @series_2_domain("Filter #{n}" for n in [1..s2count])
     @series_3_domain("#{n}" for n in [1..s3count])
@@ -48,85 +57,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @render()
 
   
-  sample_data: [ # single question
-    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 1,value: 66},
-    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 2,value: 20},
-    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 3,value: 97},
-    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 4,value: 66},
-    {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 5,value: 48},
-    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 1,value: 17},
-    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 2,value: 73},
-    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 3,value: 36},
-    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 4,value: 62},
-    {series_1: "Survey 1",series_2: "Filter 2",question_id: 100,series_3: 5,value: 51},
-    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 1,value: 17},
-    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 2,value: 55},
-    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 3,value: 30},
-    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 4,value: 69},
-    {series_1: "Survey 1",series_2: "Filter 3",question_id: 100,series_3: 5,value: 55},
-    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 1,value: 84},
-    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 2,value: 69},
-    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 3,value: 93},
-    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 4,value: 62},
-    {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 5,value: 81},
-    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 1,value: 47},
-    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 2,value: 17},
-    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 3,value: 42},
-    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 4,value: 98},
-    {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 5,value: 36},
-    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 1,value: 42},
-    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 2,value: 19},
-    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 3,value: 23},
-    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 4,value: 58},
-    {series_1: "Survey 2",series_2: "Filter 3",question_id: 100,series_3: 5,value: 32},
-    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 1,value: 65},
-    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 2,value: 79},
-    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 3,value: 8},
-    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 4,value: 87},
-    {series_1: "Survey 3",series_2: "Filter 1",question_id: 100,series_3: 5,value: 81},
-    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 1,value: 61},
-    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 2,value: 61},
-    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 3,value: 18},
-    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 4,value: 72},
-    {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 5,value: 82},
-    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 1,value: 80},
-    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 2,value: 57},
-    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 3,value: 29},
-    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 4,value: 51},
-    {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 5,value: 18},
-    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 1,value: 27},
-    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 2,value: 92},
-    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 3,value: 15},
-    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 4,value: 22},
-    {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 5,value: 63},
-    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 1,value: 49},
-    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 2,value: 67},
-    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 3,value: 99},
-    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 4,value: 88},
-    {series_1: "Survey 4",series_2: "Filter 2",question_id: 100,series_3: 5,value: 94},
-    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 1,value: 49},
-    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 2,value: 27},
-    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 3,value: 12},
-    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 4,value: 89},
-    {series_1: "Survey 4",series_2: "Filter 3",question_id: 100,series_3: 5,value: 87},
-    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 1,value: 52},
-    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 2,value: 5},
-    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 3,value: 94},
-    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 4,value: 91},
-    {series_1: "Survey 5",series_2: "Filter 1",question_id: 100,series_3: 5,value: 82},
-    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 1,value: 70},
-    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 2,value: 39},
-    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 3,value: 26},
-    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 4,value: 81},
-    {series_1: "Survey 5",series_2: "Filter 2",question_id: 100,series_3: 5,value: 53},
-    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 1,value: 23},
-    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 2,value: 99},
-    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 3,value: 21},
-    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 4,value: 51},
-    {series_1: "Survey 5",series_2: "Filter 3",question_id: 100,series_3: 5,value: 79}
-  ]
-
-
 
   min_value: (value) ->
     if value or value is 0
@@ -151,8 +81,21 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     # and additional questions increase the number of sub-columns.
     d3.nest()
       .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
-      .key((z) -> z.series_3).sortKeys(@seriesSortFunction(@series_3_domain()))
+      .key((z) -> z.question_id).sortKeys(@seriesSortFunction(@series_3_domain()))
       .key((z) -> z.series_2).sortKeys(@seriesSortFunction(@series_2_domain()))
+      .rollup((z) ->
+        n_values  = (x.value for x in z)
+        values    = (x.value * x.series_3 for x in z)
+        n         = d3.sum(n_values)
+        value_sum = d3.sum(values)
+        {
+          question_id: z[0].question_id
+          series_1: z[0].series_1
+          series_2: z[0].series_2
+          average: value_sum/n
+          n: n
+        }
+      )
       .entries(data)
 
   render: ->
@@ -267,17 +210,17 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     shapes = @series_2_shapes
     @series_2.each((d) ->
       d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
-      new (shapes[d.key])(this, colors[d.key], "#{d.key}:#{d.values[0].series_1}:#{d.values[0].series_3}")
+      new (shapes[d.key])(this, colors[d.key], "#{d.key}:#{d.values.series_1}:#{d.values.series_3}")
       d3.select(this).append('text')
         .attr('class', 'zvg-point-label series2label')
-        .text(d3.round(d.values[0].value, 1))
+        .text(d3.round(d.values.average, 1))
         .attr('transform', "translate(9,0)")
         .datum(d.key)
         .style('opacity', 0)
     )
 
     @series_2.transition().duration(700)
-      .attr('transform', (d) => "translate(0, #{@value_domain(d.values[0].value)})")
+      .attr('transform', (d) => "translate(0, #{@value_domain(d.values.average)})")
     @series_2.exit().remove()
 
   legend_data: ->
@@ -299,7 +242,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
 
   series_2_label_sum: (d) ->
-    d3.sum((value.values[0].n or 0) for value in d.values)
+    d3.sum((value.values.n or 0) for value in d.values)
 
   series_2_label_visibility: (label) ->
     if @series_3_domain().length is 1
