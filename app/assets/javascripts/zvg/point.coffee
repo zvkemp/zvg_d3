@@ -4,6 +4,8 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   # add n-values in data stream
   # display n-values for individual filtered points
   # display n-values for series3 (question) columns
+  # rewrite so data format matches column chart data format, i.e. series_3 is the response and value is the count
+  # where do the additional questions come in? Multiple sets of data? 'question_id' attribute?
 
   # DATA:
   # series_1: { survey }

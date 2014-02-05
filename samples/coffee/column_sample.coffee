@@ -1,7 +1,7 @@
 buttons = d3.select('body').append('div')
   .attr('id', 'buttons')
 
-chart = new ZVG.Column
+chart = new ZVG.Column('body')
 chart.randomizeData()
 chart.render()
 

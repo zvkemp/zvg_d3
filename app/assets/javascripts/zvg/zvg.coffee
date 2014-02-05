@@ -191,7 +191,7 @@ class ZVG.BasicChart
 
 
   initializeSvg: (element = 'body') ->
-    @outer = d3.select(element).append('div').attr('class', 'zvg')
+    @outer = d3.select(@element).append('div').attr('class', 'zvg')
     @container = @outer.append('div').attr('class', 'zvg-container')
     @chart     = @container.append('div').attr('class', 'zvg-chart')
     @svg = @chart.append('svg')
