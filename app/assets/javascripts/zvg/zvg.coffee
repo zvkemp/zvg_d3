@@ -149,7 +149,7 @@ class ZVG.BasicChart
   width: 900
   height: 500
 
-  constructor: (element) ->
+  constructor: (element = 'body') ->
     @element = element
     @initializeSvg(element)
 
@@ -366,6 +366,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .attr('transform', (d,i) => "translate(#{@series_1_x[i] + @series_1_width[i]/2}, 0)")
       .style('text-anchor', null)
     @series_1_labels.exit().remove()
+    console.log(@series_1_labels)
     @construct_series_1_label_map()
     @addLineBreaksToSeries1Labels() if @detect_overlaps(@series1LabelMap)
 

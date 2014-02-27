@@ -57,6 +57,8 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       .entries(d)
 
   color: d3.scale.ordinal().range(ZVG.colorSchemes.warmCool10)
+  setColor: (array) ->
+    @color = d3.scale.ordinal().range(array)
 
 
   # the only one that matters.

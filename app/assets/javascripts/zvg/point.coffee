@@ -263,9 +263,10 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
 
 class ZVG.PointShape
-  constructor: (container, fill, label) ->
-    @container = container
-    @fill = fill
+  constructor: (container, fill, label, scale = 1) ->
+    @scale       = scale
+    @container   = container
+    @fill        = fill
     @render()
     # d3.select(@container).append('text').text(label) if label
 
@@ -280,31 +281,32 @@ class ZVG.PointShape
     d3.select(@container).append('circle')
       .attr('cx', 0)
       .attr('cy', 0)
-      .attr('r', 8)
+      .attr('r', 8 * @scale)
 
 class ZVG.SquarePoint extends ZVG.PointShape
   render_object: ->
     d3.select(@container).append('rect')
-        .attr('x', -7)
-        .attr('y', -7)
-        .attr('width', 14)
-        .attr('height', 14)
+        .attr('x', -7 * @scale)
+        .attr('y', -7 * @scale)
+        .attr('width', 14 * @scale)
+        .attr('height', 14 * @scale)
 
 class ZVG.DiamondPoint extends ZVG.PointShape
   render_object: ->
     d3.select(@container).append('rect')
-      .attr('x', -6.5)
-      .attr('y', -6.5)
-      .attr('width', 13)
-      .attr('height', 13)
+      .attr('x', -6.5 * @scale)
+      .attr('y', -6.5 * @scale)
+      .attr('width', 13 * @scale)
+      .attr('height', 13 * @scale)
       .attr('transform', 'rotate(45)')
 
 class ZVG.CirclePoint extends ZVG.PointShape
 
 class ZVG.TrianglePoint extends ZVG.PointShape
   render_object: ->
+    s = @scale
     d3.select(@container).append('path')
-      .attr('d', "M 0 -7 L 8 7 L -8 7 z")
+      .attr('d', "M 0 #{-7 * s} L #{8 * s} #{7 * s} L #{-8 * s} #{7 * s} z")
 
       # 0,-5 6,5 -6,5
 ZVG.PointShapes = [ZVG.SquarePoint, ZVG.DiamondPoint, ZVG.CirclePoint, ZVG.TrianglePoint]
