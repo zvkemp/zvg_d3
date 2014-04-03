@@ -267,9 +267,9 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @series_1.exit().remove()
 
   legend_data: ->
-    ({ key: x, text: "Label for #{x}" } for x in @series_3_domain().slice(0).reverse())
+    ({ key: x, text: @legend_labels[x]} for x in @series_3_domain().slice(0).reverse())
 
-
+  
   render_legend: ->
     @initialize_legend()
     @legend.selectAll('div.legend_item').remove()
