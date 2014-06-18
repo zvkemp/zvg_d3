@@ -147,6 +147,7 @@ class ZVG.Verbatim
     selector.on('change', =>
       @_page = 1
       @render(@currentSelectedOptions())
+      (selector.callback ? (->))()
     )
 
   currentSelectedOptions: ->
