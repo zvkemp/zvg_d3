@@ -64,8 +64,6 @@ class ZVG.Verbatim
     @question_table  = d3.select(@container).append('table').attr('class', 'verbatim')
     @control_row     = @question_table.append('tr').attr('class', 'controls')
 
-
-    console.log(@_series_header, @_filter_header, @_tag_header)
     @series_cell     = @control_row.append('td')
     @series_title    = @series_cell.append('h5').text(@_series_header).attr('class', 'verb_selector_title')
     @series_selector = @series_cell.append('select').attr('name', 'series_selector')
@@ -145,10 +143,9 @@ class ZVG.Verbatim
     s.exit().remove()
 
     selector.on('change', =>
-      console.log('selector.change')
       @_page = 1
       @render(@currentSelectedOptions())
-      (selector.callback ? (->))()
+      (selector.callback or (->))()
     )
 
   currentSelectedOptions: ->
