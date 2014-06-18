@@ -145,6 +145,7 @@ class ZVG.Verbatim
     s.exit().remove()
 
     selector.on('change', =>
+      console.log('selector.change')
       @_page = 1
       @render(@currentSelectedOptions())
       (selector.callback ? (->))()
