@@ -283,11 +283,14 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @series_1.attr('transform', (d,i) => "translate(#{@series_1_x[i]}, 0)")
     @series_1.exit().remove()
 
+  sortedS3Domain: ->
+    @series_3_domain().sort((x, y) -> x > y)
+
   legend_data: ->
     # TODO: FIXME
     try
       #This version pulls the present values out
-      ({ key: x, text: (@legend_labels()[x] or "_value_#{x}")} for x in @series_3_domain().sort((x, y) -> x > y)).reverse()
+      ({ key: x, text: (@legend_labels()[x] or "_value_#{x}")} for x in @sortedS3Domain()).reverse()
 
       # This one uses all legend labels, whether they are represented by the data or not.
       # ({ key: key, text: text } for key, text of @legend_labels()).reverse()
