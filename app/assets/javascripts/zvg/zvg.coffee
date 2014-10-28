@@ -336,7 +336,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .data(@series_2_domain().slice(0).reverse())
     items.enter()
       .append('div')
-      .attr('class', 'filter_legend_item')
+      .attr('class', 'filter_legend_item legend_item')
       .attr('label', (d) -> d)
 
     filter_checkboxes = items.append('input')
