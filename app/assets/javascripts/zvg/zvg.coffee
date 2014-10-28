@@ -286,7 +286,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   legend_data: ->
     # TODO: FIXME
     try
-      obj = ({ key: x, text: @legend_labels()[x]} for x in @series_3_domain().slice(0).reverse())
+      obj = ({ key: x, text: (@legend_labels()[x] or "_value_#{x}")} for x in @series_3_domain().slice(0).reverse())
       console.log(obj)
       return obj
     catch e

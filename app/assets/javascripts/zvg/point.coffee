@@ -224,13 +224,13 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @series_2.exit().remove()
 
   legend_data: ->
-    ({ key: x, text: "Label for #{x}" } for x in @series_2_domain().slice(0).reverse())
+    ({ key: x, text: "#{x}" } for x in @series_2_domain().slice(0).reverse())
 
   apply_legend_elements: (selection) ->
     colors = @series_2_colors
     shapes = @series_2_shapes
-    svgs = selection.append('svg').attr('width', 18).attr('height', 16)
-    groups = svgs.append('g').attr('transform', "translate(8,8)")
+    svgs   = selection.append('svg').attr('width', 18).attr('height', 18)
+    groups = svgs.append('g').attr('transform', "translate(8,10)")
       .attr('class', 'series2')
     groups.each((d) -> new (shapes[d.key])(this, colors[d.key]))
     selection.append('span').attr('class', 'legend_text')
