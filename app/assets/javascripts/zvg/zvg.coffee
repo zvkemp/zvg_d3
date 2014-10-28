@@ -296,7 +296,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       # ({ key: key, text: text } for key, text of @legend_labels()).reverse()
     catch e
       console.info(e)
-      console.log(@series_3_domain())
       []
 
   
@@ -381,7 +380,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @container.selectAll(@value_group_selector).style('opacity', 1)
 
   dim_values_not_matching: (key) =>
-    console.info('dim_values_not_matching', key, typeof key)
     @container.selectAll(@value_group_selector).filter((e) -> "#{e.key}" isnt "#{key}")
       .style('opacity', 0.1)
 
