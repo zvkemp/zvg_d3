@@ -290,7 +290,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       # ({ key: x, text: (@legend_labels()[x] or "_value_#{x}")} for x in @series_3_domain().slice(0).reverse())
 
       # This one uses all legend labels, whether they are represented by the data or not.
-      ({ key: key, text: text }) for key, text of @legend_labels().reverse()
+      ({ key: key, text: text } for key, text of @legend_labels()).reverse()
     catch e
       console.info(e)
       console.log(@series_3_domain())
