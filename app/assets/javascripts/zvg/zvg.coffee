@@ -149,6 +149,12 @@ class ZVG.BasicChart
   width: 900
   height: 500
 
+  accessor: (name, d) ->
+    if d
+      @["_#{name}"] = d
+      return @
+    @["_#{name}"]
+
   constructor: (element = 'body') ->
     @element = element
     @initializeSvg(element)
@@ -172,22 +178,32 @@ class ZVG.BasicChart
       priority_seed.indexOf(a) - priority_seed.indexOf(b)
 
   series_1_domain: (d) ->
-    if d
-      @_series_1_domain = d
-      return @
-    @_series_1_domain
+    @accessor('series_1_domain', d)
+    #if d
+    #@_series_1_domain = d
+    #return @
+    #@_series_1_domain
 
   series_2_domain: (d) ->
-    if d
-      @_series_2_domain = d
-      return @
-    @_series_2_domain
+    @accessor('series_2_domain', d)
+    #if d
+    #@_series_2_domain = d
+    #return @
+    #@_series_2_domain
 
   series_3_domain: (d) ->
-    if d
-      @_series_3_domain = d
-      return @
-    @_series_3_domain
+    @accessor('series_3_domain', d)
+    #if d
+    #  @_series_3_domain = d
+    #  return @
+    #@_series_3_domain
+
+  legend_labels: (d) ->
+    @accessor('legend_labels', d)
+    #if d
+    #@_legend_labels = d
+    #return @
+    #@_legend_labels
 
 
   initializeSvg: (element = 'body') ->
@@ -206,6 +222,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     super(element)
     @_options = options
     @initialize_series_1_label_container()
+    @_legend_labels = {}
 
   initialize_series_1_label_container: -> @series_1_label_container = @svg.append('g')
 
@@ -269,8 +286,12 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   legend_data: ->
     # TODO: FIXME
     try
-      ({ key: x, text: @legend_labels[x]} for x in @series_3_domain().slice(0).reverse())
-    catch
+      obj = ({ key: x, text: @legend_labels()[x]} for x in @series_3_domain().slice(0).reverse())
+      console.log(obj)
+      return obj
+    catch e
+      console.info(e)
+      console.log(@series_3_domain())
       []
 
   

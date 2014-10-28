@@ -16,6 +16,7 @@ buttons.append('button')
     chart.series_1_domain("Survey #{n}" for n in [3,2,1])
     chart.series_2_domain("Filter #{n}" for n in [1,2,3,4])
     chart.series_3_domain("#{n}" for n in [1,2])
+    chart.legend_labels({ "1": "Label 1", "2": "Label 2" })
     chart.data(chart.sample_data)
     chart.render(chart.renderMode)
   )
@@ -25,3 +26,5 @@ buttons.append('button')
 buttons.append('button')
   .text('show counts')
   .on('click', => chart.render('count'))
+
+window.cc = chart

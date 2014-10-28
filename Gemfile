@@ -9,3 +9,5 @@ gem 'coffee-script'
 gem 'haml'
 
 
+gem 'thin'
+
