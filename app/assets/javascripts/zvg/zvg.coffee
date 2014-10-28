@@ -128,13 +128,17 @@ class ZVG.BackgroundGradient
 #      .attr('in2', 'blurOut')
 #      .attr('mode', 'normal')
 #
+
+ZVG.backgroundColor = ZVG.flatUIColors['CLOUDS']
+
 class ZVG.Background
   constructor: (svg, height, width, radius = 5) ->
 
     # ZVG.BackgroundGradient(svg)
     backgroundGroup = svg.append('g')
     @background = backgroundGroup.append('rect')
-      .style('fill', ZVG.flatUIColors['CLOUDS'])
+      .style('fill', ZVG.backgroundColor)
+      #.style('fill', ZVG.flatUIColors['CLOUDS'])
       #.style('stroke', ZVG.flatUIColors['SILVER'])
       #.style('stroke-width', '1px')
       # .style('fill', 'url(#standardBackgroundGradient)')
