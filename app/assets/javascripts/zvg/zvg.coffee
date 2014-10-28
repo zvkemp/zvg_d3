@@ -267,7 +267,11 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @series_1.exit().remove()
 
   legend_data: ->
-    ({ key: x, text: @legend_labels[x]} for x in @series_3_domain().slice(0).reverse())
+    # TODO: FIXME
+    try
+      ({ key: x, text: @legend_labels[x]} for x in @series_3_domain().slice(0).reverse())
+    catch
+      []
 
   
   render_legend: ->
@@ -366,7 +370,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .attr('transform', (d,i) => "translate(#{@series_1_x[i] + @series_1_width[i]/2}, 0)")
       .style('text-anchor', null)
     @series_1_labels.exit().remove()
-    console.log(@series_1_labels)
     @construct_series_1_label_map()
     @addLineBreaksToSeries1Labels() if @detect_overlaps(@series1LabelMap)
 
@@ -386,20 +389,16 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     end   = @series1LabelMap[end_index]
     _start = d3.select(@series_1_labels[0][0])
     _end = d3.select(@series_1_labels[0][end_index])
-    console.log('start', _start, 'end', _end)
     if start.start < 0
-      console.log("START IS CUT OFF")
       difference = start.start
       new_center = start.x - difference # subtract the negative
       _start.attr('x', new_center)
     if end.end > @width
-      console.log("END IS CUT OFF")
       difference = end.end - @width
       new_center = end.x - difference
       _end.attr('x', new_center)
 
   addLineBreaksToSeries1Labels: ->
-    console.log("ADD LINE BREAKS")
     @series_1_labels.text(null)
     tspans = @series_1_labels.selectAll('tspan')
       .data((d) -> ZVG.Utilities.splitString(d.key))
