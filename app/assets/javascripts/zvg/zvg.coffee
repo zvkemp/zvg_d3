@@ -381,7 +381,8 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @container.selectAll(@value_group_selector).style('opacity', 1)
 
   dim_values_not_matching: (key) =>
-    @container.selectAll(@value_group_selector).filter((e) -> e.key != key)
+    console.info('dim_values_not_matching', key, typeof key)
+    @container.selectAll(@value_group_selector).filter((e) -> "#{e.key}" isnt "#{key}")
       .style('opacity', 0.1)
 
   render_series_1_labels: ->
