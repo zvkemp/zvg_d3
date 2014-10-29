@@ -107,7 +107,7 @@ apply_sample_data = ->
     .series_2_domain("Filter #{n}" for n in [1,2,3])
     .series_3_domain("#{n}" for n in [100])
     .min_value(1)
-    .max_value(6)
+    #.max_value(6)
     .render()
 
 apply_sample_data()

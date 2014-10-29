@@ -73,30 +73,42 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   constructor: (element, options = {}) ->
     super(element, options)
     @initialize_y_scale()
+    window.p = @
 
 
 
   nestData: (data) ->
+    _max_value = 0
     # data is nested with series 2 and 3 reversed: filtering produces different point shapes/colors,
     # and additional questions increase the number of sub-columns.
-    d3.nest()
+    r = d3.nest()
       .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
       .key((z) -> z.question_id).sortKeys(@seriesSortFunction(@series_3_domain()))
       .key((z) -> z.series_2).sortKeys(@seriesSortFunction(@series_2_domain()))
       .rollup((z) ->
-        n_values  = (x.value for x in z)
-        values    = (x.value * x.series_3 for x in z)
-        n         = d3.sum(n_values)
-        value_sum = d3.sum(values)
+        n_values   = (x.value for x in z)
+        values     = (x.value * x.series_3 for x in z)
+        n          = d3.sum(n_values)
+        value_sum  = d3.sum(values)
+        average    = value_sum / n
+        _max_value = average if average > _max_value
+        console.log('average', average, _max_value)
         {
           question_id: z[0].question_id
           series_1: z[0].series_1
           series_2: z[0].series_2
-          average: value_sum/n
+          average: average
           n: n
         }
       )
       .entries(data)
+
+    @round_max_value(d3.round(_max_value, 0))
+    return r
+
+  round_max_value: (max) ->
+    @_max_value = d3.round(max, 0)
+    @
 
   render: ->
     @reset_width()
@@ -209,7 +221,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     colors = @series_2_colors
     shapes = @series_2_shapes
     @series_2.each((d) ->
-      console.log(d)
       d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
       new (shapes[d.key])(this, colors[d.key], "#{d.key}:#{d.values.series_1}:#{d.values.series_3}")
       selection = d3.select(this)
