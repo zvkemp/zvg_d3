@@ -162,6 +162,7 @@ class ZVG.BasicChart
   constructor: (element = 'body') ->
     @element = element
     @initializeSvg(element)
+    @_n_threshold = 0
 
   data: (d) ->
     if d

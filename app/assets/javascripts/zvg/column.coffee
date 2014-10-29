@@ -166,6 +166,9 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       .attr('transform', "translate(0,0)")
     @series_2.attr('label', (d) -> d.key).transition().duration(500)
       .attr('transform', (d,i) => "translate(#{@column_band(i)}, 0)")
+      .attr('opacity', (d) =>
+        if @series_2_label_sum(d) < @_n_threshold then 0.3 else 1.0
+      )
     @series_2.exit()
       .transition().duration(500)
       .attr('transform',(d,i) => "translate(#{@column_band(1)},-1000)")
