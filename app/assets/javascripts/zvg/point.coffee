@@ -254,10 +254,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   series_2_label_sum: (d) ->
     d3.sum((value.values.n or 0) for value in d.values)
 
-  point_label_sum: (d) ->
-    console.log(d)
-    return "n = ..."
-
   series_2_label_visibility: (label) ->
     if @series_3_domain().length is 1
       ""
