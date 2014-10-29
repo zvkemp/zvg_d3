@@ -211,12 +211,21 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @series_2.each((d) ->
       d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
       new (shapes[d.key])(this, colors[d.key], "#{d.key}:#{d.values.series_1}:#{d.values.series_3}")
-      d3.select(this).append('text')
-        .attr('class', 'zvg-point-label series2label')
+      selection = d3.select(this)
+      selection.append('text')
+        .attr('class', 'zvg-point-label label-hover series2label')
         .text(d3.round(d.values.average, 1))
         .attr('transform', "translate(9,0)")
         .datum(d.key)
         .style('opacity', 0)
+
+      selection.append('text')
+        .attr('class', 'zvg-point-label-small label-hover series2label n-label')
+        .text("n = ...")
+        .attr('transform', "translate(9, 12)")
+        .style('opacity', 0)
+        .datum(d.key)
+
     )
 
     @series_2.transition().duration(700)
@@ -253,11 +262,13 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   dim_values_not_matching: (key) =>
     @container.selectAll(@value_group_selector).filter((e) -> e.key != key)
       .style('opacity', 0.1)
-    @container.selectAll('.zvg-point-label').filter((e) -> e is key).style('opacity', 1)
+    @container.selectAll('.label-hover').filter((e) -> e is key).style('opacity', 1)
 
   undim_all_values: =>
     @container.selectAll(@value_group_selector).style('opacity', 1)
-    @container.selectAll('.zvg-point-label').style('opacity', 0)
+    @container.selectAll('.label-hover').style('opacity', 0)
+
+  series_2_label_visibility: (args...) -> null
 
 
 

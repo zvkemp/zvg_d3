@@ -69,6 +69,9 @@ text.zvg-point-label {
   font-size: 11pt;
   text-anchor: start;
   font-weight: bold;
+}
 
+text.zvg-point-label-small {
+  text-anchor: start;
 }
 

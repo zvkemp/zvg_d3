@@ -460,7 +460,8 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
       .text((d) =>
         sum = @series_2_label_sum(d)
-        "#{@series_2_label_visibility(d.key)} (#{sum})"
+        #"#{@series_2_label_visibility(d.key)} (n = #{sum})"
+        (x for x in [@series_2_label_visibility(d.key), "(n = #{sum})"] when x).join(" ")
       )
 
     @series_2_labels.on('click', (d,i) =>
