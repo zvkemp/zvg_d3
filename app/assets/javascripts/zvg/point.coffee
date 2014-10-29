@@ -209,6 +209,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     colors = @series_2_colors
     shapes = @series_2_shapes
     @series_2.each((d) ->
+      console.log(d)
       d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
       new (shapes[d.key])(this, colors[d.key], "#{d.key}:#{d.values.series_1}:#{d.values.series_3}")
       selection = d3.select(this)
@@ -221,7 +222,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
       selection.append('text')
         .attr('class', 'zvg-point-label-small label-hover series2label n-label')
-        .text("n = ...")
+        .text("n = #{d.values.n}")
         .attr('transform', "translate(9, 12)")
         .style('opacity', 0)
         .datum(d.key)
@@ -252,6 +253,10 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
   series_2_label_sum: (d) ->
     d3.sum((value.values.n or 0) for value in d.values)
+
+  point_label_sum: (d) ->
+    console.log(d)
+    return "n = ..."
 
   series_2_label_visibility: (label) ->
     if @series_3_domain().length is 1
