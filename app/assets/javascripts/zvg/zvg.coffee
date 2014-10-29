@@ -330,10 +330,12 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
 
   renderFilterLegend: =>
+    d = @series_2_domain().slice(0).reverse()
+    return if d.length is 1
     @legend.selectAll('div.filter_legend_item').remove()
 
     items = @legend.selectAll('div.filter_legend_item')
-      .data(@series_2_domain().slice(0).reverse())
+      .data(d)
     items.enter()
       .append('div')
       .attr('class', 'filter_legend_item legend_item')
