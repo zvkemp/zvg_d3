@@ -60,13 +60,13 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
   min_value: (value) ->
     if value or value is 0
-      @_min_value = value
+      @_min_value = parseInt(value)
       return @
     @_min_value
    
   max_value: (value) ->
     if value
-      @_max_value = value
+      @_max_value = parseInt(value)
       return @
     @_max_value
 
