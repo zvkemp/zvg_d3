@@ -185,14 +185,14 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     labels.exit().remove()
 
     if @_strict_scale
-      data = (({ value: value, label: label }) for value, label of @_strict_scale)
+      data = (({ value: value, label: label }) for value, label of @_strict_scale when "#{value}" isnt label)
       keys = @y_scale.selectAll('text.key_label').data(data)
       keys.enter()
         .append('text').attr('class', 'key_label')
         .style('fill', ZVG.flatUIColors['CONCRETE'])
       keys.attr('x', @x_offset + 5)
         .attr('y', (d) => @value_domain(d.value))
-        .text((d) -> if "#{d.value}" is d.label then "" else d.label)
+        .text((d) -> d.label)
       keys.exit().remove()
 
 
