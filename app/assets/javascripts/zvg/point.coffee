@@ -75,8 +75,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @initialize_y_scale()
     window.p = @
 
-
-
   nestData: (data) ->
     _max_value = 0
     # data is nested with series 2 and 3 reversed: filtering produces different point shapes/colors,
@@ -130,6 +128,11 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   y_padding: 30
 
   build_value_domain: ->
+    if @_strict_scale
+      keys = (key for key, _ of @_strict_scale)
+      @max_value(d3.max(keys))
+      @min_value(d3.min(keys))
+
     @value_domain = d3.scale.linear()
       .domain([@min_value(), @max_value()]) # FIXME
       .range([@height - @y_padding, @y_padding])
@@ -152,7 +155,12 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       new_max = t[t.length - 1] + (t[t.length - 1] - t[t.length - 2])
       t.push(new_max)
     return t
-
+  
+  strict_scale: (obj) ->
+    if obj
+      @_strict_scale = obj
+      return @
+    @_strict_scale
 
   render_y_scale: ->
     lines = @y_scale.selectAll('line.scale_line').data(@ticks())
