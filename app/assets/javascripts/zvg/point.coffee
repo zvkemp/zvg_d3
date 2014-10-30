@@ -100,11 +100,13 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       )
       .entries(data)
 
-    @round_max_value(d3.round(_max_value, 0))
+    @round_max_value(_max_value)
     return r
 
   round_max_value: (max) ->
-    @_max_value = d3.round(max, 0)
+    rounded = d3.round(max, 0)
+    rounded += 1 if max > rounded
+    @_max_value = rounded
     @
 
   render: ->
@@ -161,6 +163,12 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       return @
     @_strict_scale
 
+  key_scale: (obj) ->
+    if obj
+      @_key_scale = obj
+      return @
+    @_key_scale
+
   render_y_scale: ->
     lines = @y_scale.selectAll('line.scale_line').data(@ticks())
     lines.enter()
@@ -184,16 +192,16 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       .text((d) -> d)
     labels.exit().remove()
 
-    if @_strict_scale
-      data = (({ value: value, label: label }) for value, label of @_strict_scale when "#{value}" isnt label)
-      keys = @y_scale.selectAll('text.key_label').data(data)
-      keys.enter()
-        .append('text').attr('class', 'key_label')
-        .style('fill', ZVG.flatUIColors['CONCRETE'])
-      keys.attr('x', @x_offset + 5)
-        .attr('y', (d) => @value_domain(d.value))
-        .text((d) -> d.label)
-      keys.exit().remove()
+    scale_obj = @_strict_scale or @_key_scale or {}
+    data = (({ value: value, label: label }) for value, label of scale_obj when "#{value}" isnt label)
+    keys = @y_scale.selectAll('text.key_label').data(data)
+    keys.enter()
+      .append('text').attr('class', 'key_label')
+      .style('fill', ZVG.flatUIColors['CONCRETE'])
+    keys.attr('x', @x_offset + 5)
+      .attr('y', (d) => @value_domain(d.value))
+      .text((d) -> d.label)
+    keys.exit().remove()
 
 
   render_series_3: ->
