@@ -90,7 +90,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
         value_sum  = d3.sum(values)
         average    = value_sum / n
         _max_value = average if average > _max_value
-        console.log('average', average, _max_value)
         {
           question_id: z[0].question_id
           series_1: z[0].series_1
@@ -183,8 +182,18 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     labels.attr('x', @x_offset/2)
       .attr('y', @value_domain)
       .text((d) -> d)
-
     labels.exit().remove()
+
+    if @_strict_scale
+      data = (({ value: value, label: label }) for value, label of @_strict_scale)
+      keys = @y_scale.selectAll('text.key_label').data(data)
+      keys.enter()
+        .append('text').attr('class', 'key_label')
+        .style('fill', ZVG.flatUIColors['CONCRETE'])
+      keys.attr('x', @x_offset + 5)
+        .attr('y', (d) => @value_domain(d.value))
+        .text((d) -> if "#{d.value}" is d.label then "" else d.label)
+      keys.exit().remove()
 
 
   render_series_3: ->

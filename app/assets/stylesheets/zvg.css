@@ -60,7 +60,7 @@
   stroke-dasharray: 2 8;
 }
 
-.scale_label {
+.scale_label, .key_label {
   font-family: helvetica, arial, sans-serif;
   font-weight: bold;
 }
@@ -73,5 +73,10 @@ text.zvg-point-label {
 
 text.zvg-point-label-small {
   text-anchor: start;
+}
+
+text.key_label {
+  font-size: 10pt;
+  alignment-baseline: middle;
 }
 
