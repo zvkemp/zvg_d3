@@ -262,7 +262,9 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @series_2.exit().remove()
 
   legend_data: ->
-    ({ key: x, text: "#{x}" } for x in @series_2_domain().slice(0).reverse())
+    s2d = @series_2_domain()
+    return [] if s2d.length is 1 and s2d[0] is "all"
+    ({ key: x, text: "#{x}" } for x in s2d.slice(0).reverse())
 
   apply_legend_elements: (selection) ->
     colors = @series_2_colors
