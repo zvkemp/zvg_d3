@@ -58,15 +58,17 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
   
 
-  min_value: (value) ->
+  min_value: (value, force = false) ->
     if value or value is 0
-      @_min_value = parseInt(value)
+      v = parseInt(value)
+      @_min_value = (if force then v else d3.min([(@_min_value or 0), v]))
       return @
     @_min_value
    
-  max_value: (value) ->
+  max_value: (value, force = false) ->
     if value
-      @_max_value = parseInt(value)
+      v = parseInt(value)
+      @_max_value = (if force then v else d3.max([@_max_value or 1, v]))
       return @
     @_max_value
 
@@ -106,7 +108,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   round_max_value: (max) ->
     rounded = d3.round(max, 0)
     rounded += 1 if max > rounded
-    @_max_value = rounded
+    @max_value(rounded)
     @
 
   render: ->
@@ -129,10 +131,12 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   y_padding: 30
 
   build_value_domain: ->
-    if @_strict_scale
-      keys = (key for key, _ of @_strict_scale)
-      @max_value(d3.max(keys))
-      @min_value(d3.min(keys))
+    keys = (key for key, _ of (@_strict_scale or @_key_scale or {}))
+    min = d3.min(keys) or 0
+    max = d3.max(keys) or 1
+
+    @max_value(max, @_strict_scale) # force if strict_scale is defined
+    @min_value(min, @_strict_scale) # force if strict_scale is defined
 
     @value_domain = d3.scale.linear()
       .domain([@min_value(), @max_value()]) # FIXME
