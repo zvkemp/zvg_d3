@@ -167,6 +167,9 @@ class ZVG.BasicChart
   data: (d) ->
     if d
       @raw_data = d
+      _series_2_raw_domain = {}
+      (_series_2_raw_domain[e.series_2] = 1) for e in @raw_data
+      @_series_2_raw_domain = (key for key, _ of _series_2_raw_domain)
       @_data = @nestData(d)
       return @
     @_data
@@ -331,7 +334,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
 
   renderFilterLegend: =>
-    d = @series_2_domain().slice(0).reverse()
+    d = (e for e in @series_2_domain() when e in (@_series_2_raw_domain or [])).reverse()
     return if d.length is 1
     @legend.selectAll('div.filter_legend_item').remove()
 

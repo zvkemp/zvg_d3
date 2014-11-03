@@ -2,7 +2,7 @@ buttons = d3.select('body').append('div')
   .attr('id', 'buttons')
 
 chart = new ZVG.Point('body')
-window.chart = chart
+window.point = chart
 
 
 sample_data = [ # single question

@@ -7,8 +7,8 @@ class ZVG.Radar extends ZVG.BasicChart
   #   series_3: ... question id
   #   value: ... average of values
   # }
-  constructor: ->
-    @initializeSvg()
+  constructor: (args...) ->
+    super(args...)
     @_currentFilter = @nullFilter
 
   render: ->
@@ -46,6 +46,8 @@ class ZVG.Radar extends ZVG.BasicChart
       .attr('y1', 0)
     spokes.attr('x2', (d) -> d.x)
       .attr('y2', (d) -> d.y)
+      .style('fill', 'none')
+      .style('stroke', 'blue')
 
     webData = ((@convertToXY(radius, index) for index in ([0...@series3Length()])) for radius in ([1..@maxRadius()]))
     webs = @axes.selectAll('path.spoke')
@@ -54,6 +56,8 @@ class ZVG.Radar extends ZVG.BasicChart
       .append('path')
       .attr('class', 'spoke')
     webs.attr('d', @polygon)
+      .style('fill', 'none')
+      .style('stroke', 'red')
 
   colors: d3.scale.ordinal().range(ZVG.colorSchemes.rainbow10)
   colors: d3.scale.category10()
