@@ -274,7 +274,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @series_2.exit().remove()
 
   legend_data: ->
-    s2d = @series_2_domain()
+    s2d = (e for e in @series_2_domain() when e in (@_series_2_raw_domain or []))
     return [] if s2d.length is 1 and s2d[0] is "all"
     ({ key: x, text: "#{x}" } for x in s2d.slice(0).reverse())
 
