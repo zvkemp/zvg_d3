@@ -80,7 +80,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     @bind_value_group_hover()
     @bind_value_group_click()
 
-  minimum_column_width: 20
+  minimum_column_width: 32
   
   # appends a <g> element and places it along the x axis for each member of series 1
   renderSeries1: ->

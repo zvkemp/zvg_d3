@@ -89,6 +89,26 @@ ZVG.Utilities = {
 
     return result
 
+  splitStringByMaxLineLength: (string, max_length = 30) ->
+    d = d3.selectAll('#string_length_comparison').data([1])
+    d.enter()
+      .append('svg')
+      .attr('id', 'string_length_comparison')
+      .attr('opacity', 0)
+
+    results = []
+    for n in [1, 2, 3]
+      do (n) ->
+        s = d.selectAll('text').data(ZVG.Utilities.splitString(string, n))
+        s.enter()
+          .append('text')
+          .attr('class', 'series1label')
+        s.text((d) -> d)
+        s.exit().remove()
+        s.each((d, i) -> console.log(n, { l: @getComputedTextLength(), s: d }))
+    console.log(results)
+    [string]
+
 }
 
 class ZVG.BackgroundGradient
