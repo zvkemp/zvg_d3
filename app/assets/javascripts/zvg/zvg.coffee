@@ -401,7 +401,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .attr('class', 'series1label')
 
     @series_1_labels.text((d) -> d.key)
-    @series_1_labels.transition()
+    @series_1_labels #.transition()
       .attr('transform', (d,i) => "translate(#{@series_1_x[i] + @series_1_width[i]/2}, 0)")
       .style('text-anchor', null)
     @series_1_labels.exit().remove()
@@ -486,11 +486,12 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @series_1_label_container.transition().attr('transform', "translate(0, #{@height + max_length + 25})")
 
   rotateSeries1Labels: ->
-    @series_1_labels.attr('transform', (d) -> 
+    @series_1_labels.attr('transform', (d) ->
       s = d3.select(@)
       x = s.attr('x')
       y = s.attr('y')
-      "rotate(-45, #{x}, #{y})"
+      r = "rotate(-45, #{x}, #{y})"
+      r
     ).style('text-anchor', 'end')
 
   series_2_label_visibility: (label) ->
@@ -535,20 +536,29 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
             })
     @series_2_label_map = label_map
 
+  _transform = (node) ->
+    d3.transform( d3.select(node).attr('transform'))
+
+  _translate = (node) ->
+    _transform(node).translate
+
   construct_series_1_label_map: ->
     label_map = []
-    for label, index in @series_1_labels[0]
-      do (label, index) =>
-        ls = d3.select(label)
-        x = parseFloat(ls.attr('x'))
-        length = label.getComputedTextLength()
-        label_map.push({
-          label: ls.text()
-          x: x
-          length: length
-          start: x - (length / 2.0)
-          end: x + (length / 2.0)
-        })
+
+    @series_1_labels.each((datum, index) ->
+      node   = this
+      x      = _translate(node)[0]
+      length = node.getComputedTextLength()
+      ls     = d3.select(node)
+      label_map.push({
+        label: ls.text()
+        x: x
+        length: length
+        start: x - (length / 2.0)
+        end: x + (length / 2.0)
+      })
+    )
+
     @series1LabelMap = label_map
 
   detect_overlaps: (label_map) ->

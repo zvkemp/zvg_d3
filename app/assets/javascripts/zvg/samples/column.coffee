@@ -5,6 +5,8 @@ chart = new ZVG.Column('body')
 chart.randomizeData()
 chart.render()
 
+window.s = chart
+
 
 buttons.append('button')
   .text('randomize')
