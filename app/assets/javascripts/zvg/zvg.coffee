@@ -441,7 +441,12 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .append('tspan')
     tspans.text((d) -> d)
       .attr('dy', (d, i) -> "#{i * 1.2}em")
-      .attr('x', (d) -> d3.select(@parentNode).attr('x'))
+      .attr('x', 0)#(d) -> 
+        #xx = _translate(@parentNode)[0]
+        #console.log('xx', xx)
+        #xx
+        #0
+        #)
 
 
     
@@ -568,6 +573,5 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
         prev = label_map[index - 1]
         if prev and (prev.end > label.start)
           overlap = true
-
     return overlap
 
