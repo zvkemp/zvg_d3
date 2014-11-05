@@ -166,9 +166,11 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       .attr('transform', "translate(0,0)")
     @series_2.attr('label', (d) -> d.key).transition().duration(500)
       .attr('transform', (d,i) => "translate(#{@column_band(i)}, 0)")
-      .attr('opacity', (d) =>
-        if @series_2_label_sum(d) < (@_n_threshold or 0) then 0.3 else 1.0
-      )
+      # FIXME: this dims columns below a certain value threshold, but does
+      # not work with the overridden series_2_label_sum function below.
+      #.attr('opacity', (d) =>
+      #if @series_2_label_sum(d) < (@_n_threshold or 0) then 0.3 else 1.0
+      #)
     @series_2.exit()
       .transition().duration(500)
       .attr('transform',(d,i) => "translate(#{@column_band(1)},-1000)")
@@ -296,6 +298,12 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 1, value: 200 }
     { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 2, value: 300 }
   ]
+
+  series_2_label_sum: (d) ->
+    if @_custom_n_values
+      @n_values[d.series_1][d.key]
+    else
+      super(d)
 
   override_n_values: (values) ->
     @_custom_n_values = true

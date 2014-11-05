@@ -475,7 +475,9 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   render_series_2_labels: (rotate = 0) ->
     @svg.selectAll('.series2label').remove()
     @series_2_labels = @series_1.selectAll('text.series2label')
-      .data((d) -> d.values)
+      .data((d) ->
+        (({ key: v.key, values: v.values, series_1: d.key }) for v in d.values)
+      )
     @series_2_labels.enter()
       .append('text')
       .attr('class', 'series2label')
@@ -487,6 +489,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
         "rotate(#{rotate}, #{x}, #{y})"
       ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
       .text((d) =>
+        console.log("DS1", d.series_1, @_custom_n_values)
         sum = @series_2_label_sum(d)
         #"#{@series_2_label_visibility(d.key)} (n = #{sum})"
         (x for x in [@series_2_label_visibility(d.key), "(n = #{sum})"] when x).join(" ")
