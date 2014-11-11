@@ -395,16 +395,24 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @renderFilterLegend()
 
   apply_legend_elements: (selection) ->
-    selection.append('div')
-      .attr('class', 'legend-icon')
-      .style('background-color', (d) => @color(d.key))
-      .style('width', '15px')
-      .style('height', '15px')
-      .style('padding', '1px')
-      .style('float', 'left')
-      .style('margin-right', '5px')
-    selection.append('span').attr('class','legend_text')
-      .text((d) -> d.text)
+    c     = @color
+    color = (d) -> c(d.key)
+
+    selection.attr('transform', (_, i) -> "translate(0, #{i * 20})") # FIXME
+      .append('rect').attr('width', @legend_width).attr('height', 20).style('fill', 'white').style('stroke', 'blue') # TEMP, but should include a background rect for hover
+    groups = selection.append('g').attr('class', 'test').attr("transform", "translate(10, 10)")
+    groups.each((d) -> square = (new ZVG.SquarePoint(this, color)))
+
+    #selection.append('div')
+    #.attr('class', 'legend-icon')
+    #.style('background-color', (d) => @color(d.key))
+    #.style('width', '15px')
+    #.style('height', '15px')
+    #.style('padding', '1px')
+    #.style('float', 'left')
+    #.style('margin-right', '5px')
+    #selection.append('span').attr('class','legend_text')
+    #.text((d) -> d.text)
 
 
   renderFilterLegend: =>
