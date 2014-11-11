@@ -261,9 +261,12 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   # ensure a minimum viable width of individual columns
   widen_chart: (width) ->
     @width = width
-    @svg.attr('width', @width)
+    @svg.attr('width', @width + @legend_width)
     @background.attr('width', @width)
+    @set_legend_x()
     @set_series_1_spacing()
+
+  legend_width: 300
 
   # x offset for point chart scale on left
   x_offset: 0
@@ -383,9 +386,29 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .text((d) -> d)
 
 
+  #initialize_legend: ->
+  #@legend or= @container.append('div').attr('class', 'legend zvg-chart')
+  #.style('width', '200px')
+  #
   initialize_legend: ->
-    @legend or= @container.append('div').attr('class', 'legend zvg-chart')
-      .style('width', '200px')
+    @legend or= @svg.append('g')
+
+    # TEMP
+    @legend.selectAll('rect.test').data([1]).enter()
+      .append('rect')
+      .attr('width', @legend_width)
+      .attr('height', @height)
+      .style('stroke', 'green')
+      .style('fill', 'none')
+    #
+    
+    @set_legend_x()
+
+  set_legend_x: ->
+    if @legend
+      @legend.attr('transform', "translate(#{@width},0)")
+
+
 
   
   bind_value_group_click: ->
