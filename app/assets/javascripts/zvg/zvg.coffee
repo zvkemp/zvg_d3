@@ -169,6 +169,57 @@ class ZVG.Background
       .attr('ry', radius)
 
 
+
+
+class ZVG.PointShape
+  constructor: (container, fill, label, scale = 1) ->
+    @scale       = scale
+    @container   = container
+    @fill        = fill
+    @render()
+    # d3.select(@container).append('text').text(label) if label
+
+  render: ->
+    @apply_standard_attributes(@render_object())
+
+  apply_standard_attributes: (obj) ->
+    obj.attr('class', 'zvg-point-shape')
+      .style('fill', @fill)
+
+  render_object: ->
+    d3.select(@container).append('circle')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', 8 * @scale)
+
+class ZVG.SquarePoint extends ZVG.PointShape
+  render_object: ->
+    d3.select(@container).append('rect')
+        .attr('x', -7 * @scale)
+        .attr('y', -7 * @scale)
+        .attr('width', 14 * @scale)
+        .attr('height', 14 * @scale)
+
+class ZVG.DiamondPoint extends ZVG.PointShape
+  render_object: ->
+    d3.select(@container).append('rect')
+      .attr('x', -6.5 * @scale)
+      .attr('y', -6.5 * @scale)
+      .attr('width', 13 * @scale)
+      .attr('height', 13 * @scale)
+      .attr('transform', 'rotate(45)')
+
+class ZVG.CirclePoint extends ZVG.PointShape
+
+class ZVG.TrianglePoint extends ZVG.PointShape
+  render_object: ->
+    s = @scale
+    d3.select(@container).append('path')
+      .attr('d', "M 0 #{-7 * s} L #{8 * s} #{7 * s} L #{-8 * s} #{7 * s} z")
+
+      # 0,-5 6,5 -6,5
+ZVG.PointShapes = [ZVG.SquarePoint, ZVG.DiamondPoint, ZVG.CirclePoint, ZVG.TrianglePoint]
+
 class ZVG.BasicChart
   width: 900
   height: 500
@@ -332,11 +383,11 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   
   render_legend: ->
     @initialize_legend()
-    @legend.selectAll('div.legend_item').remove()
-    items = @legend.selectAll('div.legend_item')
+    @legend.selectAll('g.legend_item').remove()
+    items = @legend.selectAll('g.legend_item')
       .data(@legend_data())
     items.enter()
-      .append('div')
+      .append('g')
       .attr('class', "legend_item #{@value_group_selector.substr(1,100)}")
       .attr('label', (d) -> d.key)
 
@@ -357,6 +408,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
 
   renderFilterLegend: =>
+    # FIXME
     d = (e for e in @series_2_domain() when e in (@_series_2_raw_domain or [])).reverse()
     return if d.length is 1
     @legend.selectAll('div.filter_legend_item').remove()
