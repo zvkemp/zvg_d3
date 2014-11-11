@@ -394,14 +394,23 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @apply_legend_elements(items)
     @renderFilterLegend()
 
+  legend_item_height: 30
+
   apply_legend_elements: (selection) ->
+    h     = @legend_item_height
     c     = @color
     color = (d) -> c(d.key)
 
-    selection.attr('transform', (_, i) -> "translate(0, #{i * 20})") # FIXME
-      .append('rect').attr('width', @legend_width).attr('height', 20).style('fill', 'white').style('stroke', 'blue') # TEMP, but should include a background rect for hover
-    groups = selection.append('g').attr('class', 'test').attr("transform", "translate(10, 10)")
-    groups.each((d) -> square = (new ZVG.SquarePoint(this, color)))
+    selection.attr('transform', (_, i) -> "translate(0, #{i * h})") # FIXME
+      .append('rect').attr('width', @legend_width).attr('height', h).style('fill', 'white').style('stroke', 'blue') # TEMP, but should include a background rect for hover
+    selection.append('g')
+      .attr('class', 'legend-icon')
+      .attr("transform", "translate(10, #{h/2})")
+      .each((d) -> new ZVG.SquarePoint(this, color))
+      .append('text').attr('class', 'legend_text')
+      .text((d) -> d.text)
+      .attr('transform', "translate(10, 3)")
+      .attr('alignment-baseline', 'middle')
 
     #selection.append('div')
     #.attr('class', 'legend-icon')
