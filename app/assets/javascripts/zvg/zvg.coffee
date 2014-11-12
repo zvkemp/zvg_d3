@@ -291,10 +291,18 @@ class ZVG.BasicChart
     @chart     = @container.append('div').attr('class', 'zvg-chart')
     @svg = @chart.append('svg')
       .attr('height', @height + 200).attr('width', @width + 200)
+    @renderBackgroundRectangle()
     @background = (new ZVG.Background(@svg, @height, @width, 0)).background
+
+  # a white cover that backgrounds everything (distinct from gray background rectangle)
+  renderBackgroundRectangle: ->
+    @_background_rectangle or= @svg.append('rect').style('fill', 'white').style('stroke','none')
+    @_background_rectangle.attr('width', @width + 200 + @legend_width).attr('height', @height + 200)
 
   render_legend: ->
     null
+
+  legend_width: 0
 
 class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   constructor: (element, options = {}) ->
@@ -314,6 +322,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @width = width
     @svg.attr('width', @width + @legend_width)
     @background.attr('width', @width)
+    @renderBackgroundRectangle()
     @set_legend_x()
     @set_series_1_spacing()
 
