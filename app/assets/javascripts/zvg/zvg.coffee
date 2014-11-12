@@ -406,32 +406,24 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   legend_item_height: 21
 
   apply_legend_elements: (selection) ->
-    h     = @legend_item_height
-    c     = @color
-    color = (d) -> c(d.key)
+    height = @legend_item_height
+    c      = @color
+    color  = (d) -> c(d.key)
 
-    selection.attr('transform', (_, i) -> "translate(0, #{i * h})") # FIXME
-      .append('rect').attr('width', @legend_width).attr('height', h).style('fill', 'white').style('stroke', 'none') 
+    @_apply_legend_elements(selection, height, (d) -> new ZVG.SquarePoint(this, color))
+
+  # The generic function. Feed chart-specific args in the main @apply_legend_elements function above.
+  _apply_legend_elements: (selection, height, each_function) ->
+    selection.attr('transform', (_, i) -> "translate(0, #{i * height})")
+      .append('rect').attr('width', @legend_width).attr('height', height).style('fill', 'white').style('stroke', 'none')
     selection.append('g')
       .attr('class', 'legend-icon')
-      .attr("transform", "translate(10, #{h/2})")
-      .each((d) -> new ZVG.SquarePoint(this, color))
+      .attr("transform", "translate(10, #{height/2})")
+      .each(each_function)
       .append('text').attr('class', 'legend_text')
       .text((d) -> d.text)
       .attr('transform', "translate(10, 3)")
       .attr('alignment-baseline', 'middle')
-
-    #selection.append('div')
-    #.attr('class', 'legend-icon')
-    #.style('background-color', (d) => @color(d.key))
-    #.style('width', '15px')
-    #.style('height', '15px')
-    #.style('padding', '1px')
-    #.style('float', 'left')
-    #.style('margin-right', '5px')
-    #selection.append('span').attr('class','legend_text')
-    #.text((d) -> d.text)
-
 
   # FIXME
   renderFilterLegend: =>
@@ -453,7 +445,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
     filter_checkboxes = items.append('rect')
       .attr('height', 8).attr('width', 8)
-      .style('fill', (d) => if @_checked[d] then ZVG.flatUIColors["CARROT"] else 'white')
+      .style('fill', (d) => if @_checked[d] then ZVG.flatUIColors["CARROT"] else ZVG.flatUIColors["CLOUDS"])
       .attr('checked',(d) =>
         if @_filters
           d in @_filters or null
@@ -575,11 +567,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     tspans.text((d) -> d)
       .attr('dy', (d, i) -> "#{i * 1.2}em")
       .attr('x', 0)#(d) -> 
-        #xx = _translate(@parentNode)[0]
-        #console.log('xx', xx)
-        #xx
-        #0
-        #)
 
 
     
@@ -602,7 +589,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
         "rotate(#{rotate}, #{x}, #{y})"
       ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
       .text((d) =>
-        #console.log("DS1", d.series_1, @_custom_n_values)
         sum = @series_2_label_sum(d)
         #"#{@series_2_label_visibility(d.key)} (n = #{sum})"
         (x for x in [@series_2_label_visibility(d.key), "(n = #{sum})"] when x).join(" ")

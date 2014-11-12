@@ -279,14 +279,28 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     ({ key: x, text: "#{x}" } for x in s2d.slice(0).reverse())
 
   apply_legend_elements: (selection) ->
-    colors = @series_2_colors
-    shapes = @series_2_shapes
-    svgs   = selection.append('svg').attr('width', 18).attr('height', 18)
-    groups = svgs.append('g').attr('transform', "translate(8,10)")
+    height        = @legend_item_height
+    colors        = @series_2_colors
+    shapes        = @series_2_shapes
+    each_function = (d) -> new (shapes[d.key])(this, colors[d.key])
+    @_apply_legend_elements(selection, height, each_function)
+
+    #svgs   = selection.append('svg').attr('width', 18).attr('height', 18)
+    ###
+    selection.attr('transform', (_, i) -> "translate(10,#{i * h})")
       .attr('class', 'series2')
-    groups.each((d) -> new (shapes[d.key])(this, colors[d.key]))
-    selection.append('span').attr('class', 'legend_text')
+      .append('rect').attr('width', @legend_width).attr('height', h).style('fill', 'white').style('stroke', 'none')
+    groups = selection.append('g')
+      .attr('class', 'legend-icon')
+      .attr('transform', "translate(10, #{h/2})")
+      .each((d) -> new (shapes[d.key])(this, colors[d.key]))
+      .append('text').attr('class', 'legend_text')
       .text((d) -> d.text)
+      .attr('transform', "translate(10, 3)")
+      .attr('alignment-baseline', 'middle')
+    #selection.append('span').attr('class', 'legend_text')
+    #.text((d) -> d.text)
+    ###
 
   value_group_selector: '.series2'
 
