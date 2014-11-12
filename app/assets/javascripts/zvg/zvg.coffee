@@ -105,8 +105,8 @@ ZVG.Utilities = {
           .attr('class', 'series1label')
         s.text((d) -> d)
         s.exit().remove()
-        s.each((d, i) -> console.log(n, { l: @getComputedTextLength(), s: d }))
-    console.log(results)
+        #s.each((d, i) -> console.log(n, { l: @getComputedTextLength(), s: d }))
+    #console.log(results)
     [string]
 
 }
@@ -433,21 +433,26 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     #.text((d) -> d.text)
 
 
+  # FIXME
   renderFilterLegend: =>
-    # FIXME
+    @_checked or= {}
+    h = @legend_item_height
     d = (e for e in @series_2_domain() when e in (@_series_2_raw_domain or [])).reverse()
+    ((@_checked[e] or= true) unless @_checked[e] is false) for e in d
     return if d.length is 1
-    @legend.selectAll('div.filter_legend_item').remove()
+    @legend.selectAll('g.filter_legend_item').remove()
 
-    items = @legend.selectAll('div.filter_legend_item')
+    items = @legend.selectAll('g.filter_legend_item')
       .data(d)
     items.enter()
-      .append('div')
+      .append('g')
       .attr('class', 'filter_legend_item legend_item')
       .attr('label', (d) -> d)
+      .attr('transform', (d, i) -> "translate(10, #{300 + (i * h)})")
 
-    filter_checkboxes = items.append('input')
-      .attr('type', 'checkbox')
+    filter_checkboxes = items.append('rect')
+      .attr('height', 8).attr('width', 8)
+      .style('fill', (d) => if @_checked[d] then ZVG.flatUIColors["CARROT"] else 'white')
       .attr('checked',(d) =>
         if @_filters
           d in @_filters or null
@@ -455,12 +460,17 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
           true
       )
 
-    filter_checkboxes.on('change', (d,i) =>
-      @filter_data(@container.selectAll('input:checked').data())
+    items.on('click', (d,i) =>
+      if @_checked[d]
+        @_checked[d] = false
+      else
+        @_checked[d] = true
+      #@filter_data(@container.selectAll('input:checked').data())
+      @filter_data((key for key, condition of @_checked when condition))
       @render()
-
     )
-    items.append('span').attr('class', 'legend_text')
+
+    items.append('text').attr('class', 'legend_text')
       .text((d) -> d)
 
 
@@ -590,13 +600,14 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
         "rotate(#{rotate}, #{x}, #{y})"
       ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
       .text((d) =>
-        console.log("DS1", d.series_1, @_custom_n_values)
+        #console.log("DS1", d.series_1, @_custom_n_values)
         sum = @series_2_label_sum(d)
         #"#{@series_2_label_visibility(d.key)} (n = #{sum})"
         (x for x in [@series_2_label_visibility(d.key), "(n = #{sum})"] when x).join(" ")
       )
 
     @series_2_labels.on('click', (d,i) =>
+      (@_checked[k] = false) for k, _ of @_checked when k isnt d.key
       @filter_data([d.key])
       @render()
     )
