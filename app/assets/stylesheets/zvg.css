@@ -53,6 +53,7 @@
 .legend_item {
   padding-left: 10px;
   padding-bottom: 5px;
+  cursor: pointer;
 }
 
 .filter_legend_item > .legend_text {
