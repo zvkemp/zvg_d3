@@ -317,7 +317,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @set_legend_x()
     @set_series_1_spacing()
 
-  legend_width: 300
+  legend_width: 400
 
   # x offset for point chart scale on left
   x_offset: 0
