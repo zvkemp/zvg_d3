@@ -403,7 +403,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @apply_legend_elements(items)
     @renderFilterLegend()
 
-  legend_item_height: 30
+  legend_item_height: 21
 
   apply_legend_elements: (selection) ->
     h     = @legend_item_height
@@ -441,6 +441,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     ((@_checked[e] or= true) unless @_checked[e] is false) for e in d
     return if d.length is 1
     @legend.selectAll('g.filter_legend_item').remove()
+    offset = (@legend.selectAll('.legend-icon')[0].length + 2) * @legend_item_height
 
     items = @legend.selectAll('g.filter_legend_item')
       .data(d)
@@ -448,7 +449,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .append('g')
       .attr('class', 'filter_legend_item legend_item')
       .attr('label', (d) -> d)
-      .attr('transform', (d, i) -> "translate(10, #{300 + (i * h)})")
+      .attr('transform', (d, i) -> "translate(10, #{offset + (i * h)})")
 
     filter_checkboxes = items.append('rect')
       .attr('height', 8).attr('width', 8)
