@@ -244,7 +244,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @series_2 = @series_3.selectAll('.series2').data((d) -> d.values)
     @series_2.enter()
       .append('g')
-      .attr('class', 'series2')
+      .attr('class', 'series2 vg')
       .attr('transform', "translate(0, #{@value_domain(@min_value())})")
 
     colors = @series_2_colors
