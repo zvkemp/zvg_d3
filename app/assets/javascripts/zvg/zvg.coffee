@@ -411,7 +411,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     color = (d) -> c(d.key)
 
     selection.attr('transform', (_, i) -> "translate(0, #{i * h})") # FIXME
-      .append('rect').attr('width', @legend_width).attr('height', h).style('fill', 'white').style('stroke', 'blue') # TEMP, but should include a background rect for hover
+      .append('rect').attr('width', @legend_width).attr('height', h).style('fill', 'white').style('stroke', 'none') 
     selection.append('g')
       .attr('class', 'legend-icon')
       .attr("transform", "translate(10, #{h/2})")
@@ -465,13 +465,14 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
         @_checked[d] = false
       else
         @_checked[d] = true
-      #@filter_data(@container.selectAll('input:checked').data())
       @filter_data((key for key, condition of @_checked when condition))
       @render()
     )
 
     items.append('text').attr('class', 'legend_text')
       .text((d) -> d)
+      .style('alignment-baseline', 'middle')
+      .attr('transform', "translate(12, 5)")
 
 
   #initialize_legend: ->
@@ -486,7 +487,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .append('rect')
       .attr('width', @legend_width)
       .attr('height', @height)
-      .style('stroke', 'green')
+      .style('stroke', 'none')
       .style('fill', 'none')
     #
     
