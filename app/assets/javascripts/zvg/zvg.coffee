@@ -1,4 +1,93 @@
 window.ZVG = {
+  stylesheet: """
+    .column-label, .series1label, .series2label, .legend_text {
+      font-family: arial, sans-serif;
+      font-weight: bold;
+      text-anchor: middle;
+      font-size: 10pt;
+      alignment-baseline: central;
+    }
+
+    .column-label {
+      color: white;
+      fill: white;
+    }
+
+    .series2label {
+      font-size: 9pt;
+      fill: #888;
+      font-weight: normal;
+    }
+
+    .legend_text {
+      font-size: 9pt;
+      text-anchor: start;
+      alignment-baseline: baseline;
+      font-weight: bold;
+    }
+
+    .zvg {
+      display: table;
+    }
+
+    .zvg-container {
+      display: table-row;
+    }
+
+    .zvg-chart {
+      display: table-cell;
+      margin: 10px;
+      vertical-align: top;
+
+    }
+
+    .zvg-point-shape {
+      stroke: white;
+      stroke-width: 1pt;
+    }
+
+    .series2 text {
+      font-size: 8pt;
+    }
+
+    .legend_item {
+      padding-left: 10px;
+      padding-bottom: 5px;
+    }
+
+    .legend_item, .vg {
+      cursor: pointer;
+    }
+
+    .filter_legend_item > .legend_text {
+      padding-left: 5px;
+    }
+
+    .scale_line {
+      stroke-dasharray: 2 8;
+    }
+
+    .scale_label, .key_label {
+      font-family: helvetica, arial, sans-serif;
+      font-weight: bold;
+    }
+
+    text.zvg-point-label {
+      font-size: 11pt;
+      text-anchor: start;
+      font-weight: bold;
+    }
+
+    text.zvg-point-label-small {
+      text-anchor: start;
+    }
+
+    text.key_label {
+      font-size: 10pt;
+      alignment-baseline: middle;
+    }
+    """
+
   flatUIColors: {
     # from http://designmodo.github.io/Flat-UI/
     'TURQUOISE': '#1ABC9C'
@@ -233,6 +322,7 @@ class ZVG.BasicChart
   constructor: (element = 'body') ->
     @element = element
     @initializeSvg(element)
+    @initializeStylesheet()
     @_n_threshold = 0
 
   data: (d) ->
@@ -293,6 +383,9 @@ class ZVG.BasicChart
       .attr('height', @height + 200).attr('width', @width + 200)
     @renderBackgroundRectangle()
     @background = (new ZVG.Background(@svg, @height, @width, 0)).background
+
+  initializeStylesheet: ->
+    @svg.append('style').text(ZVG.stylesheet)
 
   # a white cover that backgrounds everything (distinct from gray background rectangle)
   renderBackgroundRectangle: ->
