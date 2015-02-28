@@ -283,7 +283,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     @current_y = 0
 
   sample_data: [
-    { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 2, value: 100 }
+    { series_1: 'Survey 1', series_2: 'Filter 1 really really long filter name that overflows', series_3: 2, value: 100 }
     { series_1: 'Survey 1', series_2: 'Filter 1', series_3: 1, value: 200 }
     { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 1, value: 200 }
     { series_1: 'Survey 1', series_2: 'Filter 2', series_3: 2, value: 300 }

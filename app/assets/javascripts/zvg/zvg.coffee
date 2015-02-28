@@ -398,6 +398,7 @@ class ZVG.BasicChart
   render: (args...) ->
     @beforeRender()
     @_render(args...)
+    console.log(@svg[0][0].getBBox())
     @afterRender()
 
   beforeRender: -> null
@@ -409,7 +410,6 @@ class ZVG.BasicChart
     bbox = @svg[0][0].getBBox()
     @svg.attr('width', bbox.width)
     @svg.attr('height', bbox.height)
-
 
   legend_width: 0
 
@@ -712,7 +712,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     if @detect_overlaps(@series_2_label_map) and (rotate is 0)
       @rotateSeries2Labels()
     else
-      @series_1_label_container.transition().attr('transform', "translate(0, #{@height + 30})")
+      @series_1_label_container.attr('transform', "translate(0, #{@height + 30})")
 
   series_2_label_sum: (d) ->
     d3.sum(value.values[0].value for value in d.values)
@@ -720,7 +720,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   rotateSeries2Labels: ->
     max_length = d3.max(l.length for l in @series_2_label_map)
     @render_series_2_labels(-90)
-    @series_1_label_container.transition().attr('transform', "translate(0, #{@height + max_length + 25})")
+    @series_1_label_container.attr('transform', "translate(0, #{@height + max_length + 25})")
 
   rotateSeries1Labels: ->
     @series_1_labels.attr('transform', (d) ->

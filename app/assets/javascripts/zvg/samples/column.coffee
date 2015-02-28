@@ -4,6 +4,7 @@ buttons = d3.select('body').append('div')
 chart = new ZVG.Column('body')
 chart.randomizeData()
 chart.render()
+chart._adjust_svg_dimensions()
 
 window.s = chart
 
