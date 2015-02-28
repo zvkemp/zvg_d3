@@ -398,7 +398,6 @@ class ZVG.BasicChart
   render: (args...) ->
     @beforeRender()
     @_render(args...)
-    console.log(@svg[0][0].getBBox())
     @afterRender()
 
   beforeRender: -> null
