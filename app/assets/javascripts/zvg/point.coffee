@@ -111,7 +111,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @max_value(rounded)
     @
 
-  render: ->
+  _render: ->
     @reset_width()
     @set_series_1_spacing()
     @render_series_1()

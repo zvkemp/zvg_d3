@@ -395,6 +395,22 @@ class ZVG.BasicChart
   render_legend: ->
     null
 
+  render: (args...) ->
+    @beforeRender()
+    @_render(args...)
+    @afterRender()
+
+  beforeRender: -> null
+  _render: -> null
+  afterRender: -> 
+    @_adjust_svg_dimensions()
+
+  _adjust_svg_dimensions: ->
+    bbox = @svg[0][0].getBBox()
+    @svg.attr('width', bbox.width)
+    @svg.attr('height', bbox.height)
+
+
   legend_width: 0
 
 class ZVG.ColumnarLayoutChart extends ZVG.BasicChart

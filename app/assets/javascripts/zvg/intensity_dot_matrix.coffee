@@ -6,7 +6,7 @@ class ZVG.IntensityMatrix extends ZVG.BasicChart
     d3.select(element).append('br')
     super(element)
 
-  render: ->
+  _render: ->
     @y = d3.scale.ordinal()
       .domain(@series_2_domain())
       .rangeRoundBands([0, @height])

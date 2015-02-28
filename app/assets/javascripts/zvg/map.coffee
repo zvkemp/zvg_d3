@@ -97,7 +97,7 @@ class ZVG.Map
       .style('stroke-width', '1pt')
       .style('fill', 'none')
 
-  render: () ->
+  _render: () ->
     @svg.selectAll('.zip')
       .data(@_feature.features)
       .enter()

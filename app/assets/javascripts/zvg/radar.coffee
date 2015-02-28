@@ -11,7 +11,7 @@ class ZVG.Radar extends ZVG.BasicChart
     super(args...)
     @_currentFilter = @nullFilter
 
-  render: ->
+  _render: ->
     @initializeCenterGroup() unless @center # prevent multiple base group appends when re-rendering
     @establishRadialDomain()
     @establishAngularDomain()

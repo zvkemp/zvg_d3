@@ -24,7 +24,7 @@ class ZVG.Scatter extends ZVG.BasicChart
       return @
     @_min_value_y
 
-  render: ->
+  _render: ->
     @build_value_domains()
     @render_y_scale()
     @render_x_scale()

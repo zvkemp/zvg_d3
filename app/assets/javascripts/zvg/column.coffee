@@ -63,7 +63,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
 
   # the only one that matters.
   # Runs the necessary functions in order to render the chart.
-  render: (renderMode = 'percentage') ->
+  _render: (renderMode = 'percentage') ->
     @renderMode = renderMode
     @reset_width()
     @set_series_1_spacing()
