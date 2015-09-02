@@ -126,7 +126,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @bind_value_group_hover()
     @bind_value_group_click()
 
-  minimum_column_width: 10
+  minimum_column_width: 32
   x_offset: 30
   y_padding: 30
 
@@ -305,7 +305,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   value_group_selector: '.series2'
 
   renderFilterLegend: -> null
-
 
   series_2_label_sum: (d) ->
     d3.sum((value.values.n or 0) for value in d.values)
