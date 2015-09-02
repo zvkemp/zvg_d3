@@ -668,15 +668,15 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
   addLineBreaksToSeries1Labels: ->
     @series_1_labels.text(null)
+    label_map = @series1LabelMap
+    rb        = @column_band.rangeBand()
     tspans = @series_1_labels.selectAll('tspan')
-      .data((d) -> ZVG.Utilities.splitString(d.key))
+      .data((d, i) -> ZVG.Utilities.splitString(d.key, Math.ceil(label_map[i].length / rb)))
     tspans.enter()
       .append('tspan')
     tspans.text((d) -> d)
-      .attr('dy', (d, i) -> "#{i * 1.2}em")
+      .attr('dy', (d, i) -> "#{if i == 0 then 0 else 1.1}em")
       .attr('x', 0)#(d) -> 
-
-
     
 
 
