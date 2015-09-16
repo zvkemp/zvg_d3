@@ -348,32 +348,15 @@ class ZVG.BasicChart
 
   series_1_domain: (d) ->
     @accessor('series_1_domain', d)
-    #if d
-    #@_series_1_domain = d
-    #return @
-    #@_series_1_domain
 
   series_2_domain: (d) ->
     @accessor('series_2_domain', d)
-    #if d
-    #@_series_2_domain = d
-    #return @
-    #@_series_2_domain
 
   series_3_domain: (d) ->
     @accessor('series_3_domain', d)
-    #if d
-    #  @_series_3_domain = d
-    #  return @
-    #@_series_3_domain
 
   legend_labels: (d) ->
     @accessor('legend_labels', d)
-    #if d
-    #@_legend_labels = d
-    #return @
-    #@_legend_labels
-
 
   initializeSvg: (element = 'body') ->
     @outer = d3.select(@element).append('div').attr('class', 'zvg')
@@ -400,7 +383,9 @@ class ZVG.BasicChart
     @_render(args...)
     @afterRender()
 
-  beforeRender: -> null
+  beforeRender: ->
+    @_hide_columns_below_n(@_n_threshold)
+
   _render: -> null
   afterRender: ->
     @_adjust_svg_dimensions()
@@ -439,7 +424,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   # x offset for point chart scale on left
   x_offset: 0
 
-
   filter_data: (filters) ->
     if filters
       @_filters = filters
@@ -448,6 +432,11 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     else
       @data(@raw_data)
 
+  _hide_columns_below_n: (n) ->
+    n_value = @series_2_label_sum
+    select_columns_above = (n, data) ->
+      { key: data.key, values: data.values.filter((v) -> n_value(v) >= n) }
+    @_data = (d for d in (select_columns_above(n, d) for d in @_data) when d.values.length > 0)
 
   # pre-establishes indexes for the spacing and grouping of series 1 data
   # based on its contents (necessary because of the variable length of data within
@@ -647,8 +636,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
   key_function: (data) -> data.key
   values_function: (data) -> data.values
-
-
 
   adjustSeries1EndLabels: ->
     # initial condition is horizontal labels with text-anchor: middle
