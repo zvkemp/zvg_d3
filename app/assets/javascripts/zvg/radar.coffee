@@ -140,9 +140,9 @@ class ZVG.Radar extends ZVG.BasicChart
   # the angle at which each question point is rendered around the center
   establishAngularDomain: ->
     @angularDomain = d3.scale.linear()
-      .domain([0,@series3Length()]) # index includes an extra value to prevent overlapping of first and last real values. 
+      .domain([0,@series3Length()]) # index includes an extra value to prevent overlapping of first and last real values.
       .range([-2.5 * Math.PI, -0.5 * Math.PI]) # should start at 90 degrees and proceed clockwise for a full circle.
-   
+
   convertToXY: (amplitude, domainIndex) ->
     angle = @angularDomain(domainIndex)
     radius = @radialDomain(amplitude)

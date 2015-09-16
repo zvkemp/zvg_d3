@@ -402,7 +402,7 @@ class ZVG.BasicChart
 
   beforeRender: -> null
   _render: -> null
-  afterRender: -> 
+  afterRender: ->
     @_adjust_svg_dimensions()
 
   _adjust_svg_dimensions: ->
@@ -439,7 +439,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   # x offset for point chart scale on left
   x_offset: 0
 
-   
+
   filter_data: (filters) ->
     if filters
       @_filters = filters
@@ -497,7 +497,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       console.info(e)
       []
 
-  
+
   render_legend: ->
     @initialize_legend()
     @legend.selectAll('g.legend_item').remove()
@@ -591,7 +591,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .style('stroke', 'none')
       .style('fill', 'none')
     #
-    
+
     @set_legend_x()
 
   set_legend_x: ->
@@ -600,7 +600,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
 
 
-  
+
   bind_value_group_click: ->
     vg = @container.selectAll(@value_group_selector)
     vg.on('click', (d) =>
@@ -676,9 +676,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .append('tspan')
     tspans.text((d) -> d)
       .attr('dy', (d, i) -> "#{if i == 0 then 0 else 1.1}em")
-      .attr('x', 0)#(d) -> 
-    
-
+      .attr('x', 0)#(d) ->
 
   render_series_2_labels: (rotate = 0) ->
     @svg.selectAll('.series2label').remove()
@@ -749,8 +747,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       do (label, index) =>
         if (index % 2) is 1
           d3.select(label).attr('y', 15)
-
-
 
   # to be used to in the detection of overlapping labels (in detect_overlaps()
   construct_series_2_label_map: ->

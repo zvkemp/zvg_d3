@@ -7,7 +7,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
   #   series_3: ... (numeric value of datapoint)
   #   value: ...    (raw value, percentage not precalculated).
   # }
-  # Auxilliary data (not yet implemented): 
+  # Auxilliary data (not yet implemented):
   # defined order to series_1, series_2, series_3 domains
   #
   #
@@ -48,7 +48,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     @series_3_domain("#{n}" for n in [1..s3count])
     @data(raw)
     @render(@renderMode)
-  
+
   nestData: (d) ->
     d3.nest()
       .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
@@ -81,7 +81,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     @bind_value_group_click()
 
   minimum_column_width: 32
-  
+
   # appends a <g> element and places it along the x axis for each member of series 1
   renderSeries1: ->
     @series_1 = @svg.selectAll('.series1').data(@_data, @key_function)
@@ -176,7 +176,6 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       .attr('transform',(d,i) => "translate(#{@column_band(1)},-1000)")
       .remove()
 
-  # 
   renderSeries3: ->
     @series_3 = @series_2.selectAll('rect.vg')
       .data((d) -> d.values)
