@@ -384,10 +384,16 @@ class ZVG.BasicChart
     @afterRender()
 
   beforeRender: ->
-    @_hide_columns_below_n(@_n_threshold)
+    @_hide_columns_below_n(@_n_threshold) unless @_show_unstable_data
+
+  show_unstable_data: (b) ->
+    @_show_unstable_data = b
+    @filter_data(@_filters)
+    @render()
 
   _render: -> null
   afterRender: ->
+    @renderUnstableLegend()
     @_adjust_svg_dimensions()
 
   _adjust_svg_dimensions: ->
@@ -433,10 +439,15 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       @data(@raw_data)
 
   _hide_columns_below_n: (n) ->
+    columns_are_hidden = false
     n_value = @series_2_label_sum
     select_columns_above = (n, data) ->
-      { key: data.key, values: data.values.filter((v) -> n_value(v) >= n) }
+      values = data.values.filter((v) -> n_value(v) >= n)
+      columns_are_hidden = true if values.length < data.values.length
+      { key: data.key, values: values }
     @_data = (d for d in (select_columns_above(n, d) for d in @_data) when d.values.length > 0)
+    @_columns_are_hidden = columns_are_hidden
+    @_show_unstable_legend = @_show_unstable_legend or columns_are_hidden # set once
 
   # pre-establishes indexes for the spacing and grouping of series 1 data
   # based on its contents (necessary because of the variable length of data within
@@ -522,6 +533,37 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .attr('transform', "translate(10, 3)")
       .attr('alignment-baseline', 'middle')
 
+  renderUnstableLegend: =>
+    return unless @_show_unstable_legend
+    @_checked or= {}
+    h = @legend_item_height
+    d = ['unstable']
+    @legend.selectAll('g.unstable').remove()
+    offset = (@legend.selectAll('.legend-icon')[0].length + 1.5) * @legend_item_height
+
+    items = @legend.selectAll('g.unstable')
+      .data(d)
+    items.enter()
+      .append('g')
+      .attr('class', 'filter_legend_item legend_item')
+      .attr('label', (d) -> d)
+      .attr('transform', (d, i) -> "translate(10, #{offset + (i * h)})")
+
+    filter_checkboxes = items.append('rect')
+      .attr('height', 8).attr('width', 8)
+      .style('fill', (d) => if @_show_unstable_data then ZVG.flatUIColors["CARROT"] else ZVG.flatUIColors["CLOUDS"])
+      .attr('checked',(d) => @_show_unstable_data)
+
+    items.on('click', (d,i) =>
+      @show_unstable_data(!@_show_unstable_data)
+      @render()
+    )
+
+    items.append('text').attr('class', 'legend_text')
+      .text((d) => "Show unstable data (n < #{@_n_threshold})")
+      .style('alignment-baseline', 'middle')
+      .attr('transform', "translate(12, 5)")
+
   # FIXME
   renderFilterLegend: =>
     @_checked or= {}
@@ -530,7 +572,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     ((@_checked[e] or= true) unless @_checked[e] is false) for e in d
     return if d.length is 1
     @legend.selectAll('g.filter_legend_item').remove()
-    offset = (@legend.selectAll('.legend-icon')[0].length + 2) * @legend_item_height
+    offset = (@legend.selectAll('.legend-icon')[0].length + 3) * @legend_item_height
 
     items = @legend.selectAll('g.filter_legend_item')
       .data(d)
