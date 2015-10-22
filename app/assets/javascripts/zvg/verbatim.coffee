@@ -4,6 +4,7 @@ class ZVG.Verbatim
     @_series_header  = options.series_header or "series_title"
     @_filter_header  = options.filter_header or "filter_title"
     @_tag_header     = options.tag_header or "tag_title"
+    @extra_td_callback = options.extra_td_callback or ((d) -> null)
     @initializeQuestionTable()
 
     @_page          = 1
@@ -43,6 +44,8 @@ class ZVG.Verbatim
       .append('span').attr('class', 'tag')
 
     tag_spans.text((d) -> d)
+    extra = rows.append('td')
+    @extra_td_callback(extra)
     @renderCallback(@)
 
   renderTags: (container, tag_list) ->
@@ -73,6 +76,7 @@ class ZVG.Verbatim
     @tag_cell        = @control_row.append('td')
     @tag_title       = @tag_cell.append('h5').text(@_tag_header).attr('class', 'verb_selector_title')
     @tag_selector    = @tag_cell.append('select').attr('name', 'tag_selector')
+    @control_row.append('td') # for extra td
 
 
   constructDataFilter: (options) ->
