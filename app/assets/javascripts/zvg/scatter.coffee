@@ -115,7 +115,7 @@ class ZVG.Scatter extends ZVG.BasicChart
     ).on('mouseout', ->
       d3.select(this).select('text').style('opacity', 0)
     )
-    
+
 
 
   build_value_domains: ->
@@ -134,7 +134,7 @@ class ZVG.Scatter extends ZVG.BasicChart
       @_x_question_id = x
       return @
     @_x_question_id
-    
+
   y_question_id: (y) ->
     if y
       @_y_question_id = y
@@ -142,7 +142,7 @@ class ZVG.Scatter extends ZVG.BasicChart
     @_y_question_id
 
   nestData: (data) ->
-    # { survey_1 => 
+    # { survey_1 =>
     #    filter_1 =>
     #      {
     #        survey_1

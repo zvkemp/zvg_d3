@@ -15,8 +15,6 @@ class ZVG.Map
       .attr('width', @width)
       .attr('height', @height)
 
-    
-
   data: (d) ->
     if d
       @_data = d
@@ -119,7 +117,6 @@ window.map = new ZVG.Map({
 
 d3.json('data/calpop.json', (e, population) ->
   maxPopulation = d3.max(parseInt(x) for k,x of population)
-  
   d3.json('data/california_zips3.json', (e, zips) ->
     populationScale = d3.scale.linear()
       .domain([0,maxPopulation/4, maxPopulation])

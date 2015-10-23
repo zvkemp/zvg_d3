@@ -10,4 +10,3 @@ gem 'haml'
 
 
 gem 'thin'
-

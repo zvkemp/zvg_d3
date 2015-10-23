@@ -113,7 +113,6 @@ class ZVG.IntensityMatrix extends ZVG.BasicChart
       .attr('y1', @height)
       .remove()
 
-  
   colors: ->
     @_colors or= d3.scale.linear()
       .domain([0,80,100])

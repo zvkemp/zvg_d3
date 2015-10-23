@@ -10,7 +10,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   # RAW DATA:
   # series_1: { survey }
   # series_2: { filter }
-  # series_3: { answer 
+  # series_3: { answer
   # question_id: (one chart will combine existing point/multipoint functions)
   # value: { count of respondents giving that answer }
   #
@@ -56,7 +56,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @data(raw)
     @render()
 
-  
+
 
   min_value: (value, force = false) ->
     if value or value is 0
@@ -64,7 +64,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       @_min_value = (if force then v else d3.min([(@_min_value or 0), v]))
       return @
     @_min_value
-   
+
   max_value: (value, force = false) ->
     if value
       v = parseInt(value)
@@ -160,7 +160,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       new_max = t[t.length - 1] + (t[t.length - 1] - t[t.length - 2])
       t.push(new_max)
     return t
-  
+
   strict_scale: (obj) ->
     if obj
       @_strict_scale = obj
@@ -237,7 +237,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
         @series_2_colors[key] = colorset[(index*2)%colorset.length]
         @series_2_shapes[key] = ZVG.PointShapes[index%4]
 
-        
+
 
 
   render_series_2: ->
