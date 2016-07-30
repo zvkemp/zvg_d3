@@ -322,7 +322,7 @@ class ZVG.BasicChart
   constructor: (element = 'body') ->
     @element = element
     @initializeSvg(element)
-    @initializeStylesheet()
+    # @initializeStylesheet()
     @_n_threshold = 0
 
   data: (d) ->
@@ -530,8 +530,8 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .each(each_function)
       .append('text').attr('class', 'legend_text')
       .text((d) -> d.text)
-      .attr('transform', "translate(10, 3)")
-      .attr('alignment-baseline', 'middle')
+      .attr('transform', "translate(10, 0)")
+      # .attr('alignment-baseline', 'baseline')
 
   renderUnstableLegend: =>
     return unless @_show_unstable_legend
