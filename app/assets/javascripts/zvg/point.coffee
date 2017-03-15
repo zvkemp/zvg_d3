@@ -251,7 +251,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     shapes = @series_2_shapes
     @series_2.each((d) ->
       d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
-      new (shapes[d.key])(this, colors[d.key], "#{d.key}:#{d.values.series_1}:#{d.values.series_3}")
+      new (shapes[d.key])(this, colors[d.key], {})
       selection = d3.select(this)
       selection.append('text')
         .attr('class', 'zvg-point-label label-hover series2label')
@@ -282,7 +282,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     height        = @legend_item_height
     colors        = @series_2_colors
     shapes        = @series_2_shapes
-    each_function = (d) -> new (shapes[d.key])(this, colors[d.key])
+    each_function = (d) -> new (shapes[d.key])(this, colors[d.key], { x: 7, y: 5 })
     @_apply_legend_elements(selection, height, each_function)
 
     #svgs   = selection.append('svg').attr('width', 18).attr('height', 18)

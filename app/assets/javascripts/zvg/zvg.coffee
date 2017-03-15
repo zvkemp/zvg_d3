@@ -261,12 +261,17 @@ class ZVG.Background
 
 
 class ZVG.PointShape
-  constructor: (container, fill, label, scale = 1) ->
+  constructor: (container, fill, attrs, scale = 1) ->
     @scale       = scale
     @container   = container
     @fill        = fill
+    @attrs       = @defaults()
+    attrs or= {}
+    @attrs[key] = value for key, value of attrs
     @render()
     # d3.select(@container).append('text').text(label) if label
+    #
+  defaults: -> { x: 0, y: 0, r: 8 }
 
   render: ->
     @apply_standard_attributes(@render_object())
@@ -277,26 +282,25 @@ class ZVG.PointShape
 
   render_object: ->
     d3.select(@container).append('circle')
-      .attr('cx', 0)
-      .attr('cy', 0)
-      .attr('r', 8 * @scale)
+      .attr('cx', @attrs.x * 2)
+      .attr('cy', @attrs.y * 2)
+      .attr('r', @attrs.r * @scale)
 
 class ZVG.SquarePoint extends ZVG.PointShape
-  render_object: ->
-    d3.select(@container).append('rect')
-        .attr('x', -7 * @scale)
-        .attr('y', -7 * @scale)
-        .attr('width', 14 * @scale)
-        .attr('height', 14 * @scale)
+  defaults: -> { x: -7, y: -7, width: 14, height: 14 }
 
-class ZVG.DiamondPoint extends ZVG.PointShape
   render_object: ->
     d3.select(@container).append('rect')
-      .attr('x', -6.5 * @scale)
-      .attr('y', -6.5 * @scale)
-      .attr('width', 13 * @scale)
-      .attr('height', 13 * @scale)
-      .attr('transform', 'rotate(45)')
+        .attr('x', @attrs.x * @scale)
+        .attr('y', @attrs.y * @scale)
+        .attr('width', @attrs.width * @scale)
+        .attr('height', @attrs.height * @scale)
+
+class ZVG.DiamondPoint extends ZVG.SquarePoint
+  defaults: -> { x: -6.5, y: -6.5, width: 13, height: 13 }
+
+  render_object: ->
+    super().attr('transform', "rotate(45, #{@attrs.width / 2 + @attrs.x}, #{@attrs.height / 2 + @attrs.y})")
 
 class ZVG.CirclePoint extends ZVG.PointShape
 
@@ -518,20 +522,24 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     c      = @color
     color  = (d) -> c(d.key)
 
-    @_apply_legend_elements(selection, height, (d) -> new ZVG.SquarePoint(this, color))
+    @_apply_legend_elements(selection, height, (d) -> new ZVG.SquarePoint(this, color, { x: 7, y: 5 }))
 
   # The generic function. Feed chart-specific args in the main @apply_legend_elements function above.
   _apply_legend_elements: (selection, height, each_function) ->
     selection.attr('transform', (_, i) -> "translate(0, #{i * height})")
-      .append('rect').attr('width', @legend_width).attr('height', height).style('fill', 'white').style('stroke', 'none')
-    selection.append('g')
-      .attr('class', 'legend-icon')
-      .attr("transform", "translate(10, #{height/2})")
-      .each(each_function)
-      .append('text').attr('class', 'legend_text')
-      .text((d) -> d.text)
-      .attr('transform', "translate(10, 3)")
-      .attr('alignment-baseline', 'middle')
+      .append('rect').attr('width', @legend_width).attr('height', height).style('fill', 'pink').style('stroke', 'green')
+
+    # selection.append('g')
+    #   .attr('class', 'legend-icon')
+    #   .attr('x', 10)
+    #   .attr('y', height/2)
+    #   .each(each_function)
+    #   .append('text').attr('class', 'legend_text')
+    #   .text((d) -> d.text)
+    #   .attr('x', 10)
+    #   #.attr('transform', "translate(10, 3)")
+    #   # .attr('alignment-baseline', 'middle')
+    r = selection.each(each_function) # apply the square thingy
 
   renderUnstableLegend: =>
     return unless @_show_unstable_legend
