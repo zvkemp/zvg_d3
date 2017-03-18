@@ -9,7 +9,6 @@ class ZVG.Radar extends ZVG.BasicChart
   # }
   constructor: (args...) ->
     super(args...)
-    @_currentFilter = @nullFilter
 
   _render: ->
     @initializeCenterGroup() unless @center # prevent multiple base group appends when re-rendering
@@ -17,6 +16,9 @@ class ZVG.Radar extends ZVG.BasicChart
     @establishAngularDomain()
     @renderAxes()
     @renderSeries()
+    @render_legend()
+    @bind_value_group_hover()
+    @bind_value_group_click()
 
   initializeCenterGroup: ->
     @center = @svg.append('g').attr('label', 'center')
@@ -31,10 +33,23 @@ class ZVG.Radar extends ZVG.BasicChart
       return @
     @_series_3_domain
 
+  legend_data: ->
+    ({ key: x, text: x } for x in @series_1_domain())
+
+  value_group_selector: ".vg"
+
+  legend_width: 400
+
   polygon: d3.svg.line()
     .x((d) -> d.x)
     .y((d) -> d.y)
     .interpolate('linear-closed')
+
+  commonAxesStyles = (selection) ->
+    selection.style('fill', 'none')
+      .style('stroke', ZVG.flatUIColors['SILVER'])
+      .style('stroke-dasharray', '2 2')
+    selection
 
   renderAxes: ->
     spokes = @axes.selectAll('line.spoke')
@@ -44,10 +59,8 @@ class ZVG.Radar extends ZVG.BasicChart
       .attr('class', 'spoke')
       .attr('x1', 0)
       .attr('y1', 0)
-    spokes.attr('x2', (d) -> d.x)
-      .attr('y2', (d) -> d.y)
-      .style('fill', 'none')
-      .style('stroke', 'blue')
+    spokes.attr('x2', (d) -> d.x).attr('y2', (d) -> d.y)
+    commonAxesStyles(spokes)
 
     webData = ((@convertToXY(radius, index) for index in ([0...@series3Length()])) for radius in ([1..@maxRadius()]))
     webs = @axes.selectAll('path.spoke')
@@ -56,22 +69,27 @@ class ZVG.Radar extends ZVG.BasicChart
       .append('path')
       .attr('class', 'spoke')
     webs.attr('d', @polygon)
-      .style('fill', 'none')
-      .style('stroke', 'red')
+    commonAxesStyles(webs)
 
   colors: d3.scale.ordinal().range(ZVG.colorSchemes.rainbow10)
   colors: d3.scale.category10()
 
+  sortByArea = (pg_data) ->
+    pg_data.sort((pg) ->
+      -(d3.geom.polygon(pg.points.map((f) -> [f.x, f.y])).area())
+    )
+
   renderSeries: ->
     polygons = @polygons.selectAll('path.polygon')
-      .data(@polygonData())
+      .data(sortByArea(@polygonData()))
     polygons.enter()
       .append('path')
-      .attr('class', 'polygon')
+      .attr('class', "polygon #{@value_group_selector.substr(1,100)}")
       .attr('d', (d) => @polygon({ x: 0, y: 0} for point in d.points))
-      .style('fill-opacity', 0.5)
+      .style('fill-opacity', 0.4)
+
     polygons.attr('label', (d) -> d.key)
-      .transition().duration(1000)
+      .transition().duration(500)
       .attr('d', (d) => @polygon(d.points))
       .style('fill', (d) => @colors(d.key))
     polygons.exit().remove()
@@ -88,10 +106,9 @@ class ZVG.Radar extends ZVG.BasicChart
         valuesHash = {}
 
         (d.values or []).forEach((entry) ->
-          if self.currentFilter(entry)
-            valuesHash[entry.question_id] or= {}
-            valuesHash[entry.question_id][entry.series_3] or= 0
-            valuesHash[entry.question_id][entry.series_3] += entry.count
+          valuesHash[entry.question_id] or= {}
+          valuesHash[entry.question_id][entry.series_3] or= 0
+          valuesHash[entry.question_id][entry.series_3] += entry.count
         )
 
         meanValue = (obj) ->
@@ -115,26 +132,13 @@ class ZVG.Radar extends ZVG.BasicChart
 
     )
 
-
-  currentFilter: (obj) ->
-    @_currentFilter(obj)
-
-  setFilter: (filter) ->
-    if filter
-      @__filter__ = filter
-      @_currentFilter = (x) -> x.series_2 is filter
-    else
-      @_currentFilter = @nullFilter
-    @
-
-  nullFilter: (x) -> true
-
-
-
   maxRadius: (max) ->
     if max
       @_maxRadius = max
       @establishRadialDomain
+      if @center
+        @center.remove()
+        @center = null
       return @
     unless @_maxRadius
       @maxRadius(@getDefaultMaxRadius())
@@ -173,8 +177,49 @@ class ZVG.Radar extends ZVG.BasicChart
       .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
       .entries(d)
 
+  # randomizeData: (nSeries1, nSeries2, nSeries3, max) ->
+  #   # NOTE: the domains shouldn't be pushed this often, but the mistaken result is very cool.
+  #   data = []
+  #   s1_domain = []
+  #   s2_domain = []
+  #   s3_domain = []
+  #   for s1 in ([1..nSeries1])
+  #     do (s1) ->
+  #       s1_domain.push("Survey #{s1}")
+  #       for s2 in ([1..nSeries2])
+  #         do (s2) ->
+  #           s2_domain.push("Filter #{s2}")
+  #           for s3 in ([1..nSeries3])
+  #             do (s3) ->
+  #               s3_domain.push("#{100 * s3}")
+  #               data.push({
+  #                 series_1: "Survey #{s1}"
+  #                 series_2: "Filter #{s2}"
+  #                 question_id: 100 * s3
+  #                 series_3: Math.random() * max
+  #                 count: parseInt(Math.random() * 500)
+  #               })
+  #   console.log(s3_domain)
+  #   console.log(s2_domain)
+  #   console.log(s1_domain)
+  #   @series_3_domain(s3_domain)
+  #   @series_2_domain(s2_domain)
+  #   @series_1_domain(s1_domain)
+  #   @data(data)
+  #   @setFilter()
+  #   @maxRadius(max)
+  #   @render()
+
   randomizeData: (nSeries1, nSeries2, nSeries3, max) ->
+    rand_val = -> parseInt(Math.random() * 7)
+    nSeries1 or= rand_val() + 2
+    nSeries2 or= rand_val() + 1
+    nSeries3 or= rand_val() + 3
+    max or= 5
     data = []
+    s1_domain = ("Survey #{s1}" for s1 in [1..nSeries1])
+    s2_domain = ("Filter #{s2}" for s2 in [1..nSeries2])
+    s3_domain = ("#{100 * n}" for n in [1..nSeries3])
     for s1 in ([1..nSeries1])
       do (s1) ->
         for s2 in ([1..nSeries2])
@@ -184,9 +229,14 @@ class ZVG.Radar extends ZVG.BasicChart
                 data.push({
                   series_1: "Survey #{s1}"
                   series_2: "Filter #{s2}"
-                  series_3: 100 * s3
-                  value: Math.random() * max
+                  question_id: 100 * s3
+                  series_3: Math.random() * max
+                  count: parseInt(Math.random() * 500)
                 })
+    @series_3_domain(s3_domain)
+    @series_2_domain(s2_domain)
+    @series_1_domain(s1_domain)
     @data(data)
+    @maxRadius(max)
     @render()
 

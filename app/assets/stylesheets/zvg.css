@@ -3,7 +3,6 @@
   font-weight: bold;
   text-anchor: middle;
   font-size: 10pt;
-  alignment-baseline: central;
 }
 
 .column-label {
@@ -20,7 +19,6 @@
 .legend_text {
   font-size: 9pt;
   text-anchor: start;
-  alignment-baseline: baseline;
   font-weight: bold;
 }
 
@@ -68,6 +66,7 @@
 .scale_label, .key_label {
   font-family: helvetica, arial, sans-serif;
   font-weight: bold;
+  font-size: 11pt;
 }
 
 text.zvg-point-label {

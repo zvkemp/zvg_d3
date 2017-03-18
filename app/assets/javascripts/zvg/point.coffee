@@ -189,6 +189,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     labels.enter()
       .append('text').attr('class', 'scale_label')
       .style('fill', ZVG.flatUIColors['CLOUDS'])
+      .style('font-size', '11pt')
       .attr('alignment-baseline', 'middle')
       .attr('text-anchor', 'middle')
     labels.attr('x', @x_offset/2)
@@ -202,6 +203,8 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     keys.enter()
       .append('text').attr('class', 'key_label')
       .style('fill', ZVG.flatUIColors['CONCRETE'])
+      .style('font-size', '11pt')
+      .attr('alignment-baseline', 'middle')
     keys.attr('x', @x_offset + 5)
       .attr('y', (d) => @value_domain(d.value))
       .text((d) -> d.label)
@@ -282,25 +285,14 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     height        = @legend_item_height
     colors        = @series_2_colors
     shapes        = @series_2_shapes
-    each_function = (d) -> new (shapes[d.key])(this, colors[d.key], { x: 7, y: 5 })
-    @_apply_legend_elements(selection, height, each_function)
+    each_function = (d) ->
+      new (shapes[d.key])(this, colors[d.key], { x: 7, y: 5, center: false })
+      d3.select(@).append('text').attr('class', 'legend_text')
+        .text((d) -> d.text)
+        .attr('x', 25)
+        .attr('y', height / 2 + 2)
 
-    #svgs   = selection.append('svg').attr('width', 18).attr('height', 18)
-    ###
-    selection.attr('transform', (_, i) -> "translate(10,#{i * h})")
-      .attr('class', 'series2')
-      .append('rect').attr('width', @legend_width).attr('height', h).style('fill', 'white').style('stroke', 'none')
-    groups = selection.append('g')
-      .attr('class', 'legend-icon')
-      .attr('transform', "translate(10, #{h/2})")
-      .each((d) -> new (shapes[d.key])(this, colors[d.key]))
-      .append('text').attr('class', 'legend_text')
-      .text((d) -> d.text)
-      .attr('transform', "translate(10, 3)")
-      .attr('alignment-baseline', 'middle')
-    #selection.append('span').attr('class', 'legend_text')
-    #.text((d) -> d.text)
-    ###
+    @_apply_legend_elements(selection, height, each_function)
 
   value_group_selector: '.series2'
 
