@@ -82,14 +82,31 @@ class ZVG.Radar extends ZVG.BasicChart
     # 2. In case of NullFilter, all values are averaged together
     # 3. 0 is subbed in for missing values.
     # 4. Final object has original series 1 key, plus a set of XY coordinates and an array of means.
+    self = @
     (for d in @_data
       do (d) =>
         valuesHash = {}
-        values = d3.nest()
-          .key((x) -> x.series_3)
-          .entries((z for z in d.values when @currentFilter(z)))
-        (valuesHash[v.key] = v.values) for v in values
-        means = ((d3.mean(z.value for z in (valuesHash[s3] or [{ value: 0 }]))) for s3 in @series_3_domain())
+
+        (d.values or []).forEach((entry) ->
+          if self.currentFilter(entry)
+            valuesHash[entry.question_id] or= {}
+            valuesHash[entry.question_id][entry.series_3] or= 0
+            valuesHash[entry.question_id][entry.series_3] += entry.count
+        )
+
+        meanValue = (obj) ->
+          value = 0
+          count = 0
+          bump = (v1, c1) ->
+            v2 = parseFloat(v1)
+            c2 = parseInt(c1)
+            value += (c2 * v2)
+            count += c2
+          bump(v, c) for v, c of obj
+          value / count
+
+        means = (meanValue(valuesHash[s3]) for s3 in @series_3_domain())
+
         {
           key: d.key
           points: (@convertToXY(v,index) for v,index in means)
@@ -104,6 +121,7 @@ class ZVG.Radar extends ZVG.BasicChart
 
   setFilter: (filter) ->
     if filter
+      @__filter__ = filter
       @_currentFilter = (x) -> x.series_2 is filter
     else
       @_currentFilter = @nullFilter
