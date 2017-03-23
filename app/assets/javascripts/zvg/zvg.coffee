@@ -14,7 +14,6 @@ window.ZVG = {
 
     .series2label {
       font-size: 9pt;
-      fill: #888;
       font-weight: normal;
     }
 
@@ -340,6 +339,15 @@ class ZVG.BasicChart
     #@initializeStylesheet()
     @_n_threshold = 0
 
+  default_warning_color: ZVG.flatUIColors['ALIZARIN']
+
+  n_threshold_color: (normal, warning) =>
+    (value) =>
+      if value.n >= @_n_threshold
+        normal
+      else
+        warning or @default_warning_color
+
   data: (d) ->
     if d
       @raw_data = d
@@ -484,15 +492,17 @@ class ZVG.BasicChart
 
   bind_value_group_click: ->
     vg = @container.selectAll(@value_group_selector)
-    vg.on('click', (d) =>
-      if @freeze && @freeze == d.key
-        @freeze = null
-        @undim_all_values()
-      else
-        @freeze = d.key
-        @undim_all_values()
-        @dim_values_not_matching(d.key)
-    )
+    vg.on('click', @_value_group_click)
+
+  _value_group_click: (d) =>
+    if @freeze && @freeze == d.key
+      @freeze = null
+      @undim_all_values()
+    else
+      @freeze = d.key
+      @undim_all_values()
+      @dim_values_not_matching(d.key)
+
 
   bind_value_group_hover: ->
     vg = @container.selectAll(@value_group_selector)
@@ -535,7 +545,29 @@ class ZVG.BasicChart
           true
       )
 
-    items.on('click', (d,i) =>
+    # Select ONLY this filter when the little orange square is clicked
+    filter_checkboxes.on('click', (f) =>
+      if @_onlyChecked is f
+        @_onlyChecked = null
+        @_filters = null
+        (@_checked[e] = true) for e in d
+        @filter_data()
+      else
+        (@_checked[e] = false) for e in d
+        @_checked[f] = true
+        @_onlyChecked = f
+        @filter_data([f])
+      @render()
+    )
+
+    text = items.append('text').attr('class', 'filter_legend_text')
+      .text((d) -> d)
+      # .style('alignment-baseline', 'middle')
+      .attr('transform', "translate(12, 5)")
+
+     # Toggle the filter when the text is clicked
+    text.on('click', (d,i) =>
+      @_onlyChecked = null
       if @_checked[d]
         @_checked[d] = false
       else
@@ -543,11 +575,6 @@ class ZVG.BasicChart
       @filter_data((key for key, condition of @_checked when condition))
       @render()
     )
-
-    items.append('text').attr('class', 'legend_text')
-      .text((d) -> d)
-      # .style('alignment-baseline', 'middle')
-      .attr('transform', "translate(12, 5)")
 
   filter_data: (filters) ->
     if filters
@@ -653,6 +680,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     d = ['unstable']
     @legend.selectAll('g.unstable').remove()
     offset = (@legend.selectAll('.legend-icon')[0].length + 1.5) * @legend_item_height
+    offset = (@legend.selectAll('text.legend_text')[0].length + 1.5) * @legend_item_height
 
     items = @legend.selectAll('g.unstable')
       .data(d)
@@ -745,9 +773,10 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
       .text((d) =>
         sum = @series_2_label_sum(d)
-        #"#{@series_2_label_visibility(d.key)} (n = #{sum})"
+        d.n = sum
         (x for x in [@series_2_label_visibility(d.key), "(n = #{sum})"] when x).join(" ")
-      )
+      ).attr('fill', @n_threshold_color('gray'))
+
 
     @series_2_labels.on('click', (d,i) =>
       (@_checked[k] = false) for k, _ of @_checked when k isnt d.key

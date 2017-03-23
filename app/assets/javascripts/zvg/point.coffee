@@ -252,6 +252,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
     colors = @series_2_colors
     shapes = @series_2_shapes
+    host   = @
     @series_2.each((d) ->
       d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
       new (shapes[d.key])(this, colors[d.key], {})
@@ -259,6 +260,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       selection.append('text')
         .attr('class', 'zvg-point-label label-hover series2label')
         .text(d3.round(d.values.average, 1))
+        .attr('fill', (d) -> host.n_threshold_color('gray')(d.values))
         .attr('transform', "translate(9,0)")
         .datum(d.key)
         .style('opacity', 0)
@@ -266,6 +268,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       selection.append('text')
         .attr('class', 'zvg-point-label-small label-hover series2label n-label')
         .text("n = #{d.values.n}")
+        .attr('fill', (d) -> host.n_threshold_color('gray')(d.values))
         .attr('transform', "translate(9, 12)")
         .style('opacity', 0)
         .datum(d.key)

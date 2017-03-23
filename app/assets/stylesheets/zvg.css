@@ -12,7 +12,6 @@
 
 .series2label {
   font-size: 9pt;
-  fill: #888;
   font-weight: normal;
 }
 
@@ -83,4 +82,3 @@ text.key_label {
   font-size: 10pt;
   alignment-baseline: middle;
 }
-

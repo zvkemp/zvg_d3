@@ -1,3 +1,6 @@
+# TODO: multiple filter selections (i.e., freezing a survey and filter selection)
+# still isn't reliable.
+# see http://localhost:3434/reports/907?utf8=%E2%9C%93&s%5B5885%5D=1&s%5B6161%5D=1&s%5B5911%5D=1&s%5B6170%5D=1&s%5B6212%5D=1&s%5B6252%5D=1&s%5B6253%5D=1&s%5B6258%5D=1&s%5B6260%5D=1&s%5B6468%5D=1&s%5B6542%5D=1&s%5B6570%5D=1&s%5B6632%5D=1&s%5B6695%5D=1&s%5B6812%5D=1&s%5B6834%5D=1&f1=390&f2=&by_survey=true&commit=Apply+Options#anchors
 class ZVG.Radar extends ZVG.BasicChart
   # Data format should be as follows:
   # (scalar data only, categorical variables are not likely to work well)
@@ -14,16 +17,22 @@ class ZVG.Radar extends ZVG.BasicChart
     @initializeCenterGroup() unless @center # prevent multiple base group appends when re-rendering
     @establishRadialDomain()
     @establishAngularDomain()
-    @renderAxes()
+    @renderAxes() unless @axesRendered
+    @renderAxisLabels() unless @axisLabelsRendered
     @renderSeries()
     @render_legend()
     @bind_value_group_hover()
     @bind_value_group_click()
+    # Helps re-render correctly when a freeze is in place
+    # and the filter selectors are clicked
+    if @freeze
+      @dim_values_not_matching(@freeze)
 
   initializeCenterGroup: ->
     @center = @svg.append('g').attr('label', 'center')
       .attr('transform', "translate(#{@width/2}, #{@height/2})")
     @axes = @center.append('g').attr('label', 'axes')
+    @axis_labels = @center.append('g').attr('label', 'axis_labels')
     @polygons = @center.append('g').attr('label', 'polygons')
 
   # not yet in use
@@ -70,6 +79,41 @@ class ZVG.Radar extends ZVG.BasicChart
       .attr('class', 'spoke')
     webs.attr('d', @polygon)
     commonAxesStyles(webs)
+    @axesRendered = true
+
+  round2 = d3.format('.2f')
+  round3 = d3.format('.3f')
+
+  _anchor: (x) ->
+    if x == 0
+      'middle'
+    else if x > 0
+      'start'
+    else
+      'end'
+
+  renderAxisLabels: () ->
+    r = @maxRadius() * 1.05
+    host = @
+    labels = @axis_labels.selectAll('text')
+      .data(@series_3_domain())
+    labels.enter()
+      .append('text')
+    labels.each((d,i) ->
+      label = d3.select(@)
+      val   = host.convertToXY(r, i)
+      x     = parseFloat(round3(val.x))
+      y     = parseFloat(round3(val.y))
+      label.text((d) -> host.questionName(d))
+        .attr('x', x).attr('y', y)
+        .attr('text-anchor', host._anchor(x))
+        .attr('fill', ZVG.flatUIColors['CONCRETE'])
+        .attr('font-weight', 'bold')
+    )
+
+    labels.exit().remove()
+    @axisLabelsRendered = true
+
 
   colors: d3.scale.ordinal().range(ZVG.colorSchemes.rainbow10)
   colors: d3.scale.category10()
@@ -80,8 +124,10 @@ class ZVG.Radar extends ZVG.BasicChart
     )
 
   renderSeries: ->
+    host = @
+    pg_data = sortByArea(@polygonData())
     polygons = @polygons.selectAll('path.polygon')
-      .data(sortByArea(@polygonData()))
+      .data(pg_data, (k) -> k.key)
     polygons.enter()
       .append('path')
       .attr('class', "polygon #{@value_group_selector.substr(1,100)}")
@@ -91,8 +137,77 @@ class ZVG.Radar extends ZVG.BasicChart
     polygons.attr('label', (d) -> d.key)
       .transition().duration(500)
       .attr('d', (d) => @polygon(d.points))
-      .style('fill', (d) => @colors(d.key))
+      .style('stroke', (d) =>
+        t = @_n_threshold
+        mock_n = if d.n_values.some((n) -> n < t)
+          0
+        else
+          d.n_values[0]
+
+        @n_threshold_color('white')({ n: mock_n })
+      ).style('fill', (d) => @colors(d.key))
+
+    hover_label_groups = @polygons.selectAll('g.label-hover')
+      .data(pg_data)
+    hover_label_groups.enter()
+      .append('g').attr('class', 'label-hover')
+    hover_label_groups
+      .style('opacity', 0)
+      .each(-> host.applyHoverLabels(this))
+    hover_label_groups.exit().remove()
+
     polygons.exit().remove()
+
+  applyHoverLabels: (group) ->
+    _group = d3.select(group)
+    host = @
+    data = _group.datum().values.map((v,i) ->
+      vals = host.convertToXY(v + (host.maxRadius() * 0.05), i)
+      {
+        key: i,
+        display: if v > 0 then round2(v) else '',
+        x: vals.x,
+        y: vals.y,
+        n: _group.datum().n_values[i],
+        anchor: host._anchor(vals.x)
+      }
+    )
+    text_color = @n_threshold_color(ZVG.flatUIColors['WET ASPHALT'])
+    texts = _group.selectAll('text.mean').data(data, (d) -> d.key)
+    texts.enter().append('text')
+    texts.attr('class', 'radar-label mean')
+      .transition().duration(300)
+      .text((d) -> d.display)
+      .attr('x', (d) -> d.x)
+      .attr('y', (d) -> d.y)
+      .attr('alignment-baseline', 'middle')
+      .attr('text-anchor', (d) -> d.anchor)
+      .attr('font-weight', 'bold')
+      .attr('fill', text_color)
+
+    n_texts = _group.selectAll('text.n_value').data(data, (d) -> d.key)
+    n_texts.enter().append('text')
+    n_texts.attr('class', 'n_value')
+      .transition().duration(300)
+      .text((d) ->
+        if d.n <= 0
+          ''
+        else
+          "(n = #{d.n})"
+      )
+      .attr('x', (d) -> d.x)
+      .attr('y', (d) -> d.y + 12)
+      .attr('alignment-baseline', 'middle')
+      .attr('text-anchor', (d) -> d.anchor)
+      .attr('fill', text_color)
+    group
+
+  dim_values_not_matching: (key) =>
+    @container.selectAll('.label-hover').filter((e) -> e.key is key).style('opacity', 1)
+    @container.selectAll(@value_group_selector).filter((e) -> e.key != key).style('opacity', 0.05)
+  undim_all_values: =>
+    @container.selectAll(@value_group_selector).style('opacity', 1)
+    @container.selectAll('.label-hover').style('opacity', 0)
 
   polygonData: ->
     # Map data to objects:
@@ -108,7 +223,7 @@ class ZVG.Radar extends ZVG.BasicChart
         (d.values or []).forEach((entry) ->
           valuesHash[entry.question_id] or= {}
           valuesHash[entry.question_id][entry.series_3] or= 0
-          valuesHash[entry.question_id][entry.series_3] += entry.count
+          valuesHash[entry.question_id][entry.series_3] += (entry.value or entry.count)
         )
 
         meanValue = (obj) ->
@@ -120,16 +235,19 @@ class ZVG.Radar extends ZVG.BasicChart
             value += (c2 * v2)
             count += c2
           bump(v, c) for v, c of obj
-          value / count
+          if count > 0
+            value / count
+          else
+            0
 
+        n_values = (d3.sum(n for _i, n of valuesHash[s3]) for s3 in @series_3_domain())
         means = (meanValue(valuesHash[s3]) for s3 in @series_3_domain())
-
         {
           key: d.key
           points: (@convertToXY(v,index) for v,index in means)
           values: means
+          n_values: n_values
         }
-
     )
 
   maxRadius: (max) ->
@@ -166,11 +284,18 @@ class ZVG.Radar extends ZVG.BasicChart
       .range([-2.5 * Math.PI, -0.5 * Math.PI]) # should start at 90 degrees and proceed clockwise for a full circle.
 
   convertToXY: (amplitude, domainIndex) ->
+    amplitude = 0.1 if amplitude == 0
     angle = @angularDomain(domainIndex)
     radius = @radialDomain(amplitude)
     x = radius * Math.cos(angle)
     y = radius * Math.sin(angle)
     { x: x, y: y }
+
+  questionName: (id) ->
+    (@questionMeta()[id] or {}).name or id
+
+  questionMeta: (data) ->
+    @accessor('questionMeta', data)
 
   nestData: (d) ->
     d3.nest()
