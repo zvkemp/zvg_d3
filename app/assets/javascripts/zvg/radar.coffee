@@ -1,15 +1,4 @@
-# TODO: multiple filter selections (i.e., freezing a survey and filter selection)
-# still isn't reliable.
-# see http://localhost:3434/reports/907?utf8=%E2%9C%93&s%5B5885%5D=1&s%5B6161%5D=1&s%5B5911%5D=1&s%5B6170%5D=1&s%5B6212%5D=1&s%5B6252%5D=1&s%5B6253%5D=1&s%5B6258%5D=1&s%5B6260%5D=1&s%5B6468%5D=1&s%5B6542%5D=1&s%5B6570%5D=1&s%5B6632%5D=1&s%5B6695%5D=1&s%5B6812%5D=1&s%5B6834%5D=1&f1=390&f2=&by_survey=true&commit=Apply+Options#anchors
 class ZVG.Radar extends ZVG.BasicChart
-  # Data format should be as follows:
-  # (scalar data only, categorical variables are not likely to work well)
-  # {
-  #   series_1: ... (survey or filter 1)
-  #   series_2: ... (survey or filter 2)
-  #   series_3: ... question id
-  #   value: ... average of values
-  # }
   constructor: (args...) ->
     super(args...)
 
