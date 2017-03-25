@@ -5,7 +5,6 @@ window.ZVG = {
       font-weight: bold;
       text-anchor: middle;
       font-size: 10pt;
-      alignment-baseline: central;
     }
 
     .column-label {
@@ -15,14 +14,12 @@ window.ZVG = {
 
     .series2label {
       font-size: 9pt;
-      fill: #888;
       font-weight: normal;
     }
 
     .legend_text {
       font-size: 9pt;
       text-anchor: start;
-      alignment-baseline: baseline;
       font-weight: bold;
     }
 
@@ -261,12 +258,17 @@ class ZVG.Background
 
 
 class ZVG.PointShape
-  constructor: (container, fill, label, scale = 1) ->
+  constructor: (container, fill, attrs, scale = 1) ->
     @scale       = scale
     @container   = container
     @fill        = fill
+    @attrs       = @defaults()
+    attrs or= {}
+    @attrs[key] = value for key, value of attrs
     @render()
     # d3.select(@container).append('text').text(label) if label
+    #
+  defaults: -> { x: 0, y: 0, r: 8 }
 
   render: ->
     @apply_standard_attributes(@render_object())
@@ -277,34 +279,46 @@ class ZVG.PointShape
 
   render_object: ->
     d3.select(@container).append('circle')
-      .attr('cx', 0)
-      .attr('cy', 0)
-      .attr('r', 8 * @scale)
+      .attr('cx', @attrs.x * 2)
+      .attr('cy', @attrs.y * 2)
+      .attr('r', @attrs.r * @scale)
 
 class ZVG.SquarePoint extends ZVG.PointShape
-  render_object: ->
-    d3.select(@container).append('rect')
-        .attr('x', -7 * @scale)
-        .attr('y', -7 * @scale)
-        .attr('width', 14 * @scale)
-        .attr('height', 14 * @scale)
+  defaults: -> { x: -7, y: -7, width: 14, height: 14 }
 
-class ZVG.DiamondPoint extends ZVG.PointShape
   render_object: ->
     d3.select(@container).append('rect')
-      .attr('x', -6.5 * @scale)
-      .attr('y', -6.5 * @scale)
-      .attr('width', 13 * @scale)
-      .attr('height', 13 * @scale)
-      .attr('transform', 'rotate(45)')
+        .attr('x', @attrs.x * @scale)
+        .attr('y', @attrs.y * @scale)
+        .attr('width', @attrs.width * @scale)
+        .attr('height', @attrs.height * @scale)
+
+class ZVG.DiamondPoint extends ZVG.SquarePoint
+  defaults: -> { x: -6.5, y: -6.5, width: 13, height: 13 }
+
+  render_object: ->
+    super().attr('transform', "rotate(45, #{@attrs.width / 2 + @attrs.x}, #{@attrs.height / 2 + @attrs.y})")
 
 class ZVG.CirclePoint extends ZVG.PointShape
 
 class ZVG.TrianglePoint extends ZVG.PointShape
+  defaults: -> { center: true, size: 15 }
+
+  m: -> @attrs.size / 2
+
+  path: ->
+    m = @m() * @scale
+    if @attrs.center
+      "M 0 #{-m} L #{m} #{m} L #{-m} #{m} z"
+    else
+      # This is still slightly off (for legends), but is OK.
+      "M #{2*m} 0 L #{3 * m} #{2 * m} L #{m} #{2 * m} z"
+
   render_object: ->
+    m = @m() * @scale
     s = @scale
     d3.select(@container).append('path')
-      .attr('d', "M 0 #{-7 * s} L #{8 * s} #{7 * s} L #{-8 * s} #{7 * s} z")
+      .attr('d', @path())
 
       # 0,-5 6,5 -6,5
 ZVG.PointShapes = [ZVG.SquarePoint, ZVG.DiamondPoint, ZVG.CirclePoint, ZVG.TrianglePoint]
@@ -322,8 +336,17 @@ class ZVG.BasicChart
   constructor: (element = 'body') ->
     @element = element
     @initializeSvg(element)
-    @initializeStylesheet()
+    #@initializeStylesheet()
     @_n_threshold = 0
+
+  default_warning_color: ZVG.flatUIColors['ALIZARIN']
+
+  n_threshold_color: (normal, warning) =>
+    (value) =>
+      if value.n >= @_n_threshold
+        normal
+      else
+        warning or @default_warning_color
 
   data: (d) ->
     if d
@@ -376,7 +399,68 @@ class ZVG.BasicChart
     @_background_rectangle.attr('width', @width + 200 + @legend_width).attr('height', @height + 200)
 
   render_legend: ->
-    null
+    @initialize_legend()
+    @legend.selectAll('g.legend_item').remove()
+    items = @legend.selectAll('g.legend_item')
+      .data(@legend_data())
+    items.enter()
+      .append('g')
+      .attr('class', "legend_item #{@value_group_selector.substr(1,100)}")
+      .attr('label', (d) -> d.key)
+
+    @apply_legend_elements(items)
+    @renderFilterLegend()
+
+  initialize_legend: ->
+    @legend or= @svg.append('g')
+
+    # TEMP
+    @legend.selectAll('rect.test').data([1]).enter()
+      .append('rect')
+      .attr('width', @legend_width)
+      .attr('height', @height)
+      .style('stroke', 'none')
+      .style('fill', 'none')
+    #
+
+    @set_legend_x()
+
+  set_legend_x: ->
+    if @legend
+      @legend.attr('transform', "translate(#{@width},0)")
+
+  legend_item_height: 21
+
+  apply_legend_elements: (selection) ->
+    height = @legend_item_height
+    c      = @color or @colors
+    color  = (d) -> c(d.key)
+
+    @_apply_legend_elements(selection, height, (d) ->
+      new ZVG.SquarePoint(@, color, { x: 7, y: 5 })
+
+      d3.select(@).append('text').attr('class', 'legend_text')
+        .text((d) -> d.text)
+        .attr('x', 25)
+        .attr('y', height / 2 + 2)
+    )
+
+  # The generic function. Feed chart-specific args in the main @apply_legend_elements function above.
+  _apply_legend_elements: (selection, height, each_function) ->
+    selection.attr('transform', (_, i) -> "translate(0, #{i * height})")
+      .append('rect').attr('width', @legend_width).attr('height', height).style('fill', 'white').style('stroke', 'none')
+
+    r = selection.each(each_function) # apply the square thingy
+    # selection.append('g')
+    #   .attr('class', 'legend-icon')
+    #   .attr('x', 10)
+    #   .attr('y', height/2)
+    #   .each(each_function)
+    #   .append('text').attr('class', 'legend_text')
+    #   .text((d) -> d.text)
+    #   .attr('x', 10)
+    #   #.attr('transform', "translate(10, 3)")
+    #   # .attr('alignment-baseline', 'middle')
 
   render: (args...) ->
     @beforeRender()
@@ -402,6 +486,105 @@ class ZVG.BasicChart
     @svg.attr('height', bbox.height)
 
   legend_width: 0
+
+  _hide_columns_below_n: () ->
+  renderUnstableLegend: () ->
+
+  bind_value_group_click: ->
+    vg = @container.selectAll(@value_group_selector)
+    vg.on('click', @_value_group_click)
+
+  _value_group_click: (d) =>
+    if @freeze && @freeze == d.key
+      @freeze = null
+      @undim_all_values()
+    else
+      @freeze = d.key
+      @undim_all_values()
+      @dim_values_not_matching(d.key)
+
+
+  bind_value_group_hover: ->
+    vg = @container.selectAll(@value_group_selector)
+    vg.on('mouseover', (d) =>
+      @dim_values_not_matching(d.key) unless @freeze
+    ).on('mouseout', => @undim_all_values() unless @freeze)
+
+  undim_all_values: =>
+    @container.selectAll(@value_group_selector).style('opacity', 1)
+
+  dim_values_not_matching: (key) =>
+    @container.selectAll(@value_group_selector).filter((e) -> "#{e.key}" isnt "#{key}")
+      .style('opacity', 0.1)
+
+  # FIXME
+  renderFilterLegend: =>
+    @_checked or= {}
+    h = @legend_item_height
+    d = (e for e in @series_2_domain() when e in (@_series_2_raw_domain or [])).reverse()
+    ((@_checked[e] or= true) unless @_checked[e] is false) for e in d
+    return if d.length is 1
+    @legend.selectAll('g.filter_legend_item').remove()
+    offset = (@legend.selectAll('text')[0].length + 3) * @legend_item_height
+
+    items = @legend.selectAll('g.filter_legend_item')
+      .data(d)
+    items.enter()
+      .append('g')
+      .attr('class', 'filter_legend_item legend_item')
+      .attr('label', (d) -> d)
+      .attr('transform', (d, i) -> "translate(10, #{offset + (i * h)})")
+
+    filter_checkboxes = items.append('rect')
+      .attr('height', 8).attr('width', 8)
+      .style('fill', (d) => if @_checked[d] then ZVG.flatUIColors["CARROT"] else ZVG.flatUIColors["CLOUDS"])
+      .attr('checked',(d) =>
+        if @_filters
+          d in @_filters or null
+        else
+          true
+      )
+
+    # Select ONLY this filter when the little orange square is clicked
+    filter_checkboxes.on('click', (f) =>
+      if @_onlyChecked is f
+        @_onlyChecked = null
+        @_filters = null
+        (@_checked[e] = true) for e in d
+        @filter_data()
+      else
+        (@_checked[e] = false) for e in d
+        @_checked[f] = true
+        @_onlyChecked = f
+        @filter_data([f])
+      @render()
+    )
+
+    text = items.append('text').attr('class', 'filter_legend_text')
+      .text((d) -> d)
+      # .style('alignment-baseline', 'middle')
+      .attr('transform', "translate(12, 5)")
+
+     # Toggle the filter when the text is clicked
+    text.on('click', (d,i) =>
+      @_onlyChecked = null
+      if @_checked[d]
+        @_checked[d] = false
+      else
+        @_checked[d] = true
+      @filter_data((key for key, condition of @_checked when condition))
+      @render()
+    )
+
+  filter_data: (filters) ->
+    if filters
+      @_filters = filters
+      # prevent @raw_data from being overwritten
+      @_data = @nestData(x for x in @raw_data when x.series_2 in filters)
+    else
+      @data(@raw_data)
+
+
 
 class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   constructor: (element, options = {}) ->
@@ -429,14 +612,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
   # x offset for point chart scale on left
   x_offset: 0
-
-  filter_data: (filters) ->
-    if filters
-      @_filters = filters
-      # prevent @raw_data from being overwritten
-      @_data = @nestData(x for x in @raw_data when x.series_2 in filters)
-    else
-      @data(@raw_data)
 
   _hide_columns_below_n: (n) ->
     columns_are_hidden = false
@@ -498,41 +673,6 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       []
 
 
-  render_legend: ->
-    @initialize_legend()
-    @legend.selectAll('g.legend_item').remove()
-    items = @legend.selectAll('g.legend_item')
-      .data(@legend_data())
-    items.enter()
-      .append('g')
-      .attr('class', "legend_item #{@value_group_selector.substr(1,100)}")
-      .attr('label', (d) -> d.key)
-
-    @apply_legend_elements(items)
-    @renderFilterLegend()
-
-  legend_item_height: 21
-
-  apply_legend_elements: (selection) ->
-    height = @legend_item_height
-    c      = @color
-    color  = (d) -> c(d.key)
-
-    @_apply_legend_elements(selection, height, (d) -> new ZVG.SquarePoint(this, color))
-
-  # The generic function. Feed chart-specific args in the main @apply_legend_elements function above.
-  _apply_legend_elements: (selection, height, each_function) ->
-    selection.attr('transform', (_, i) -> "translate(0, #{i * height})")
-      .append('rect').attr('width', @legend_width).attr('height', height).style('fill', 'white').style('stroke', 'none')
-    selection.append('g')
-      .attr('class', 'legend-icon')
-      .attr("transform", "translate(10, #{height/2})")
-      .each(each_function)
-      .append('text').attr('class', 'legend_text')
-      .text((d) -> d.text)
-      .attr('transform', "translate(10, 3)")
-      .attr('alignment-baseline', 'middle')
-
   renderUnstableLegend: =>
     return unless @_show_unstable_legend
     @_checked or= {}
@@ -540,6 +680,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     d = ['unstable']
     @legend.selectAll('g.unstable').remove()
     offset = (@legend.selectAll('.legend-icon')[0].length + 1.5) * @legend_item_height
+    offset = (@legend.selectAll('text.legend_text')[0].length + 1.5) * @legend_item_height
 
     items = @legend.selectAll('g.unstable')
       .data(d)
@@ -561,101 +702,8 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
     items.append('text').attr('class', 'legend_text')
       .text((d) => "Show unstable data (n < #{@_n_threshold})")
-      .style('alignment-baseline', 'middle')
+      # .style('alignment-baseline', 'middle')
       .attr('transform', "translate(12, 5)")
-
-  # FIXME
-  renderFilterLegend: =>
-    @_checked or= {}
-    h = @legend_item_height
-    d = (e for e in @series_2_domain() when e in (@_series_2_raw_domain or [])).reverse()
-    ((@_checked[e] or= true) unless @_checked[e] is false) for e in d
-    return if d.length is 1
-    @legend.selectAll('g.filter_legend_item').remove()
-    offset = (@legend.selectAll('.legend-icon')[0].length + 3) * @legend_item_height
-
-    items = @legend.selectAll('g.filter_legend_item')
-      .data(d)
-    items.enter()
-      .append('g')
-      .attr('class', 'filter_legend_item legend_item')
-      .attr('label', (d) -> d)
-      .attr('transform', (d, i) -> "translate(10, #{offset + (i * h)})")
-
-    filter_checkboxes = items.append('rect')
-      .attr('height', 8).attr('width', 8)
-      .style('fill', (d) => if @_checked[d] then ZVG.flatUIColors["CARROT"] else ZVG.flatUIColors["CLOUDS"])
-      .attr('checked',(d) =>
-        if @_filters
-          d in @_filters or null
-        else
-          true
-      )
-
-    items.on('click', (d,i) =>
-      if @_checked[d]
-        @_checked[d] = false
-      else
-        @_checked[d] = true
-      @filter_data((key for key, condition of @_checked when condition))
-      @render()
-    )
-
-    items.append('text').attr('class', 'legend_text')
-      .text((d) -> d)
-      .style('alignment-baseline', 'middle')
-      .attr('transform', "translate(12, 5)")
-
-
-  #initialize_legend: ->
-  #@legend or= @container.append('div').attr('class', 'legend zvg-chart')
-  #.style('width', '200px')
-  #
-  initialize_legend: ->
-    @legend or= @svg.append('g')
-
-    # TEMP
-    @legend.selectAll('rect.test').data([1]).enter()
-      .append('rect')
-      .attr('width', @legend_width)
-      .attr('height', @height)
-      .style('stroke', 'none')
-      .style('fill', 'none')
-    #
-
-    @set_legend_x()
-
-  set_legend_x: ->
-    if @legend
-      @legend.attr('transform', "translate(#{@width},0)")
-
-
-
-
-  bind_value_group_click: ->
-    vg = @container.selectAll(@value_group_selector)
-    vg.on('click', (d) =>
-      if @freeze && @freeze == d.key
-        @freeze = null
-        @undim_all_values()
-      else
-        @freeze = d.key
-        @undim_all_values()
-        @dim_values_not_matching(d.key)
-    )
-
-  bind_value_group_hover: ->
-    vg = @container.selectAll(@value_group_selector)
-    vg.on('mouseover', (d) =>
-      @dim_values_not_matching(d.key) unless @freeze
-    ).on('mouseout', => @undim_all_values() unless @freeze)
-
-  undim_all_values: =>
-    @container.selectAll(@value_group_selector).style('opacity', 1)
-
-  dim_values_not_matching: (key) =>
-    @container.selectAll(@value_group_selector).filter((e) -> "#{e.key}" isnt "#{key}")
-      .style('opacity', 0.1)
 
   render_series_1_labels: ->
     @series_1_labels = @series_1_label_container.selectAll('text.series1label')
@@ -725,9 +773,10 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       ).style("text-anchor", if rotate is 0 then 'middle' else 'end')
       .text((d) =>
         sum = @series_2_label_sum(d)
-        #"#{@series_2_label_visibility(d.key)} (n = #{sum})"
+        d.n = sum
         (x for x in [@series_2_label_visibility(d.key), "(n = #{sum})"] when x).join(" ")
-      )
+      ).attr('fill', @n_threshold_color('gray'))
+
 
     @series_2_labels.on('click', (d,i) =>
       (@_checked[k] = false) for k, _ of @_checked when k isnt d.key
@@ -830,4 +879,3 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
         if prev and (prev.end > label.start)
           overlap = true
     return overlap
-

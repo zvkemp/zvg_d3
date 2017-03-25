@@ -3,7 +3,7 @@ require "bundler/gem_tasks"
 namespace :coffee do
   namespace :compile do
     task :default => :all
-    task :all => [:samples, :source] do
+    task :all => [:samples, :source, :spec] do
     end
 
     task :samples do
@@ -16,6 +16,12 @@ namespace :coffee do
       puts 'building source...'
       `mkdir -p js`
       `coffee -o js -c app/assets/javascripts`
+    end
+
+    task :spec do
+      puts 'building spec...'
+      `mkdir -p spec/js`
+      `coffee -o spec/js -c spec/coffee`
     end
   end
 end
