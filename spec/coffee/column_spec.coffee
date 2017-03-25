@@ -50,7 +50,7 @@ describe 'Charts::Column', ->
     it 'should allow data to be set and retrieved from the same function', ->
       column.data(data)
       expect(column.data()).toBeDefined()
-    
+
     it 'stores the original dataset', ->
       column.data(data)
       expect(column.raw_data).toBe(data)
@@ -65,7 +65,7 @@ describe 'Charts::Column', ->
       column.data(data)
       series_1_keys = (x.key for x in column.data())
       expect(series_1_keys).toEqual(['A', 'C', 'B'])
-  
+
     it 'sorts the second series', ->
       column.series_2_domain(['X', 'Y', 'Z'])
       column.data(data)
@@ -89,7 +89,7 @@ describe 'Charts::Column', ->
           expect(series_3_keys).toEqual(['1','2','3'])
 
     # it 'does not sort the third series when no sort order is defined', ->
-    # it makes little sense to test this, as the data should always be sorted 
+    # it makes little sense to test this, as the data should always be sorted
     # (ie, columns boxes should be in the correct order).
     # Should this raise an error when series_3_domain is undefined?
 

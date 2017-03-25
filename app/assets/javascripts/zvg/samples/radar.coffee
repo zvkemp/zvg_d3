@@ -1,43 +1,9 @@
-window.radar = new ZVG.Radar('body')
-
-### Data format has changed!
-window.simpleTestData = [
-  # Single survey, single filter, 5 questions
-  { series_1: 'Survey 1', series_2: 'all', question_id: 100, value: 4.5 }
-  { series_1: 'Survey 1', series_2: 'all', question_id: 200, value: 3.5 }
-  { series_1: 'Survey 1', series_2: 'all', question_id: 300, value: 4.1 }
-  { series_1: 'Survey 1', series_2: 'all', question_id: 400, value: 2.8 }
-  { series_1: 'Survey 1', series_2: 'all', question_id: 500, value: 2.1 }
-  
-  { series_1: 'Survey 1', series_2: 'Filter 2', question_id: 100, value: 3.5 }
-  { series_1: 'Survey 1', series_2: 'Filter 2', question_id: 200, value: 1.5 }
-  { series_1: 'Survey 1', series_2: 'Filter 2', question_id: 300, value: 2.1 }
-  { series_1: 'Survey 1', series_2: 'Filter 2', question_id: 400, value: 3.8 }
-  { series_1: 'Survey 1', series_2: 'Filter 2', question_id: 500, value: 3.1 }
-]
+buttons = d3.select('body').append('div').attr('id', 'buttons')
+chart = new ZVG.Radar('body')
+window.radar = chart
 
 window.moreComplexData = [
-  {series_1: 'Survey 1',series_2: "Filter 1", question_id: 100, value: 3.4941219999454916},
-  {series_1: 'Survey 1',series_2: "Filter 1", question_id: 200, value: 1.9292143830098212},
-  {series_1: 'Survey 1',series_2: "Filter 1", question_id: 300, value: 2.713041902985424},
-  {series_1: 'Survey 1',series_2: "Filter 1", question_id: 400, value: 1.5061968080699444},
-  {series_1: 'Survey 1',series_2: "Filter 1", question_id: 500, value: 5.406578453723341},
-  {series_1: 'Survey 1',series_2: "Filter 2", question_id: 100, value: 4.2298069428652525},
-  {series_1: 'Survey 1',series_2: "Filter 2", question_id: 200, value: 5.5519170253537595},
-  {series_1: 'Survey 1',series_2: "Filter 2", question_id: 300, value: 0.2769786645658314},
-  {series_1: 'Survey 1',series_2: "Filter 2", question_id: 400, value: 1.6917675621807575},
-  {series_1: 'Survey 1',series_2: "Filter 2", question_id: 500, value: 0.619645903352648},
-  {series_1: 'Survey 1',series_2: "Filter 3", question_id: 100, value: 4.02297692745924},
-  {series_1: 'Survey 1',series_2: "Filter 3", question_id: 200, value: 2.8029478769749403},
-  {series_1: 'Survey 1',series_2: "Filter 3", question_id: 300, value: 0.9199619614519179},
-  {series_1: 'Survey 1',series_2: "Filter 3", question_id: 400, value: 2.8409991916269064},
-  {series_1: 'Survey 1',series_2: "Filter 3", question_id: 500, value: 4.59977040393278}
-]
-###
-#
-
-window.moreComplexData = [
-  {"series_1":"SurveyA","series_2":"FilterA","series_3":1,"question_id":100,"count":292}
+  {"series_1":"SurveyA","series_2":"FilterA","series_3":1,"question_id":100,"count":5292}
   {"series_1":"SurveyA","series_2":"FilterA","series_3":2,"question_id":100,"count":146}
   {"series_1":"SurveyA","series_2":"FilterA","series_3":3,"question_id":100,"count":91}
   {"series_1":"SurveyA","series_2":"FilterA","series_3":4,"question_id":100,"count":190}
@@ -286,7 +252,7 @@ window.moreComplexData = [
   {"series_1":"SurveyD","series_2":"FilterA","series_3":2,"question_id":500,"count":136}
   {"series_1":"SurveyD","series_2":"FilterA","series_3":3,"question_id":500,"count":158}
   {"series_1":"SurveyD","series_2":"FilterA","series_3":4,"question_id":500,"count":151}
-  {"series_1":"SurveyD","series_2":"FilterA","series_3":5,"question_id":500,"count":172}
+  {"series_1":"SurveyD","series_2":"FilterA","series_3":5,"question_id":500,"count":2072}
   {"series_1":"SurveyD","series_2":"FilterB","series_3":1,"question_id":100,"count":38}
   {"series_1":"SurveyD","series_2":"FilterB","series_3":2,"question_id":100,"count":243}
   {"series_1":"SurveyD","series_2":"FilterB","series_3":3,"question_id":100,"count":163}
@@ -316,7 +282,7 @@ window.moreComplexData = [
   {"series_1":"SurveyD","series_2":"FilterC","series_3":2,"question_id":100,"count":133}
   {"series_1":"SurveyD","series_2":"FilterC","series_3":3,"question_id":100,"count":285}
   {"series_1":"SurveyD","series_2":"FilterC","series_3":4,"question_id":100,"count":71}
-  {"series_1":"SurveyD","series_2":"FilterC","series_3":5,"question_id":100,"count":117}
+  {"series_1":"SurveyD","series_2":"FilterC","series_3":5,"question_id":100,"count":9117}
   {"series_1":"SurveyD","series_2":"FilterC","series_3":1,"question_id":200,"count":45}
   {"series_1":"SurveyD","series_2":"FilterC","series_3":2,"question_id":200,"count":73}
   {"series_1":"SurveyD","series_2":"FilterC","series_3":3,"question_id":200,"count":154}
@@ -336,14 +302,23 @@ window.moreComplexData = [
   {"series_1":"SurveyD","series_2":"FilterC","series_3":2,"question_id":500,"count":96}
   {"series_1":"SurveyD","series_2":"FilterC","series_3":3,"question_id":500,"count":222}
   {"series_1":"SurveyD","series_2":"FilterC","series_3":4,"question_id":500,"count":66}
-  {"series_1":"SurveyD","series_2":"FilterC","series_3":5,"question_id":500,"count":66}
+  {"series_1":"SurveyD","series_2":"FilterC","series_3":5,"question_id":500,"count":66666}
 ]
 
-radar.series_1_domain(['Survey 1'])
-radar.series_2_domain("Filter #{n}" for n in [1..3])
-radar.series_3_domain("#{n}" for n in [100, 200, 300, 400, 500])
+radar.series_1_domain(['SurveyA', 'SurveyB', 'SurveyC', 'SurveyD'])
+radar.series_2_domain(['FilterA', 'FilterB', 'FilterC']) #"Filter #{n}" for n in [1..3])
+radar.series_3_domain("#{n}" for n in [100, 200, 300, 400, 500]) # question_ids
 radar.data(moreComplexData)
-radar.maxRadius(6)
-radar.setFilter('Filter 1')
+radar.maxRadius(5)
 radar.render()
 
+buttons.append('button')
+  .text('randomize')
+  .on('click', =>
+    chart.randomizeData())
+buttons.append('button')
+  .text('show percentages')
+  .on('click', => chart.render('percentage'))
+buttons.append('button')
+  .text('show counts')
+  .on('click', => chart.render('count'))
