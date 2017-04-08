@@ -5,6 +5,7 @@
   font-size: 10pt;
 }
 
+
 .column-label {
   color: white;
   fill: white;
@@ -19,6 +20,11 @@
   font-size: 9pt;
   text-anchor: start;
   font-weight: bold;
+}
+
+.filter_legend_text {
+  font-size: 9pt;
+  text-anchor: start;
 }
 
 .zvg {

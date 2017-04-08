@@ -249,7 +249,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     @series_3_labels.text(textFunction)
     @series_3_labels.style('font-size', (d) ->
       computeFontSize(this, valueHeightFunction(d))
-    )
+    ).style('alignment-baseline', 'middle')
 
   computeFontSize: (node, maxHeight) =>
     "#{d3.min([10, @column_band.rangeBand()/3, maxHeight])}pt"

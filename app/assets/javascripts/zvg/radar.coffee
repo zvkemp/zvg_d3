@@ -98,6 +98,7 @@ class ZVG.Radar extends ZVG.BasicChart
         .attr('text-anchor', host._anchor(x))
         .attr('fill', ZVG.flatUIColors['CONCRETE'])
         .attr('font-weight', 'bold')
+        .attr('style', 'font-size: 9pt;')
     )
 
     labels.exit().remove()
@@ -172,6 +173,7 @@ class ZVG.Radar extends ZVG.BasicChart
       .attr('alignment-baseline', 'middle')
       .attr('text-anchor', (d) -> d.anchor)
       .attr('font-weight', 'bold')
+      .attr('style', 'font-size: 10pt;')
       .attr('fill', text_color)
 
     n_texts = _group.selectAll('text.n_value').data(data, (d) -> d.key)
@@ -188,6 +190,7 @@ class ZVG.Radar extends ZVG.BasicChart
       .attr('y', (d) -> d.y + 12)
       .attr('alignment-baseline', 'middle')
       .attr('text-anchor', (d) -> d.anchor)
+      .attr('style', 'font-size: 9pt;')
       .attr('fill', text_color)
     group
 

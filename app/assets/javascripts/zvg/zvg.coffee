@@ -442,7 +442,7 @@ class ZVG.BasicChart
       d3.select(@).append('text').attr('class', 'legend_text')
         .text((d) -> d.text)
         .attr('x', 25)
-        .attr('y', height / 2 + 2)
+        .attr('y', (height / 2) + 5)
     )
 
   # The generic function. Feed chart-specific args in the main @apply_legend_elements function above.
@@ -563,7 +563,7 @@ class ZVG.BasicChart
     text = items.append('text').attr('class', 'filter_legend_text')
       .text((d) -> d)
       # .style('alignment-baseline', 'middle')
-      .attr('transform', "translate(12, 5)")
+      .attr('transform', "translate(12, 7)")
 
      # Toggle the filter when the text is clicked
     text.on('click', (d,i) =>
