@@ -298,9 +298,9 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     { series_1: 'Survey 3', series_2: 'Filter 2', series_3: 2, value: 300 }
   ]
 
-  series_2_label_sum: (d) ->
+  series_2_label_sum: (d, series_1) ->
     if @_custom_n_values
-      @n_values[d.series_1][d.key]
+      @n_values[series_1 or d.series_1][d.key]
     else
       super(d)
 

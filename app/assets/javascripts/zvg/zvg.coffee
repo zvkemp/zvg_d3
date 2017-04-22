@@ -615,9 +615,9 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
 
   _hide_columns_below_n: (n) ->
     columns_are_hidden = false
-    n_value = @series_2_label_sum
+    host = @
     select_columns_above = (n, data) ->
-      values = data.values.filter((v) -> n_value(v) >= n)
+      values = data.values.filter((v) -> host.series_2_label_sum(v, data.key) >= n)
       columns_are_hidden = true if values.length < data.values.length
       { key: data.key, values: values }
     @_data = (d for d in (select_columns_above(n, d) for d in @_data) when d.values.length > 0)
