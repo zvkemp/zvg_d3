@@ -1,90 +1,4 @@
 window.ZVG = {
-  stylesheet: """
-    .column-label, .series1label, .series2label, .legend_text {
-      font-family: arial, sans-serif;
-      font-weight: bold;
-      text-anchor: middle;
-      font-size: 10pt;
-    }
-
-    .column-label {
-      color: white;
-      fill: white;
-    }
-
-    .series2label {
-      font-size: 9pt;
-      font-weight: normal;
-    }
-
-    .legend_text {
-      font-size: 9pt;
-      text-anchor: start;
-      font-weight: bold;
-    }
-
-    .zvg {
-      display: table;
-    }
-
-    .zvg-container {
-      display: table-row;
-    }
-
-    .zvg-chart {
-      display: table-cell;
-      margin: 10px;
-      vertical-align: top;
-
-    }
-
-    .zvg-point-shape {
-      stroke: white;
-      stroke-width: 1pt;
-    }
-
-    .series2 text {
-      font-size: 8pt;
-    }
-
-    .legend_item {
-      padding-left: 10px;
-      padding-bottom: 5px;
-    }
-
-    .legend_item, .vg {
-      cursor: pointer;
-    }
-
-    .filter_legend_item > .legend_text {
-      padding-left: 5px;
-    }
-
-    .scale_line {
-      stroke-dasharray: 2 8;
-    }
-
-    .scale_label, .key_label {
-      font-family: helvetica, arial, sans-serif;
-      font-weight: bold;
-    }
-
-    text.zvg-point-label {
-      font-size: 11pt;
-      text-anchor: start;
-      font-weight: bold;
-    }
-
-    text.zvg-point-label-small {
-      text-anchor: start;
-    }
-
-    text.key_label {
-      font-size: 10pt;
-      alignment-baseline: middle;
-    }
-    """
-
   flatUIColors: {
     # from http://designmodo.github.io/Flat-UI/
     'TURQUOISE': '#1ABC9C'
@@ -161,8 +75,6 @@ window.ZVG = {
   }
 }
 
-
-
 ZVG.Utilities = {
   splitString: (string, n_lines = 2) ->
     words = string.split(' ')
@@ -194,7 +106,6 @@ ZVG.Utilities = {
         #s.each((d, i) -> console.log(n, { l: @getComputedTextLength(), s: d }))
     #console.log(results)
     [string]
-
 }
 
 class ZVG.BackgroundGradient
@@ -213,27 +124,6 @@ class ZVG.BackgroundGradient
       .attr('offset', '110%')
       .attr('stop-color', '#777')
       .attr('stop-opacity', 1)
-#    @shadow = svg.select('defs')
-#      .append('filter')
-#      .attr('id', 'drop_shadow')
-#      .attr('x', 0)
-#      .attr('y', 0)
-#      .attr('width', '200%')
-#      .attr('height', '200%')
-#    @shadow.append('feOffset')
-#      .attr('result', 'offOut')
-#      .attr('in', 'SourceAlpha')
-#      .attr('dx', 2)
-#      .attr('dy', 2)
-#    @shadow.append('feGaussianBlur')
-#      .attr('result', 'blurOut')
-#      .attr('in', 'offOut')
-#      .attr('stdDeviation', 20)
-#    @shadow.append('feBlend')
-#      .attr('in', 'SourceGraphic')
-#      .attr('in2', 'blurOut')
-#      .attr('mode', 'normal')
-#
 
 ZVG.backgroundColor = ZVG.flatUIColors['CLOUDS']
 
@@ -244,11 +134,6 @@ class ZVG.Background
     backgroundGroup = svg.append('g')
     @background = backgroundGroup.append('rect')
       .style('fill', ZVG.backgroundColor)
-      #.style('fill', ZVG.flatUIColors['CLOUDS'])
-      #.style('stroke', ZVG.flatUIColors['SILVER'])
-      #.style('stroke-width', '1px')
-      # .style('fill', 'url(#standardBackgroundGradient)')
-      #.style('fill', ZVG.flatUIColors['MIDNIGHT BLUE'])
       .attr('height', height)
       .attr('width', width)
       .attr('rx', radius)
@@ -266,8 +151,7 @@ class ZVG.PointShape
     attrs or= {}
     @attrs[key] = value for key, value of attrs
     @render()
-    # d3.select(@container).append('text').text(label) if label
-    #
+
   defaults: -> { x: 0, y: 0, r: 8 }
 
   render: ->
@@ -336,7 +220,6 @@ class ZVG.BasicChart
   constructor: (element = 'body') ->
     @element = element
     @initializeSvg(element)
-    #@initializeStylesheet()
     @_n_threshold = 0
 
   default_warning_color: ZVG.flatUIColors['ALIZARIN']
@@ -389,9 +272,6 @@ class ZVG.BasicChart
       .attr('height', @height + 200).attr('width', @width + 200)
     @renderBackgroundRectangle()
     @background = (new ZVG.Background(@svg, @height, @width, 0)).background
-
-  initializeStylesheet: ->
-    @svg.append('style').text(ZVG.stylesheet)
 
   # a white cover that backgrounds everything (distinct from gray background rectangle)
   renderBackgroundRectangle: ->
@@ -449,18 +329,7 @@ class ZVG.BasicChart
   _apply_legend_elements: (selection, height, each_function) ->
     selection.attr('transform', (_, i) -> "translate(0, #{i * height})")
       .append('rect').attr('width', @legend_width).attr('height', height).style('fill', 'white').style('stroke', 'none')
-
     r = selection.each(each_function) # apply the square thingy
-    # selection.append('g')
-    #   .attr('class', 'legend-icon')
-    #   .attr('x', 10)
-    #   .attr('y', height/2)
-    #   .each(each_function)
-    #   .append('text').attr('class', 'legend_text')
-    #   .text((d) -> d.text)
-    #   .attr('x', 10)
-    #   #.attr('transform', "translate(10, 3)")
-    #   # .attr('alignment-baseline', 'middle')
 
   render: (args...) ->
     @beforeRender()
