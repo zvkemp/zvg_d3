@@ -4,7 +4,7 @@ class ZVG.Verbatim
     @_series_header  = options.series_header or "series_title"
     @_filter_header  = options.filter_header or "filter_title"
     @_tag_header     = options.tag_header or "tag_title"
-    @extra_td_callback = options.extra_td_callback or ((d) -> null)
+    @_currentMetadata = {}
     @initializeQuestionTable()
 
     @_page          = 1
@@ -14,10 +14,11 @@ class ZVG.Verbatim
 
   render: (options = {}, callback) ->
     dataFilter = @constructDataFilter(options)
-    filtered = dataFilter(@displayData())
-    @paginate(options.page, filtered.length)
+    filtered = dataFilter(@displayData(options))
+    @data(filtered)
+    @paginate(options.page, @_currentMetadata.total_count or filtered.length)
     rows = @question_table.selectAll('tr.response')
-      .data(filtered.slice((@_page - 1) * @_perPage, @_perPage * @_page))
+      .data(@data())
 
     rows.enter()
       .append('tr')
@@ -44,8 +45,6 @@ class ZVG.Verbatim
       .append('span').attr('class', 'tag')
 
     tag_spans.text((d) -> d)
-    extra = rows.append('td')
-    @extra_td_callback(extra)
     @renderCallback(@)
 
   renderTags: (container, tag_list) ->
@@ -67,23 +66,24 @@ class ZVG.Verbatim
     @question_table  = d3.select(@container).append('table').attr('class', 'verbatim')
     @control_row     = @question_table.append('tr').attr('class', 'controls')
 
-    @series_cell     = @control_row.append('td')
+    @series_cell     = @control_row.append('td').attr('class', 'zvg_series')
     @series_title    = @series_cell.append('h5').text(@_series_header).attr('class', 'verb_selector_title')
     @series_selector = @series_cell.append('select').attr('name', 'series_selector')
-    @filter_cell     = @control_row.append('td')
+    @filter_cell     = @control_row.append('td').attr('class', 'zvg_series')
     @filter_title    = @filter_cell.append('h5').text(@_filter_header).attr('class', 'verb_selector_title')
     @filter_selector = @filter_cell.append('select').attr('name', 'filter_selector')
-    @tag_cell        = @control_row.append('td')
+    @tag_cell        = @control_row.append('td').attr('class', 'zvg_series_wide')
     @tag_title       = @tag_cell.append('h5').text(@_tag_header).attr('class', 'verb_selector_title')
     @tag_selector    = @tag_cell.append('select').attr('name', 'tag_selector')
-    @control_row.append('td') # for extra td
-
 
   constructDataFilter: (options) ->
+    @filterOpts = options
     s = options.series_1 if options.series_1 && options.series_1 != '[all]'
     f = options.series_2 if options.series_2 && options.series_2 != '[all]'
     t = options.tag if options.tag && options.series_2 != '[all]'
 
+    return (d) -> d
+    # TODO: remove the rest, filtering now happens on server
     (d) ->
       d.filter((e) -> if s then e.series_1 == s else e)
         .filter((e) -> if f then e.series_2 == f else e)
@@ -95,11 +95,18 @@ class ZVG.Verbatim
   data: (d) ->
     if d
       @_data = (x for x in d when x.question == @question_id)
-      @seriesDomain(d3.scale.ordinal().domain(x.series_1 for x in @_data).domain())
-      @filterDomain(d3.scale.ordinal().domain(x.series_2 for x in @_data).domain())
-      @tagDomain(d3.scale.ordinal().domain((x.tags for x in @_data).reduce(((x, y) -> x.concat(y)), [])).domain())
+      if @_currentMetadata
+        @seriesDomain(d3.scale.ordinal().domain(x for x, y of @_currentMetadata.primary_filter_counts).domain())
+        @filterDomain(d3.scale.ordinal().domain(x for x, y of @_currentMetadata.secondary_filter_counts).domain())
+        @tagDomain(d3.scale.ordinal().domain(@metadataTags()).domain())
+      else
+        @seriesDomain(d3.scale.ordinal().domain(x.series_1 for x in @_data).domain())
+        @filterDomain(d3.scale.ordinal().domain(x.series_2 for x in @_data).domain())
       return @
     @_data
+
+  metadataTags: ->
+    (@_currentMetadata.tags or {})[@question_id] or []
 
   getData: (source) =>
     d3.json(source, (error, json) =>
