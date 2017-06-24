@@ -201,6 +201,9 @@ class ZVG.Radar extends ZVG.BasicChart
     @container.selectAll(@value_group_selector).style('opacity', 1)
     @container.selectAll('.label-hover').style('opacity', 0)
 
+  _polygonDataPoints: (amplitude, domainIndex) ->
+    @convertToXY(amplitude, domainIndex)
+
   polygonData: ->
     # Map data to objects:
     # 1. Nest and filter data based on current filter selections
@@ -236,7 +239,7 @@ class ZVG.Radar extends ZVG.BasicChart
         means = (meanValue(valuesHash[s3]) for s3 in @series_3_domain())
         {
           key: d.key
-          points: (@convertToXY(v,index) for v,index in means)
+          points: (self._polygonDataPoints(v, index, d.key) for v,index in means)
           values: means
           n_values: n_values
         }

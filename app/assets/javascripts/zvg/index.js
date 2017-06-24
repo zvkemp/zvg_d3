@@ -3,3 +3,4 @@
 //= require ./column
 //= require ./point
 //= require ./radar
+//= require ./rose
