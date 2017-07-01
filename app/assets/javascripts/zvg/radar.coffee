@@ -201,6 +201,9 @@ class ZVG.Radar extends ZVG.BasicChart
     @container.selectAll(@value_group_selector).style('opacity', 1)
     @container.selectAll('.label-hover').style('opacity', 0)
 
+  _polygonDataPoints: (amplitude, domainIndex) ->
+    @convertToXY(amplitude, domainIndex)
+
   polygonData: ->
     # Map data to objects:
     # 1. Nest and filter data based on current filter selections
@@ -236,7 +239,7 @@ class ZVG.Radar extends ZVG.BasicChart
         means = (meanValue(valuesHash[s3]) for s3 in @series_3_domain())
         {
           key: d.key
-          points: (@convertToXY(v,index) for v,index in means)
+          points: (self._polygonDataPoints(v, index, d.key, n_values) for v,index in means)
           values: means
           n_values: n_values
         }
@@ -275,8 +278,11 @@ class ZVG.Radar extends ZVG.BasicChart
       .domain([0,@series3Length()]) # index includes an extra value to prevent overlapping of first and last real values.
       .range([-2.5 * Math.PI, -0.5 * Math.PI]) # should start at 90 degrees and proceed clockwise for a full circle.
 
+  # Prevents zero-width polygon arms, i.e. if amplitudes are e.g. [0, 4.2, 0, 2, 1]
+  minimumAmplitude: 0.1
+
   convertToXY: (amplitude, domainIndex) ->
-    amplitude = 0.1 if amplitude == 0
+    amplitude = @minimumAmplitude if amplitude == 0
     angle = @angularDomain(domainIndex)
     radius = @radialDomain(amplitude)
     x = radius * Math.cos(angle)
