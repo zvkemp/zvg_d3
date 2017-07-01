@@ -6,6 +6,8 @@ class ZVG.Rose extends ZVG.Radar
     end = @convertToXY(amplitude, domainIndex)
     [start, middleA, end, middleB]
 
+  minimumAmplitude: 0
+
   renderSeries: ->
     host = @
     pg_data = @polygonData()
@@ -28,15 +30,13 @@ class ZVG.Rose extends ZVG.Radar
     polygons.attr('label', (d) -> d.key)
       .transition().duration(500)
       .attr('d', (d) => @polygon(d.points))
-      .style('stroke', (d) =>
-        # FIXME
-        # t = @_n_threshold
-        # mock_n = if d.n_values.some((n) -> n < t)
-        #   0
-        # else
-        #   d.n_values[0]
-        # @n_threshold_color('white')({ n: mock_n })
-        'white'
+      .style('stroke', (d, i) =>
+        t = @_n_threshold
+        mock_n = if d.n_value < t
+          0
+        else
+          d.n_value
+        @n_threshold_color('white')({ n: mock_n })
       ).style('fill', (d) => @colors(d.key))
 
     hover_label_groups = @polygons.selectAll('g.label-hover')
@@ -50,5 +50,5 @@ class ZVG.Rose extends ZVG.Radar
 
     polygons.exit().remove()
 
-  _polygonDataPoints: (amplitude, domainIndex, key) ->
-    { key: key, points: @petal_points(amplitude, domainIndex) }
+  _polygonDataPoints: (amplitude, domainIndex, key, n_values) ->
+    { key: key, n_value: n_values[domainIndex], points: @petal_points(amplitude, domainIndex) }
