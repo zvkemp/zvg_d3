@@ -106,7 +106,10 @@ class ZVG.Verbatim
     @_data
 
   metadataTags: ->
-    (@_currentMetadata.tags or {})[@question_id] or []
+    key for key, _ of @metadataTagCounts()
+
+  metadataTagCounts: ->
+    (@_currentMetadata.tags or {})[@question_id] or {}
 
   getData: (source) =>
     d3.json(source, (error, json) =>
@@ -148,9 +151,10 @@ class ZVG.Verbatim
     @_perPage
 
   appendSelectorOptions: (selector, domain) ->
+    host = @
     s = selector.selectAll('option').data(['[all]'].concat(domain))
     s.enter().append('option')
-    s.attr('value', (d) -> d) .text((d) -> d)
+    s.attr('value', (d) -> d).text((d) -> "#{d}#{host._tagCountString(d)}")
     s.exit().remove()
 
     selector.on('change', =>
@@ -158,6 +162,15 @@ class ZVG.Verbatim
       @render(@currentSelectedOptions())
       (selector.callback or (->))()
     )
+
+  _tagCount: (tag) ->
+    @metadataTagCounts()[tag]
+
+  _tagCountString: (tag) ->
+    if count = @_tagCount(tag)
+      " (#{count})"
+    else
+      ''
 
   currentSelectedOptions: ->
     {
