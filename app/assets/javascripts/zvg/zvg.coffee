@@ -233,10 +233,11 @@ class ZVG.BasicChart
 
   data: (d) ->
     if d
-      @raw_data = d
-      _series_2_raw_domain = {}
-      (_series_2_raw_domain[e.series_2] = 1) for e in @raw_data
-      @_series_2_raw_domain = (key for key, _ of _series_2_raw_domain)
+      @raw_data or= d
+      unless @_series_2_raw_domain
+        _series_2_raw_domain = {}
+        (_series_2_raw_domain[e.series_2] = 1) for e in d
+        @_series_2_raw_domain = (key for key, _ of _series_2_raw_domain)
       @_data = @nestData(d)
       return @
     @_data
