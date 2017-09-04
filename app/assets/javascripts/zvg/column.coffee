@@ -274,7 +274,14 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       .attr('opacity', 1)
 
   percentScale: d3.scale.linear().range([0,1])
-  percentFormat: d3.format('.0%')
+  _defaultPercentFormat: d3.format('.0%')
+  _increasedPrecisionPrecentFormat: d3.format('.1%')
+  percentFormat: (n) ->
+    if n < 0.005
+      @_increasedPrecisionPrecentFormat(n)
+    else
+      @_defaultPercentFormat(n)
+
   countFormat: d3.format('.0')
 
   initializeY: ->
