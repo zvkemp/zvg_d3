@@ -233,10 +233,11 @@ class ZVG.BasicChart
 
   data: (d) ->
     if d
-      @raw_data = d
-      _series_2_raw_domain = {}
-      (_series_2_raw_domain[e.series_2] = 1) for e in @raw_data
-      @_series_2_raw_domain = (key for key, _ of _series_2_raw_domain)
+      @raw_data or= d
+      unless @_series_2_raw_domain
+        _series_2_raw_domain = {}
+        (_series_2_raw_domain[e.series_2] = 1) for e in d
+        @_series_2_raw_domain = (key for key, _ of _series_2_raw_domain)
       @_data = @nestData(d)
       return @
     @_data
@@ -530,17 +531,15 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @series_3_domain().sort((x, y) -> x > y)
 
   legend_data: ->
-    # TODO: FIXME
     try
       #This version pulls the present values out
-      ({ key: x, text: (@legend_labels()[x] or "_value_#{x}")} for x in @sortedS3Domain()).reverse()
+      ({ key: x, text: (@legend_labels()[x] or "_value_#{x}")} for x in @series_3_domain()).reverse()
 
       # This one uses all legend labels, whether they are represented by the data or not.
       # ({ key: key, text: text } for key, text of @legend_labels()).reverse()
     catch e
       console.info(e)
       []
-
 
   renderUnstableLegend: =>
     return unless @_show_unstable_legend
