@@ -294,7 +294,6 @@ class ZVG.BasicChart
 
   initialize_legend: ->
     @legend or= @svg.append('g')
-
     # TEMP
     @legend.selectAll('rect.test').data([1]).enter()
       .append('rect')
@@ -302,8 +301,7 @@ class ZVG.BasicChart
       .attr('height', @height)
       .style('stroke', 'none')
       .style('fill', 'none')
-    #
-
+      .attr('class', 'test')
     @set_legend_x()
 
   set_legend_x: ->
@@ -522,7 +520,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @widen_chart((@width - @x_offset) + 100) if @column_band.rangeBand() < @minimum_column_width
 
   render_series_1: ->
-    @series_1 = @svg.selectAll('.series1').data(@_data)
+    @series_1 = @svg.selectAll('.series1').data(@_data, (d) -> d.key)
     @series_1.enter().append('g').attr('class', 'series1')
     @series_1.attr('transform', (d,i) => "translate(#{@series_1_x[i]}, 0)")
     @series_1.exit().remove()
