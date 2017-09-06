@@ -358,6 +358,14 @@ class ZVG.BasicChart
   _hide_columns_below_n: () ->
   renderUnstableLegend: () ->
 
+  _nValueFloatFormatter = d3.format('.1f')
+
+  nValueFormatter: (val) ->
+    if Number.isInteger(val)
+      "(n = #{val})"
+    else
+      "(n = #{_nValueFloatFormatter(val)})"
+
   bind_value_group_click: ->
     vg = @container.selectAll(@value_group_selector)
     vg.on('click', @_value_group_click)
@@ -640,7 +648,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       .text((d) =>
         sum = @series_2_label_sum(d)
         d.n = sum
-        (x for x in [@series_2_label_visibility(d.key), "(n = #{sum})"] when x).join(" ")
+        (x for x in [@series_2_label_visibility(d.key), @nValueFormatter(sum)] when x).join(" ")
       ).attr('fill', @n_threshold_color('gray'))
 
 

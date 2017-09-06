@@ -184,7 +184,7 @@ class ZVG.Radar extends ZVG.BasicChart
         if d.n <= 0
           ''
         else
-          "(n = #{d.n})"
+          host.nValueFormatter(d.n)
       )
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y + 12)
