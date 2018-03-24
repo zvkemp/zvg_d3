@@ -36,7 +36,7 @@ class ZVG.Radar extends ZVG.BasicChart
 
   value_group_selector: ".vg"
 
-  legend_width: 400
+  legend_width: 0
 
   polygon: d3.svg.line()
     .x((d) -> d.x)
