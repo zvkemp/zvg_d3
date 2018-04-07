@@ -65,6 +65,7 @@
 }
 
 .scale_line {
+  fill: none;
   stroke-dasharray: 2 8;
 }
 
