@@ -1,5 +1,5 @@
 .column-label, .series1label, .series2label, .legend_text {
-  font-family: arial, sans-serif;
+  font-family: 'Source Sans Pro', arial, sans-serif;
   font-weight: bold;
   text-anchor: middle;
   font-size: 10pt;
@@ -70,7 +70,7 @@
 }
 
 .scale_label, .key_label {
-  font-family: helvetica, arial, sans-serif;
+  font-family: 'Source Sans Pro', helvetica, arial, sans-serif;
   font-weight: bold;
   font-size: 11pt;
 }
