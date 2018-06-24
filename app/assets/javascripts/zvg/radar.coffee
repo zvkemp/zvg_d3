@@ -72,6 +72,15 @@ class ZVG.Radar extends ZVG.BasicChart
 
   round2 = d3.format('.2f')
   round3 = d3.format('.3f')
+  percent1 = d3.format('.1%')
+
+  labelFormatter: (val) -> (@_labelFormatter or round2)(val)
+  setLabelFormat: (formatter) ->
+    if typeof(formatter) is 'function'
+      @_labelFormatter = formatter
+    else
+      @_labelFormatter = d3.format(formatter)
+
 
   _anchor: (x) ->
     if x == 0
@@ -155,7 +164,7 @@ class ZVG.Radar extends ZVG.BasicChart
       vals = host.convertToXY(v + (host.maxRadius() * 0.05), i)
       {
         key: i,
-        display: if v > 0 then round2(v) else '',
+        display: if v > 0 then host.labelFormatter(v) else '',
         x: vals.x,
         y: vals.y,
         n: _group.datum().n_values[i],
