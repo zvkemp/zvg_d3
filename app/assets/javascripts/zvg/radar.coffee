@@ -138,7 +138,8 @@ class ZVG.Radar extends ZVG.BasicChart
       .attr('d', (d) => @polygon(d.points))
       .style('stroke', (d) =>
         t = @_n_threshold
-        mock_n = if d.n_values.some((n) -> n < t)
+        # checking n > 0 ensures that missing data doesn't spoil the rest of the plot
+        mock_n = if d.n_values.some((n) -> n > 0 and n < t)
           0
         else
           d.n_values[0]
