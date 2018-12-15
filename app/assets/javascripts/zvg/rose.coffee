@@ -18,6 +18,8 @@ class ZVG.Rose extends ZVG.Radar
       .append('g')
       .attr('class', "pgroup #{@value_group_selector.substr(1,100)}")
 
+    polygon_groups.exit().remove()
+
     polygons = polygon_groups.selectAll('path.polygon')
       .data((d) -> d.points)
 
