@@ -221,6 +221,7 @@ class ZVG.BasicChart
     @element = element
     @initializeSvg(element)
     @_n_threshold = 0
+    @_labelFormatter = (d) -> d
 
   default_warning_color: ZVG.flatUIColors['ALIZARIN']
 
@@ -473,3 +474,11 @@ class ZVG.BasicChart
       @_data = @nestData(x for x in @raw_data when x.series_2 in filters)
     else
       @data(@raw_data)
+
+  # labelFormatter used by radar, rose, point charts to format continuous data axis labels
+  labelFormatter: (val) -> (@_labelFormatter)(val)
+  setLabelFormat: (formatter) ->
+    if typeof(formatter) is 'function'
+      @_labelFormatter = formatter
+    else
+      @_labelFormatter = d3.format(formatter)

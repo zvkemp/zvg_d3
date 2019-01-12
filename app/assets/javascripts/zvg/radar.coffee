@@ -1,6 +1,11 @@
 class ZVG.Radar extends ZVG.BasicChart
+  round2 = d3.format('.2f')
+  round3 = d3.format('.3f')
+  percent1 = d3.format('.1%')
+
   constructor: (args...) ->
     super(args...)
+    @_labelFormatter = round2
 
   _render: ->
     @initializeCenterGroup() unless @center # prevent multiple base group appends when re-rendering
@@ -69,18 +74,6 @@ class ZVG.Radar extends ZVG.BasicChart
     webs.attr('d', @polygon)
     commonAxesStyles(webs)
     @axesRendered = true
-
-  round2 = d3.format('.2f')
-  round3 = d3.format('.3f')
-  percent1 = d3.format('.1%')
-
-  labelFormatter: (val) -> (@_labelFormatter or round2)(val)
-  setLabelFormat: (formatter) ->
-    if typeof(formatter) is 'function'
-      @_labelFormatter = formatter
-    else
-      @_labelFormatter = d3.format(formatter)
-
 
   _anchor: (x) ->
     if x == 0

@@ -194,7 +194,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       .attr('text-anchor', 'middle')
     labels.attr('x', @x_offset/2)
       .attr('y', @value_domain)
-      .text((d) -> d)
+      .text(@_labelFormatter)
     labels.exit().remove()
 
     scale_obj = @_strict_scale or @_key_scale or {}
@@ -259,7 +259,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       selection = d3.select(this)
       selection.append('text')
         .attr('class', 'zvg-point-label label-hover series2label')
-        .text(d3.round(d.values.average, 1))
+        .text(host.labelFormatter(d3.round(d.values.average, 1)))
         .attr('fill', (d) -> host.n_threshold_color('gray')(d.values))
         .attr('transform', "translate(9,0)")
         .datum(d.key)
