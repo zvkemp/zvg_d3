@@ -125,6 +125,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @render_legend()
     @bind_value_group_hover()
     @bind_value_group_click()
+    @widenAxis()
 
   minimum_column_width: 32
   x_offset: 30
@@ -151,6 +152,19 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       .attr('height', @height)
       .style('stroke', 'none')
       .style('fill', ZVG.flatUIColors['CONCRETE'])
+    @y_scale_labels = @y_scale.append('g').attr('class', 'labelGroup')
+
+  widenAxis: () ->
+    try
+      target_width = d3.max(@y_scale_labels.selectAll('text')[0].map((e) => e.getBBox().width)) + 1
+      # target_width = d3.round(@y_scale_labels[0][0].getBBox().width)
+      if target_width <= @x_offset
+        return
+      @x_offset = target_width
+      @y_scale.select('rect').attr('width', @x_offset)
+      @_render()
+    catch e
+      console.error(e)
 
   # if the minimum value isn't shown on the scale, add a 0 at the bottom.
   ticks: ->
@@ -185,7 +199,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       .transition().duration(1000).attr('x2', @width)
     lines.exit().remove()
 
-    labels = @y_scale.selectAll('text.scale_label').data(@ticks())
+    labels = @y_scale_labels.selectAll('text.scale_label').data(@ticks())
     labels.enter()
       .append('text').attr('class', 'scale_label')
       .style('fill', ZVG.flatUIColors['CLOUDS'])
