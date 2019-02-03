@@ -221,7 +221,7 @@ class ZVG.BasicChart
     @element = element
     @initializeSvg(element)
     @_n_threshold = 0
-    @_labelFormatter = (d) -> d
+    @_labelFormatter = d3.format('0.1f')
 
   default_warning_color: ZVG.flatUIColors['ALIZARIN']
 
