@@ -114,13 +114,14 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   _render: ->
     @reset_width()
     @set_series_1_spacing()
-    @render_series_1()
+    @set_series_2_shapes_and_colors()
     @build_value_domain()
+    @render_series_2_lines() if @render_series_2_lines
+    @render_series_1()
     @render_y_scale()
     @render_series_1_labels()
     @render_series_2_labels() # series 3 for this chart
     @render_series_3()
-    @set_series_2_shapes_and_colors()
     @render_series_2()
     @render_legend()
     @bind_value_group_hover()
@@ -256,6 +257,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
 
 
+  _shape_callback: () ->
 
   render_series_2: ->
     @series_2 = @series_3.selectAll('.series2').data((d) -> d.values)
@@ -267,9 +269,10 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     colors = @series_2_colors
     shapes = @series_2_shapes
     host   = @
+    shape_callback = @_shape_callback
     @series_2.each((d) ->
       d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
-      new (shapes[d.key])(this, colors[d.key], {})
+      shape_callback(new (shapes[d.key])(this, colors[d.key], {}))
       selection = d3.select(this)
       selection.append('text')
         .attr('class', 'zvg-point-label label-hover series2label')
@@ -325,9 +328,13 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       label
 
   dim_values_not_matching: (key) =>
-    @container.selectAll(@value_group_selector).filter((e) -> e.key != key)
+    @container.selectAll(@value_group_selector)
+      .filter((e) -> e.key != key)
       .style('opacity', 0.1)
-    @container.selectAll('.label-hover').filter((e) -> e is key).style('opacity', 1)
+
+    @container.selectAll('.label-hover')
+      .filter((e) -> e is key or e.key is key)
+      .style('opacity', 1)
 
   undim_all_values: =>
     @container.selectAll(@value_group_selector).style('opacity', 1)

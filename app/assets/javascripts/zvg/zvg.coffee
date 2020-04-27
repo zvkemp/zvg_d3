@@ -155,7 +155,7 @@ class ZVG.PointShape
   defaults: -> { x: 0, y: 0, r: 8 }
 
   render: ->
-    @apply_standard_attributes(@render_object())
+    @selection = @apply_standard_attributes(@render_object())
 
   apply_standard_attributes: (obj) ->
     obj.attr('class', 'zvg-point-shape')

@@ -3,6 +3,7 @@
 //= require ./verbatim
 //= require ./column
 //= require ./point
+//= require ./line
 //= require ./multi_point
 //= require ./radar
 //= require ./rose

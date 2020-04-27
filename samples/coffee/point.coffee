@@ -4,7 +4,6 @@ buttons = d3.select('body').append('div')
 chart = new ZVG.Point('body')
 window.chart = chart
 
-
 sample_data = [ # single question
   {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 1,value: 660},
   {series_1: "Survey 1",series_2: "Filter 1",question_id: 100,series_3: 2,value: 20},
@@ -30,7 +29,7 @@ sample_data = [ # single question
   {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 3,value: 93},
   {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 4,value: 62},
   {series_1: "Survey 2",series_2: "Filter 1",question_id: 100,series_3: 5,value: 81},
-  
+
   {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 1,value: 47},
   {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 2,value: 17},
   {series_1: "Survey 2",series_2: "Filter 2",question_id: 100,series_3: 3,value: 420},
@@ -55,14 +54,14 @@ sample_data = [ # single question
   {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 3,value: 1800},
   {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 4,value: 72},
   {series_1: "Survey 3",series_2: "Filter 2",question_id: 100,series_3: 5,value: 82},
-  
+
   {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 1,value: 80},
   {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 2,value: 57},
   {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 3,value: 29},
   {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 4,value: 510},
   {series_1: "Survey 3",series_2: "Filter 3",question_id: 100,series_3: 5,value: 180},
 
-  
+
   {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 1,value: 270},
   {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 2,value: 920},
   {series_1: "Survey 4",series_2: "Filter 1",question_id: 100,series_3: 3,value: 15},

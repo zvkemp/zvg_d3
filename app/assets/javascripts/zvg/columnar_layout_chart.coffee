@@ -39,6 +39,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
   set_series_1_spacing: ->
     @series_1_width      = []
     @series_1_x          = []
+    @series_1_x_by_key   = {}
     scale                = d3.scale.ordinal().domain(@series_1_domain())
     ranges               = {}
     total_column_count   = 0
@@ -53,6 +54,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
         w = @column_spacing * (d.values.length + 1)
         @series_1_width[i] = w - @series_padding * 2
         @series_1_x[i] = current_x + @series_padding
+        @series_1_x_by_key[d.key] = current_x + @series_padding
         current_x += w
     @column_band = d3.scale.ordinal()
       .domain([0...maxCount])

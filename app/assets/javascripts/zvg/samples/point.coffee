@@ -1,7 +1,7 @@
 buttons = d3.select('body').append('div')
   .attr('id', 'buttons')
 
-chart = new ZVG.Point('body')
+chart = new ZVG.Line('body')
 window.point = chart
 
 

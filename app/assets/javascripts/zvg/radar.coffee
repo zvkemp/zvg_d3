@@ -138,7 +138,10 @@ class ZVG.Radar extends ZVG.BasicChart
           d.n_values[0]
 
         @n_threshold_color('white')({ n: mock_n })
-      ).style('fill', (d) => @colors(d.key))
+      ).style('fill', (d) =>
+        debugger
+        @colors(d.key)
+      )
 
     hover_label_groups = @polygons.selectAll('g.label-hover')
       .data(pg_data)
