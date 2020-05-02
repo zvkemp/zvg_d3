@@ -139,7 +139,6 @@ class ZVG.Radar extends ZVG.BasicChart
 
         @n_threshold_color('white')({ n: mock_n })
       ).style('fill', (d) =>
-        debugger
         @colors(d.key)
       )
 
