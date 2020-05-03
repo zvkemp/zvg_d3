@@ -72,10 +72,17 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       return @
     @_max_value
 
+  series_2_label_visibility = (label) ->
+    if @series_3_domain().length is 1
+      ""
+    else
+      label
+
   constructor: (element, options = {}) ->
     super(element, options)
     @initialize_y_scale()
-    window.p = @
+    # unclear why this is necessary. N
+    @series_2_label_visibility = series_2_label_visibility
 
   nestData: (data) ->
     _max_value = 0
@@ -272,7 +279,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     shape_callback = @_shape_callback
     @series_2.each((d) ->
       d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
-      shape_callback(new (shapes[d.key])(this, colors[d.key], {}))
+      shape_callback(host, new (shapes[d.key])(this, colors[d.key], {}))
       selection = d3.select(this)
       selection.append('text')
         .attr('class', 'zvg-point-label label-hover series2label')
@@ -321,12 +328,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   series_2_label_sum: (d) ->
     d3.sum((value.values.n or 0) for value in d.values)
 
-  series_2_label_visibility: (label) ->
-    if @series_3_domain().length is 1
-      ""
-    else
-      label
-
   dim_values_not_matching: (key) =>
     @container.selectAll(@value_group_selector)
       .filter((e) -> e.key != key)
@@ -339,5 +340,3 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   undim_all_values: =>
     @container.selectAll(@value_group_selector).style('opacity', 1)
     @container.selectAll('.label-hover').style('opacity', 0)
-
-  series_2_label_visibility: (args...) -> null

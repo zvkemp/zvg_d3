@@ -5,5 +5,6 @@
 //= require ./point
 //= require ./line
 //= require ./multi_point
+//= require ./multi_line
 //= require ./radar
 //= require ./rose

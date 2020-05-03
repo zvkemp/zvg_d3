@@ -1,6 +1,7 @@
-class ZVG.Line extends ZVG.Point
+class ZVG.MultiLine extends ZVG.MultiPoint
   _build_line_data: ->
     lineData = {}
+
     for s1 in @data()
       do (s1) =>
         s1_key = s1.key
@@ -11,7 +12,15 @@ class ZVG.Line extends ZVG.Point
             lineData[s2.key].push(s2.values)
     lineData
 
+  # Don't render lines if we have a filter active.
+  _should_render_lines: ->
+    @_series_3_domain.length is 1 and @_series_3_domain[0] is "all"
+
+
   render_series_2_lines: ->
+    if not @_should_render_lines()
+      return
+
     lineData = @_build_line_data()
 
     chart = @
@@ -36,5 +45,6 @@ class ZVG.Line extends ZVG.Point
     paths.exit().remove()
 
   _shape_callback: (chart, shape) ->
-    shape.selection.style('opacity', 0)
-      .classed('label-hover', true)
+    if chart._should_render_lines()
+      shape.selection.style('opacity', 0)
+        .classed('label-hover', true)
