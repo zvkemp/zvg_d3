@@ -11,7 +11,15 @@ class ZVG.Line extends ZVG.Point
             lineData[s2.key].push(s2.values)
     lineData
 
+  _should_render_lines: ->
+    if (@_series_1_domain.length is 1)
+      return false
+    true
+
   render_series_2_lines: ->
+    if not @_should_render_lines()
+      return
+
     lineData = @_build_line_data()
 
     chart = @
@@ -36,5 +44,6 @@ class ZVG.Line extends ZVG.Point
     paths.exit().remove()
 
   _shape_callback: (chart, shape) ->
-    shape.selection.style('opacity', 0)
-      .classed('label-hover', true)
+    if chart._should_render_lines()
+      shape.selection.style('opacity', 0)
+        .classed('label-hover', true)

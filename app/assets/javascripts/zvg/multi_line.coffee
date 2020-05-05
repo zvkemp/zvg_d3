@@ -14,6 +14,8 @@ class ZVG.MultiLine extends ZVG.MultiPoint
 
   # Don't render lines if we have a filter active.
   _should_render_lines: ->
+    if (@_series_1_domain.length is 1)
+      return false
     @_series_3_domain.length is 1 and @_series_3_domain[0] is "all"
 
 
