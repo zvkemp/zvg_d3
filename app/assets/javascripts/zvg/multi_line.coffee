@@ -14,16 +14,13 @@ class ZVG.MultiLine extends ZVG.MultiPoint
 
   # Don't render lines if we have a filter active.
   _should_render_lines: ->
-    if (@_series_1_domain.length is 1)
+    if (@_data.length is 1)
       return false
     @_series_3_domain.length is 1 and @_series_3_domain[0] is "all"
 
 
   render_series_2_lines: ->
-    if not @_should_render_lines()
-      return
-
-    lineData = @_build_line_data()
+    lineData = if @_should_render_lines() then @_build_line_data() else []
 
     chart = @
     x_offset = @column_band() + (@column_band.rangeBand() / 2)

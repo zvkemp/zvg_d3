@@ -12,15 +12,12 @@ class ZVG.Line extends ZVG.Point
     lineData
 
   _should_render_lines: ->
-    if (@_series_1_domain.length is 1)
+    if (@_data.length is 1)
       return false
     true
 
   render_series_2_lines: ->
-    if not @_should_render_lines()
-      return
-
-    lineData = @_build_line_data()
+    lineData = if @_should_render_lines() then @_build_line_data() else []
 
     chart = @
     x_offset = @column_band() + (@column_band.rangeBand() / 2)
