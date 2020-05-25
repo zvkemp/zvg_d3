@@ -17,7 +17,7 @@ class ZVG.MultiPoint extends ZVG.Point
       @_data
 
   series_2_label_visibility: (label) ->
-    if @series_2_domain().length is 1
+    if @series_3_domain().length is 1 and @series_3_domain()[0] is 'all'
       ""
     else
       label

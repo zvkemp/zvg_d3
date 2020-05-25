@@ -186,11 +186,13 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
       ).attr('fill', @n_threshold_color('gray'))
 
 
-    @series_2_labels.on('click', (d,i) =>
-      (@_checked[k] = false) for k, _ of @_checked when k isnt d.key
-      @filter_data([d.key])
-      @render()
-    )
+    unless @disable_series_2_label_click
+      @series_2_labels.on('click', (d,i) =>
+        (@_checked[k] = false) for k, _ of @_checked when k isnt d.key
+        @filter_data([d.key])
+        @render()
+      )
+
     @construct_series_2_label_map()
     if @detect_overlaps(@series_2_label_map) and (rotate is 0)
       @rotateSeries2Labels()

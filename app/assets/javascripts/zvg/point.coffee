@@ -72,17 +72,10 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       return @
     @_max_value
 
-  series_2_label_visibility = (label) ->
-    if @series_3_domain().length is 1
-      ""
-    else
-      label
-
   constructor: (element, options = {}) ->
     super(element, options)
     @initialize_y_scale()
-    # unclear why this is necessary. N
-    @series_2_label_visibility = series_2_label_visibility
+    @disable_series_2_label_click = true
 
   nestData: (data) ->
     _max_value = 0
