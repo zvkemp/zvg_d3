@@ -247,7 +247,8 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @series_2_shapes = {}
     @series_2_colors = {}
     colorset = ZVG.colorSchemes.rainbow10
-    colorset = (value for key,value of ZVG.flatUIColors)
+    debugger
+    colorset = (value for key,value of ZVG.flatUIColorsOnly)
     l = colorset.length
 
     for key,index in @series_2_domain()
