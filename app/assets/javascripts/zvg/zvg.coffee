@@ -25,6 +25,8 @@ window.ZVG = {
 
   flatUIColorsOnly: {
     # from http://designmodo.github.io/Flat-UI/
+    # excludes the gray shades, and includes an extra color to make this a prime number;
+    # 4 shapes * 17 colors = 68 combinations before a collision.
     'TURQUOISE': '#1ABC9C'
     'GREEN SEA': '#16A085'
     'EMERALD': '#2ECC71'
@@ -41,6 +43,7 @@ window.ZVG = {
     'PUMPKIN': '#D35400'
     'ALIZARIN': '#E74C3C'
     'POMEGRANATE': '#C0392B'
+    'PINK': '#F47983'
   }
 
   colorSchemes: {
