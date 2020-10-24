@@ -43,7 +43,7 @@ window.ZVG = {
     'PUMPKIN': '#D35400'
     'ALIZARIN': '#E74C3C'
     'POMEGRANATE': '#C0392B'
-    'PINK': '#F47983'
+    'PINK': '#F8C9C5'
   }
 
   colorSchemes: {
