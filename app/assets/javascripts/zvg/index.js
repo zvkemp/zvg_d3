@@ -8,3 +8,4 @@
 //= require ./multi_line
 //= require ./radar
 //= require ./rose
+//= require ./new_line
