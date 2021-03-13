@@ -19,6 +19,14 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
   # series_2_domain: filter
   # series_3_domain: question ids
   #
+  #
+  #
+  # FIXME:
+  # if the series name is present, AND we are filtered by survey, split
+  # use the series name groups. It's possible we already do this by coincidence.
+  #
+  # FIXME: if two filters are present, render as point chart.
+  # FIXME: group point chart by series name
   randomizeData: (s1count, s2count, s3count, q_count) ->
     randomness = ->
       i = parseInt(Math.random() * 25)
@@ -36,6 +44,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       {
         series_1: survey,
         series_2: filter,
+
         question_id: question,
         series_3: answer,
         value: value
@@ -56,8 +65,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @data(raw)
     @render()
 
-
-
   min_value: (value, force = false) ->
     if value or value is 0
       v = parseInt(value)
@@ -76,12 +83,16 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     super(element, options)
     @initialize_y_scale()
     @disable_series_2_label_click = true
+    @survey_title_to_series_name = {}
 
   nestData: (data) ->
     _max_value = 0
     # data is nested with series 2 and 3 reversed: filtering produces different point shapes/colors,
+    series_names = @survey_title_to_series_name
     # and additional questions increase the number of sub-columns.
     r = d3.nest()
+      # FIXME: series_1 may not be a survey title, and might get false positives
+      .key((z) -> series_names[z.series_1]).sortKeys(@seriesSortFunction(@_series_domain))
       .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
       .key((z) -> z.question_id).sortKeys(@seriesSortFunction(@series_3_domain()))
       .key((z) -> z.series_2).sortKeys(@seriesSortFunction(@series_2_domain()))
@@ -117,6 +128,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @set_series_2_shapes_and_colors()
     @build_value_domain()
     @render_series_2_lines() if @render_series_2_lines
+    @render_series_groups()
     @render_series_1()
     @render_y_scale()
     @render_series_1_labels()
@@ -127,6 +139,173 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @bind_value_group_hover()
     @bind_value_group_click()
     @widenAxis()
+
+  # @override
+  render_series_1: ->
+    @series_1 = @series_groups.selectAll('.series1').data(((d) -> d.values), (d) -> d.key)
+    @series_1.enter().append('g').attr('class', 'series1')
+    @series_1.attr('transform',
+      (d,i) =>
+        console.info("series 1 transform", d.key, "i=", i, " x=#{@series_1_x_by_key[d.key]}")
+        "translate(#{@series_1_x_by_key[d.key]}, 0)"
+    )
+    @series_1.exit().remove()
+
+  render_series_groups: ->
+    @series_groups = @svg.selectAll('.series_group').data(@_data, (d) -> d.key)
+    @series_groups.enter()
+      .append('g')
+      .attr('class', 'series_group')
+    @series_groups.exit()
+      .remove()
+
+  _build_line_data: ->
+    lineData = {}
+    for series_group in @data()
+      do (series_group) =>
+        series_name = series_group.key
+        for s1 in series_group.values
+          do (s1) =>
+            s1_key = s1.key
+            for s2 in s1.values[0].values ## FIXME: what is this 0
+              do (s2) =>
+                s2_key = s2.key
+                lineData[series_name] or= {}
+                lineData[series_name][s2_key] or= []
+                lineData[series_name][s2_key].push(s2.values)
+    lineData
+
+
+  _should_render_lines: () ->
+    false
+
+  render_series_2_lines: ->
+    lineData = if @_should_render_lines() then @_build_line_data() else []
+
+    chart = @
+    x_offset = @column_band() + (@column_band.rangeBand() / 2)
+    mapper = (v) ->
+      [ chart.series_1_x_by_key[v.series_1] + x_offset,
+        chart.value_domain(v.average)
+      ]
+
+    data = []
+    for series_name, v of lineData
+      do (series_name, v) =>
+        for k, v2 of v
+          do (k, v2) =>
+            data.push({ key: k, values: v2.map(mapper) })
+
+    # data = ({key: k, values: v.map(mapper)} for k, v of lineData)
+
+    paths = @svg.selectAll('path.line').data(data)
+    paths.enter()
+      .append('path')
+      .attr('class', 'line series2')
+
+    paths.attr('d', (d) -> d3.svg.line()(d.values))
+      .attr('fill', 'none')
+      .attr('stroke', (d) -> chart.series_2_colors[d.key])
+      .attr('stroke-width', '3px')
+
+    paths.exit().remove()
+
+
+  render_series_1_labels: ->
+    # FIXME:
+    # - flatten @_data into values
+    #
+    label_data = @_data.reduce(
+      ((acc, v) -> acc.concat(v.values)),
+      []
+    )
+
+    @series_1_labels = @series_1_label_container.selectAll('text.series1label')
+      .data(label_data, @key_function)
+    @series_1_labels.enter()
+      .append('text')
+      .attr('class', 'series1label')
+
+    @series_1_labels.text((d) -> d.key)
+    @series_1_labels #.transition()
+      .attr('transform', (d,i) => "translate(#{@series_1_x_by_key[d.key] + @series_1_width_by_key[d.key]/2}, 0)")
+      .style('text-anchor', null)
+    @series_1_labels.exit().remove()
+    @construct_series_1_label_map()
+    @addLineBreaksToSeries1Labels() if @detect_overlaps(@series1LabelMap)
+
+  # to be used in the detection of overlapping labels (in detect_overlaps())
+  construct_series_2_label_map: ->
+    label_map = []
+
+    for g1, g1i in @series_groups[0]
+      do (g1, g1i) =>
+        g1_x = @series_1_x[g1i]
+        for label in (d3.select(g1).selectAll('text.series2label')[0])
+          do (label) ->
+            ls     = d3.select(label)
+            x      = g1_x + parseFloat(ls.attr('x'))
+            length = label.getComputedTextLength()
+            label_map.push({
+              label: ls.text()
+              x: x
+              length: length
+              start: x - (length / 2.0)
+              end: x + (length / 2.0)
+            })
+    @series_2_label_map = label_map
+
+
+  _hide_columns_below_n: () ->
+    # FIXME need to hide one level in, not just the series names
+    # temporarily disabled.
+
+  # pre-establishes indexes for the spacing and grouping of series 1 data
+  # based on its contents (necessary because of the variable length of data within
+  # the series, otherwise simple rangebands could be used)
+  #
+  set_series_1_spacing: ->
+    # FIXME: remove series_1_width and series_1_x entirely?
+    @series_1_width      = []
+    @series_1_width_by_key = {}
+    @series_1_x          = []
+    @series_1_x_by_key   = {}
+    scale                = d3.scale.ordinal().domain(@series_1_domain())
+    ranges               = {}
+    total_column_count   = 0
+    total_column_count  += d.values.length for d in @_data
+
+    # FIXME: is this the exact same thing as total_column_count?
+    total_length         = d3.sum(@_data.map((e) -> e.values.length))
+    series_count         = @_data.length
+    @column_spacing      = (@width - @x_offset)/(total_column_count + total_length + (series_count - 1))
+    @column_padding      = 0.1 * @column_spacing
+    @series_padding      = @column_spacing / 2
+    current_x            = @x_offset # allow for scale on left
+    maxCount             = 0
+    real_i               = 0
+
+    for series_data,series_index in @_data
+      do (series_data,series_index) =>
+        for d,i in series_data.values
+          do (d,i) =>
+            maxCount = d3.max([maxCount, d.values.length])
+            console.log("maxCount = ", maxCount)
+            w = @column_spacing * (d.values.length + 1)
+            @series_1_width[real_i] = w - @series_padding * 2
+            @series_1_width_by_key[d.key] = w - @series_padding * 2
+            @series_1_x[real_i] = current_x + @series_padding
+            @series_1_x_by_key[d.key] = current_x + @series_padding
+            current_x += w
+            real_i += 1
+
+        # console.log("setting current_x after series #{series_data.key}", current_x, current_x + @series_padding)
+        current_x += @series_padding # add additional space between series groupings
+
+    @column_band = d3.scale.ordinal()
+      .domain([0...maxCount])
+      .rangeRoundBands([0, @column_spacing * maxCount], 0.1)
+    @widen_chart((@width - @x_offset) + 100) if @column_band.rangeBand() < @minimum_column_width
 
   minimum_column_width: 32
   x_offset: 30
@@ -226,8 +405,12 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     keys.exit().remove()
 
 
+  # in this chart, series 3 represents a column (x)
   render_series_3: ->
-    @series_3 = @series_1.selectAll('.series3').data((d) -> d.values)
+    @series_3 = @series_1.selectAll('.series3').data(
+      (d) ->
+        d.values
+    )
     @series_3.enter()
       .append('g')
       .attr('class', 'column series3')
@@ -259,6 +442,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
   _shape_callback: () ->
 
+  # in this chart, series_2 is a point in the column (y)
   render_series_2: ->
     @series_2 = @series_3.selectAll('.series2').data((d) -> d.values)
     @series_2.enter()
