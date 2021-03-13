@@ -290,7 +290,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
         for d,i in series_data.values
           do (d,i) =>
             maxCount = d3.max([maxCount, d.values.length])
-            console.log("maxCount = ", maxCount)
             w = @column_spacing * (d.values.length + 1)
             @series_1_width[real_i] = w - @series_padding * 2
             @series_1_width_by_key[d.key] = w - @series_padding * 2

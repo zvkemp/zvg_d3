@@ -40,6 +40,7 @@ class ZVG.Line extends ZVG.Point
 
     paths.exit().remove()
 
+  # FIXME: this should check if it is the only point that would be in a line
   _shape_callback: (chart, shape) ->
     if chart._should_render_lines()
       shape.selection.style('opacity', 0)
