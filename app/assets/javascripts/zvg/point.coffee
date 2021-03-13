@@ -146,7 +146,6 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @series_1.enter().append('g').attr('class', 'series1')
     @series_1.attr('transform',
       (d,i) =>
-        console.info("series 1 transform", d.key, "i=", i, " x=#{@series_1_x_by_key[d.key]}")
         "translate(#{@series_1_x_by_key[d.key]}, 0)"
     )
     @series_1.exit().remove()
@@ -194,7 +193,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       do (series_name, v) =>
         for k, v2 of v
           do (k, v2) =>
-            data.push({ key: k, values: v2.map(mapper) })
+            data.push({ key: k, values: v2.map(mapper), series_name: series_name })
 
     # data = ({key: k, values: v.map(mapper)} for k, v of lineData)
 
@@ -203,7 +202,14 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       .append('path')
       .attr('class', 'line series2')
 
-    paths.attr('d', (d) -> d3.svg.line()(d.values))
+    paths.attr('d',
+      (d) ->
+        if d.values.length is 1
+          chart._register_singleton(d)
+          []
+        else
+          d3.svg.line()(d.values)
+    )
       .attr('fill', 'none')
       .attr('stroke', (d) -> chart.series_2_colors[d.key])
       .attr('stroke-width', '3px')
@@ -455,7 +461,7 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     shape_callback = @_shape_callback
     @series_2.each((d) ->
       d3.select(this).selectAll('.zvg-point-shape, .zvg-point-label').remove()
-      shape_callback(host, new (shapes[d.key])(this, colors[d.key], {}))
+      shape_callback(host, new (shapes[d.key])(this, colors[d.key], {}), d)
       selection = d3.select(this)
       selection.append('text')
         .attr('class', 'zvg-point-label label-hover series2label')
@@ -515,4 +521,10 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
   undim_all_values: =>
     @container.selectAll(@value_group_selector).style('opacity', 1)
-    @container.selectAll('.label-hover').style('opacity', 0)
+    @container.selectAll('.label-hover:not(.singleton)').style('opacity', 0)
+
+  # for line charts wherein some data is just a single point
+  _register_singleton: (d) ->
+    @singletons or= {}
+    @singletons[d.series_name] or= {}
+    @singletons[d.series_name][d.key] = true
