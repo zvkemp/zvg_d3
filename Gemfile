@@ -10,3 +10,6 @@ gem 'haml'
 
 
 gem 'thin'
+gem 'guard'
+gem 'guard-shell'
+gem 'guard-rake'

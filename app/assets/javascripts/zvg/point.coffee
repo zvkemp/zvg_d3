@@ -84,6 +84,9 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @initialize_y_scale()
     @disable_series_2_label_click = true
     @survey_title_to_series_name = {}
+    # see _register_singleton; during line rendering, we detect series data
+    # that doesn't have enough points to make a line
+    @singletons = {}
 
   nestData: (data) ->
     _max_value = 0
@@ -92,7 +95,9 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     # and additional questions increase the number of sub-columns.
     r = d3.nest()
       # FIXME: series_1 may not be a survey title, and might get false positives
-      .key((z) -> series_names[z.series_1]).sortKeys(@seriesSortFunction(@_series_domain))
+      # Defaults to the survey name if the survey is not part of a series (
+      # prevents us from displaying non-series surveys as a group)
+      .key((z) -> series_names[z.series_1] or z.series_1).sortKeys(@seriesSortFunction(@_series_domain))
       .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
       .key((z) -> z.question_id).sortKeys(@seriesSortFunction(@series_3_domain()))
       .key((z) -> z.series_2).sortKeys(@seriesSortFunction(@series_2_domain()))
@@ -251,13 +256,13 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
           do (label) ->
             ls     = d3.select(label)
             x      = g1_x + parseFloat(ls.attr('x'))
-            length = label.getComputedTextLength()
+            bound  = label.getBoundingClientRect()
             label_map.push({
               label: ls.text()
               x: x
-              length: length
-              start: x - (length / 2.0)
-              end: x + (length / 2.0)
+              length: bound.width
+              start: bound.left
+              end: bound.right
             })
     @series_2_label_map = label_map
 
@@ -279,7 +284,12 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     scale                = d3.scale.ordinal().domain(@series_1_domain())
     ranges               = {}
     total_column_count   = 0
-    total_column_count  += d.values.length for d in @_data
+    # total_column_count  += d.values.length for d in @_data
+
+    for d in @_data
+      do (d) =>
+        total_column_count += d3.sum(d.values.map((e) -> e.values.length))
+        # debugger
 
     # FIXME: is this the exact same thing as total_column_count?
     total_length         = d3.sum(@_data.map((e) -> e.values.length))
@@ -304,12 +314,12 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
             current_x += w
             real_i += 1
 
-        # console.log("setting current_x after series #{series_data.key}", current_x, current_x + @series_padding)
-        current_x += @series_padding # add additional space between series groupings
+        current_x += (1.5 * @series_padding) # add additional space between series groupings
 
     @column_band = d3.scale.ordinal()
       .domain([0...maxCount])
       .rangeRoundBands([0, @column_spacing * maxCount], 0.1)
+    # FIXME: this isn't working for multiline charts that have filters selected (e.g., multipoint)
     @widen_chart((@width - @x_offset) + 100) if @column_band.rangeBand() < @minimum_column_width
 
   minimum_column_width: 32
@@ -525,6 +535,5 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
 
   # for line charts wherein some data is just a single point
   _register_singleton: (d) ->
-    @singletons or= {}
     @singletons[d.series_name] or= {}
     @singletons[d.series_name][d.key] = true
