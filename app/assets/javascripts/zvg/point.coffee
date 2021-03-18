@@ -97,7 +97,12 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
       # FIXME: series_1 may not be a survey title, and might get false positives
       # Defaults to the survey name if the survey is not part of a series (
       # prevents us from displaying non-series surveys as a group)
-      .key((z) -> series_names[z.series_1] or z.series_1).sortKeys(@seriesSortFunction(@_series_domain))
+      .key((z) -> series_names[z.series_1] or z.series_1).sortKeys(
+        @seriesSortFunction(
+          # concat series_1_domain to ensure the keys _without_ series are sorted by their normal method.
+          @_series_domain.concat(@series_1_domain())
+        )
+      )
       .key((z) -> z.series_1).sortKeys(@seriesSortFunction(@series_1_domain()))
       .key((z) -> z.question_id).sortKeys(@seriesSortFunction(@series_3_domain()))
       .key((z) -> z.series_2).sortKeys(@seriesSortFunction(@series_2_domain()))
