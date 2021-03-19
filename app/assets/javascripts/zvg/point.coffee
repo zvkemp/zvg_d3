@@ -272,7 +272,29 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @series_2_label_map = label_map
 
 
-  _hide_columns_below_n: () ->
+  _hide_columns_below_n: (n) ->
+    columns_are_hidden = false
+    host = @
+    new_data = []
+
+    select_columns_above = (n, data) ->
+      values = data.values.filter((v) -> host.series_2_label_sum(v, data.key) >= n)
+      columns_are_hidden = true if values.length < data.values.length
+      { key: data.key, values: values }
+
+    for series in @_data
+      do (series) =>
+        series.values = (d for d in (select_columns_above(n, d) for d in series.values) when d.values.length > 0)
+
+        if series.values.length > 0
+          new_data.push(series)
+
+    @_data = new_data
+
+    @_columns_are_hidden = columns_are_hidden
+    @_show_unstable_legend = @_show_unstable_legend or columns_are_hidden # set once
+
+
     # FIXME need to hide one level in, not just the series names
     # temporarily disabled.
 
