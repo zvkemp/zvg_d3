@@ -7,7 +7,7 @@ class ZVG.MultiLine extends ZVG.MultiPoint
 
   _shape_callback: (chart, shape, d) ->
     if chart._should_render_lines()
-      series_name = chart.survey_title_to_series_name[d.values.series_1]
+      series_name = chart.survey_title_to_series_name[d.values.series_1] || d.values.series_1
       if chart.singletons[series_name] and chart.singletons[series_name][d.key]
         shape.selection.style('opacity', 1)
           .classed('label-hover', true)
