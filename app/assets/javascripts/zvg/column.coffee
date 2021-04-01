@@ -314,3 +314,49 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
   override_n_values: (values) ->
     @_custom_n_values = true
     @n_values = values
+
+  # pre-establishes indexes for the spacing and grouping of series 1 data
+  # based on its contents (necessary because of the variable length of data within
+  # the series, otherwise simple rangebands could be used)
+  #
+  # @override
+  set_series_1_spacing: ->
+    @survey_title_to_series_name or= {}
+    @series_1_width      = []
+    @series_1_width_by_key = {}
+    @series_1_x          = []
+    @series_1_x_by_key   = {}
+    scale                = d3.scale.ordinal().domain(@series_1_domain())
+    ranges               = {}
+    total_column_count   = 0
+    total_column_count  += d.values.length for d in @_data
+
+    series_set = d3.set([])
+    series_set.add(@survey_title_to_series_name[d.key])for d,i in @_data
+    series_count = series_set.values().length
+
+    @column_spacing      = (@width - @x_offset)/(total_column_count + @_data.length + (series_count))
+    @column_padding      = 0.1 * @column_spacing
+    @series_padding      = 1.5 * @column_spacing / 2
+    current_x            = @x_offset # allow for scale on left
+    maxCount             = d3.max(@_data, (d) -> d.values.length)
+    current_series       = undefined
+
+
+    for d,i in @_data
+      do (d,i) =>
+        series = @survey_title_to_series_name[d.key]
+        if series isnt current_series
+          current_x += (@series_padding * 1.5) if i > 0
+          current_series = series
+
+        w = @column_spacing * (d.values.length + 1)
+        @series_1_width[i] = w - @series_padding * 2
+        @series_1_x[i] = current_x + @series_padding
+        @series_1_x_by_key[d.key] = current_x + @series_padding
+        current_x += w
+    @column_band = d3.scale.ordinal()
+      .domain([0...maxCount])
+      .rangeRoundBands([0, @column_spacing * maxCount], 0.1)
+    series_padding_sum = d3.max([0, series_count]) * @series_padding
+    @widen_chart((@width - @x_offset) + 100 + series_padding_sum) if @column_band.rangeBand() < @minimum_column_width
