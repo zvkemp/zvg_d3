@@ -168,6 +168,7 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       .attr('transform', (d,i) => "translate(#{@column_band(i)}, 0)")
       # FIXME: this dims columns below a certain value threshold, but does
       # not work with the overridden series_2_label_sum function below.
+
       #.attr('opacity', (d) =>
       #if @series_2_label_sum(d) < (@_n_threshold or 0) then 0.3 else 1.0
       #)
@@ -335,13 +336,12 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     series_set.add(@survey_title_to_series_name[d.key])for d,i in @_data
     series_count = series_set.values().length
 
-    @column_spacing      = (@width - @x_offset)/(total_column_count + @_data.length + (series_count))
+    @column_spacing      = (@width - @x_offset)/(total_column_count + @_data.length + (series_count - 1))
     @column_padding      = 0.1 * @column_spacing
-    @series_padding      = 1.5 * @column_spacing / 2
+    @series_padding      = @column_spacing / 2
     current_x            = @x_offset # allow for scale on left
     maxCount             = d3.max(@_data, (d) -> d.values.length)
     current_series       = undefined
-
 
     for d,i in @_data
       do (d,i) =>
@@ -358,5 +358,6 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     @column_band = d3.scale.ordinal()
       .domain([0...maxCount])
       .rangeRoundBands([0, @column_spacing * maxCount], 0.1)
-    series_padding_sum = d3.max([0, series_count]) * @series_padding
-    @widen_chart((@width - @x_offset) + 100 + series_padding_sum) if @column_band.rangeBand() < @minimum_column_width
+    series_padding_sum = d3.max([0, series_count - 1]) * @series_padding
+    if @column_band.rangeBand() < @minimum_column_width
+      @widen_chart(@width - @x_offset + 100)
