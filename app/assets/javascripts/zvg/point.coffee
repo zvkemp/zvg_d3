@@ -346,6 +346,8 @@ class ZVG.Point extends ZVG.ColumnarLayoutChart
     @column_band = d3.scale.ordinal()
       .domain([0...maxCount])
       .rangeRoundBands([0, @column_spacing * maxCount], 0.1)
+
+    return if maxCount is 0
     # FIXME: this isn't working for multiline charts that have filters selected (e.g., multipoint)
     @widen_chart((@width - @x_offset) + 100) if @column_band.rangeBand() < @minimum_column_width
 
