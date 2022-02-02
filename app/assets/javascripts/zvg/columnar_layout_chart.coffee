@@ -59,6 +59,7 @@ class ZVG.ColumnarLayoutChart extends ZVG.BasicChart
     @column_band = d3.scale.ordinal()
       .domain([0...maxCount])
       .rangeRoundBands([0, @column_spacing * maxCount], 0.1)
+
     @widen_chart((@width - @x_offset) + 100) if @column_band.rangeBand() < @minimum_column_width
 
   render_series_1: ->
