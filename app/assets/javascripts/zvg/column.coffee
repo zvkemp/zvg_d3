@@ -332,10 +332,10 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
     total_column_count  += d.values.length for d in @_data
 
     series_set = d3.set([])
-    series_set.add(@survey_title_to_series_name[d.key])for d,i in @_data
+    series_set.add(@survey_title_to_series_name[d.key]) for d,i in @_data
     series_count = series_set.values().length
 
-    @column_spacing      = (@width - @x_offset)/(total_column_count + @_data.length + series_count)
+    @column_spacing      = (@width - @x_offset)/(total_column_count + @_data.length + ((series_count - 1) * 1.5))
     @column_padding      = 0.1 * @column_spacing
     @series_padding      = @column_spacing / 2
     current_x            = @x_offset # allow for scale on left
@@ -358,5 +358,6 @@ class ZVG.Column extends ZVG.ColumnarLayoutChart
       .domain([0...maxCount])
       .rangeRoundBands([0, @column_spacing * maxCount], 0.1)
     series_padding_sum = d3.max([0, series_count - 1]) * @series_padding
+
     if @column_band.rangeBand() < @minimum_column_width 
       @widen_chart(d3.max([@width, current_x]) - @x_offset + 100 + series_padding_sum)
